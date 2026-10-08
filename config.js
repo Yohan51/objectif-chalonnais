@@ -8,7 +8,7 @@ window.OC_CONFIG = {
   // ⚠️ À VÉRIFIER : ces adresses sont supposées, remplace-les par vos vraies.
   // Laisse '' pour masquer un réseau.
   reseaux: {
-    tiktok:    'https://www.tiktok.com/@lobjectifchalonn',
+    tiktok:    'https://www.tiktok.com/@lobjectif.chalonn?_r=1&_t=ZG-9ANrvhyZixV',
     instagram: 'https://www.instagram.com/lobjectifchalonnais',
     youtube:   'https://www.youtube.com/@lobjectifchalonnais',
     facebook:  ''   // à remettre quand la page sera réactivée
