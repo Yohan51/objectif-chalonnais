@@ -49,3 +49,27 @@
   .oc-nav-logo{display:none;}
   .oc-nav{justify-content:center;}
 }
+
+/* Invitation à installer l'application */
+.oc-install{
+  position:fixed;left:12px;right:12px;
+  bottom:calc(12px + env(safe-area-inset-bottom, 0px));
+  z-index:1500;
+  max-width:520px;margin:0 auto;
+  display:flex;align-items:center;gap:12px;
+  background:#183140;color:#FBFAF6;
+  border-radius:16px;padding:12px 12px 12px 14px;
+  box-shadow:0 12px 32px -12px rgba(0,0,0,.45);
+  font-family:'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  font-size:14px;line-height:1.4;
+}
+.oc-install[hidden]{display:none !important;}
+.oc-install img{width:40px;height:40px;border-radius:10px;flex-shrink:0;}
+.oc-install p{margin:0;flex:1;min-width:0;}
+.oc-install button{
+  font:inherit;font-weight:800;cursor:pointer;border:none;border-radius:999px;flex-shrink:0;
+}
+.oc-install [data-install-action]{background:#9FD8F5;color:#183140;padding:8px 14px;}
+.oc-install [data-install-action][hidden]{display:none;}
+.oc-install [data-install-close]{background:transparent;color:#FBFAF6;opacity:.75;width:32px;height:32px;font-size:16px;}
+.oc-install button:focus-visible{outline:2px solid #9FD8F5;outline-offset:2px;}

@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Hors ligne — L'Objectif Châlonnais</title>
+<meta name="theme-color" content="#FBFAF6">
+<style>
+  :root{ --bg:#F4F8FA; --ink:#183140; --soft:#4B6372; --sky:#2E97C7; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#0F2230; --ink:#EAF4F9; --soft:#A9C2D0; --sky:#6CC1EA; color-scheme:dark; } }
+  html,body{margin:0;height:100%;}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    display:flex;align-items:center;justify-content:center;
+    padding:24px;box-sizing:border-box;text-align:center;
+  }
+  main{max-width:380px;display:flex;flex-direction:column;align-items:center;gap:14px;}
+  img{width:88px;height:88px;border-radius:22px;}
+  h1{font-size:26px;margin:0;line-height:1.15;}
+  p{margin:0;color:var(--soft);line-height:1.55;}
+  button{
+    margin-top:6px;font:inherit;font-weight:800;font-size:15px;
+    background:var(--ink);color:var(--bg);border:none;border-radius:999px;padding:12px 24px;cursor:pointer;
+  }
+</style>
+</head>
+<body>
+<main>
+  <img src="icons/icon-192.png" alt="">
+  <h1>Vous êtes hors ligne</h1>
+  <p>Cette page n'a pas encore été enregistrée sur votre téléphone. Reconnectez-vous à Internet pour la charger.</p>
+  <button type="button" onclick="location.reload()">Réessayer</button>
+</main>
+</body>
+</html>

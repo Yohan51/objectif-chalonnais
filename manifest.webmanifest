@@ -1,0 +1,24 @@
+{
+  "name": "L'Objectif Châlonnais",
+  "short_name": "L'Objectif",
+  "description": "Bons plans, galerie photo et actualité de Châlons-en-Champagne.",
+  "lang": "fr",
+  "id": "./",
+  "start_url": "./index.html?source=app",
+  "scope": "./",
+  "display": "standalone",
+  "orientation": "portrait",
+  "background_color": "#F4F8FA",
+  "theme_color": "#FBFAF6",
+  "categories": ["news", "lifestyle", "travel"],
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
+    { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
+  ],
+  "shortcuts": [
+    { "name": "Bons plans", "url": "./bons-plans.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Galerie", "url": "./galerie.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
+    { "name": "Quiz", "url": "./quiz.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }
+  ]
+}

@@ -8,10 +8,17 @@
 <meta property="og:title" content="L'Objectif Châlonnais">
 <meta property="og:description" content="Châlons, vu par ceux qui y vivent : bons plans, quiz et actualité locale.">
 <meta property="og:image" content="logo.png">
-<link rel="icon" href="logo.png">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
 <link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="L'Objectif">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
 <style>
   /* Mise en page : une colonne centrée, sections empilées, motif « coins de viseur » comme signature */
   :root{
@@ -356,9 +363,17 @@
   </section>
 </main>
 
+<div class="oc-install" id="install-banner" hidden role="dialog" aria-label="Installer l'application">
+  <img src="icons/icon-192.png" alt="">
+  <p data-install-text></p>
+  <button type="button" data-install-action hidden>Installer</button>
+  <button type="button" data-install-close aria-label="Fermer">✕</button>
+</div>
+
 <footer>
   <div class="wrap">
     <span>© L'Objectif Châlonnais · Association loi 1901</span>
+    <a href="#" id="install-link">Installer l'application</a>
     <span>Fait avec passion à Châlons-en-Champagne</span>
   </div>
 </footer>
@@ -440,5 +455,6 @@
   });
 })();
 </script>
+<script src="app.js"></script>
 </body>
 </html>

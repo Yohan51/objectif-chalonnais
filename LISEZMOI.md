@@ -12,6 +12,7 @@
 | `storage.js` | Enregistrement des données (ne pas modifier) |
 | `site.css` | Barre de navigation commune |
 | `logo.png` | Logo de l'association |
+| `manifest.webmanifest`, `sw.js`, `app.js`, `offline.html`, `icons/` | Mode application : installation sur téléphone et fonctionnement hors ligne (ne pas modifier) |
 
 ## 1. Mettre en ligne sur GitHub Pages
 
@@ -92,6 +93,18 @@ Les photos apparaissent sur le site immédiatement, dans l'ordre alphabétique d
 - **Redimensionne-les avant l'envoi** : 2 000 pixels sur le grand côté, qualité JPG 80 %. Une photo pèse alors 300 à 600 Ko au lieu de 5 à 10 Mo. Le site se charge vite et l'offre gratuite (1 Go) contient 2 000 à 3 000 photos.
 - Outils gratuits pour redimensionner par lots : *Aperçu* sur Mac (Outils → Ajuster la taille), *XnConvert* sur Windows et Mac, ou l'export de Lightroom.
 - **Droit à l'image** : évite les gros plans de personnes identifiables sans leur accord, surtout les enfants. Les photos de foule et d'ambiance ne posent en général pas de problème.
+
+## 5. L'application sur téléphone
+
+Le site s'installe comme une application, sans passer par les stores :
+
+- **Android (Chrome)** : une invitation « Installer » apparaît en bas de l'accueil. Sinon : menu ⋮ → *Installer l'application*.
+- **iPhone (Safari)** : bouton *Partager* → *Sur l'écran d'accueil*. L'accueil affiche ce mode d'emploi aux visiteurs sur iPhone.
+- Un lien « Installer l'application » est aussi en bas de l'accueil.
+
+Une fois installée, l'application s'ouvre en plein écran avec l'icône de l'œil. Les pages déjà visitées restent consultables sans connexion. Chaque mise à jour du site sur GitHub arrive automatiquement dans l'application, au prochain lancement avec une connexion.
+
+Attention : le mode application ne fonctionne qu'en ligne sur GitHub Pages (adresse en `https://`), pas en ouvrant les fichiers depuis ton ordinateur.
 
 ## Bon à savoir
 
