@@ -116,9 +116,13 @@
         <option value="./bons-plans.html">Les bons plans</option>
         <option value="./quiz.html">Le quiz</option>
         <option value="autre">Une autre page du site…</option>
+        <optgroup label="Nos réseaux" id="opt-reseaux"></optgroup>
+        <option value="externe">Une vidéo ou publication précise…</option>
       </select>
       <input id="f-lien-autre" type="text" placeholder="galerie.html#2026-10-04%20Foire%20de%20Châlons" hidden>
       <p class="hint" id="lien-hint" hidden>Pour un album précis : ouvre l'album sur le site, touche « Copier le lien » et colle-le ici.</p>
+      <input id="f-lien-externe" type="url" inputmode="url" placeholder="https://www.tiktok.com/@…/video/…" hidden>
+      <p class="hint" id="externe-hint" hidden>Dans TikTok, Instagram ou YouTube : touche Partager → Copier le lien, puis colle-le ici. La notification ouvrira la vidéo, dans l'appli du réseau si elle est installée.</p>
     </div>
 
     <p class="preview-label">Aperçu</p>
@@ -154,14 +158,28 @@
 
   try{ $('f-code').value = localStorage.getItem(CODE_KEY) || ''; }catch(e){}
 
+  // Réseaux renseignés dans config.js
+  const RESEAUX = [['tiktok','Notre compte TikTok'],['instagram','Notre compte Instagram'],['youtube','Notre chaîne YouTube'],['facebook','Notre page Facebook']];
+  RESEAUX.forEach(([cle, nom])=>{
+    const url = (cfg.reseaux || {})[cle];
+    if(!url) return;
+    const o = document.createElement('option');
+    o.value = url; o.textContent = nom;
+    $('opt-reseaux').appendChild(o);
+  });
+  if(!$('opt-reseaux').children.length) $('opt-reseaux').remove();
+
   function sync(){
     $('c-titre').textContent = `${$('f-titre').value.length}/60`;
     $('c-message').textContent = `${$('f-message').value.length}/180`;
     $('p-titre').textContent = $('f-titre').value.trim() || 'Titre de l\'alerte';
     $('p-message').textContent = $('f-message').value.trim() || 'Le message apparaîtra ici.';
     const autre = $('f-lien').value === 'autre';
+    const externe = $('f-lien').value === 'externe';
     $('f-lien-autre').hidden = !autre;
     $('lien-hint').hidden = !autre;
+    $('f-lien-externe').hidden = !externe;
+    $('externe-hint').hidden = !externe;
   }
   ['f-titre','f-message','f-lien'].forEach(id=> $(id).addEventListener('input', sync));
   $('f-lien').addEventListener('change', sync);
@@ -169,7 +187,14 @@
 
   function status(msg, kind){ $('status').textContent = msg; $('status').className = 'status' + (kind ? ' ' + kind : ''); }
 
+  function lienExterne(){
+    try{
+      const u = new URL($('f-lien-externe').value.trim());
+      return /^https?:$/.test(u.protocol) ? u.href : '';
+    }catch(e){ return ''; }
+  }
   function lien(){
+    if($('f-lien').value === 'externe') return lienExterne();
     if($('f-lien').value !== 'autre') return $('f-lien').value;
     let v = $('f-lien-autre').value.trim();
     try{
@@ -183,6 +208,7 @@
     if(!URL_BASE || !CLE){ status('Supabase n\'est pas configuré dans config.js.', 'err'); return false; }
     if(!$('f-code').value.trim()){ status('Saisis le code d\'envoi.', 'err'); $('f-code').focus(); return false; }
     if(!$('f-titre').value.trim()){ status('Le titre est obligatoire.', 'err'); $('f-titre').focus(); return false; }
+    if($('f-lien').value === 'externe' && !lienExterne()){ status('Colle un lien complet, qui commence par https://', 'err'); $('f-lien-externe').focus(); return false; }
     return true;
   }
 

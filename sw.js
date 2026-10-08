@@ -3,7 +3,7 @@
      est en ligne, la dernière version enregistrée quand on est hors ligne.
    - Polices et bibliothèque de carte : gardées en mémoire.
    - Base de données, photos et fonds de carte : jamais mis en cache ici. */
-const VERSION = 'oc-v2';
+const VERSION = 'oc-v3';
 const SHELL = [
   './', './index.html', './bons-plans.html', './galerie.html', './quiz.html', './offline.html',
   './site.css', './config.js', './storage.js', './app.js', './push.js', './logo.png',
@@ -80,7 +80,10 @@ self.addEventListener('push', (event)=>{
 self.addEventListener('notificationclick', (event)=>{
   event.notification.close();
   const cible = new URL((event.notification.data && event.notification.data.lien) || './', self.registration.scope).href;
+  const externe = new URL(cible).origin !== new URL(self.registration.scope).origin;
   event.waitUntil((async ()=>{
+    // Lien vers TikTok, Instagram, YouTube… : ouvert directement (dans leur appli si elle est installée)
+    if(externe) return self.clients.openWindow(cible);
     const fenetres = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
     for(const f of fenetres){
       if(f.url.startsWith(self.registration.scope) && 'focus' in f){
