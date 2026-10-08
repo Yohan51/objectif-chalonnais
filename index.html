@@ -1,0 +1,436 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>L'Objectif Châlonnais</title>
+<meta name="description" content="Le média associatif de Châlons-en-Champagne : bons plans, quiz, actualité locale, photos et événements.">
+<meta property="og:title" content="L'Objectif Châlonnais">
+<meta property="og:description" content="Châlons, vu par ceux qui y vivent : bons plans, quiz et actualité locale.">
+<meta property="og:image" content="logo.png">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  /* Mise en page : une colonne centrée, sections empilées, motif « coins de viseur » comme signature */
+  :root{
+    --bg:#F4F8FA;
+    --surface:#FFFFFF;
+    --ink:#183140;
+    --ink-soft:#4B6372;
+    --line:#D7E3EA;
+    --sky:#9FD8F5;
+    --sky-deep:#2E97C7;
+    --notice:#FFF6E0;
+    --notice-ink:#6B4A0E;
+    --font-display:'Baloo 2', 'Nunito', system-ui, sans-serif;
+    --font-body:'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0;
+      --line:#2B4A5E; --sky:#9FD8F5; --sky-deep:#6CC1EA;
+      --notice:#3A2E12; --notice-ink:#F5DDA0; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0;
+    --line:#2B4A5E; --sky:#9FD8F5; --sky-deep:#6CC1EA;
+    --notice:#3A2E12; --notice-ink:#F5DDA0; color-scheme:dark;
+  }
+
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{
+    background:var(--bg);
+    color:var(--ink);
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.6;
+  }
+  a{color:var(--sky-deep);}
+  .wrap{max-width:1040px;margin:0 auto;padding-inline:20px;}
+  section{padding-block:56px;}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.1;text-wrap:balance;margin:0;}
+  .eyebrow{
+    font-family:var(--font-mono);
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    color:var(--sky-deep);
+    margin:0 0 12px;
+  }
+
+  /* Coins de viseur */
+  .vf{position:relative;}
+  .vf::before,.vf::after{
+    content:"";position:absolute;width:22px;height:22px;
+    border-color:var(--sky-deep);border-style:solid;pointer-events:none;
+  }
+  .vf::before{top:-8px;left:-8px;border-width:3px 0 0 3px;border-radius:6px 0 0 0;}
+  .vf::after{bottom:-8px;right:-8px;border-width:0 3px 3px 0;border-radius:0 0 6px 0;}
+
+  /* ---------- Hero ---------- */
+  .hero{padding-block:64px 40px;}
+  .hero-grid{
+    display:grid;
+    grid-template-columns:minmax(0,1.3fr) minmax(0,1fr);
+    gap:48px;
+    align-items:center;
+  }
+  .hero h1{font-size:clamp(38px,6vw,64px);font-weight:800;}
+  .hero h1 em{font-style:normal;color:var(--sky-deep);}
+  .hero p.lead{font-size:18px;color:var(--ink-soft);max-width:52ch;margin:18px 0 28px;}
+  .actions{display:flex;flex-wrap:wrap;gap:12px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;
+    font-family:var(--font-body);font-weight:800;font-size:15px;
+    text-decoration:none;cursor:pointer;
+    padding:13px 22px;border-radius:999px;border:2px solid transparent;
+    transition:transform .12s ease, background .15s ease, border-color .15s ease;
+  }
+  .btn:hover{transform:translateY(-1px);}
+  .btn:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+  .btn-main{background:var(--ink);color:var(--bg);}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn-ghost:hover{border-color:var(--sky-deep);}
+
+  .finder{
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px;
+    font-family:var(--font-mono);
+    font-size:13px;
+    color:var(--ink-soft);
+  }
+  .finder .big{
+    font-family:var(--font-display);
+    font-size:clamp(44px,6vw,60px);
+    font-weight:800;
+    color:var(--ink);
+    line-height:1;
+    margin:6px 0 4px;
+    font-variant-numeric:tabular-nums;
+  }
+  .finder .caption{font-family:var(--font-body);font-size:15px;color:var(--ink-soft);margin:0 0 20px;}
+  .finder dl{
+    display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;
+    border-top:1px dashed var(--line);padding-top:16px;
+  }
+  .finder dt{text-transform:uppercase;letter-spacing:.08em;font-size:11px;}
+  .finder dd{margin:0;color:var(--ink);}
+
+  /* ---------- Bandeau d'information ---------- */
+  .notice{
+    background:var(--notice);
+    color:var(--notice-ink);
+    border-radius:var(--radius);
+    padding:18px 22px;
+    display:flex;flex-wrap:wrap;gap:8px 20px;align-items:center;justify-content:space-between;
+  }
+  .notice p{margin:0;max-width:70ch;}
+  .notice a{color:inherit;font-weight:800;}
+
+  /* ---------- Rubriques ---------- */
+  .tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;}
+  .tool{
+    display:flex;flex-direction:column;gap:12px;
+    background:var(--surface);
+    border:1px solid var(--line);
+    border-radius:var(--radius);
+    padding:28px;
+    text-decoration:none;color:var(--ink);
+    transition:border-color .15s ease, transform .12s ease;
+  }
+  .tool:hover{border-color:var(--sky-deep);transform:translateY(-2px);}
+  .tool:focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .tool h3{font-size:28px;font-weight:800;}
+  .tool p{margin:0;color:var(--ink-soft);}
+  .tool .tags{display:flex;flex-wrap:wrap;gap:6px;margin-top:4px;}
+  .tool .tags span{
+    font-size:12.5px;font-weight:700;
+    padding:3px 10px;border-radius:999px;
+    background:var(--bg);border:1px solid var(--line);color:var(--ink-soft);
+  }
+  .tool .go{margin-top:auto;padding-top:8px;font-weight:800;color:var(--sky-deep);}
+  .section-head{margin-bottom:28px;}
+  .section-head h2{font-size:clamp(30px,4vw,40px);font-weight:800;}
+
+  /* ---------- Nous suivre ---------- */
+  .follow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;}
+  .panel{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:28px;
+  }
+  .panel h3{font-size:24px;font-weight:800;margin-bottom:8px;}
+  .panel p{margin:0 0 18px;color:var(--ink-soft);}
+  .socials{display:flex;flex-direction:column;gap:10px;}
+  .social{
+    display:flex;justify-content:space-between;align-items:center;gap:12px;
+    padding:14px 18px;border-radius:12px;
+    border:1.5px solid var(--line);background:var(--bg);
+    color:var(--ink);text-decoration:none;font-weight:800;
+    transition:border-color .15s ease;
+  }
+  .social:hover{border-color:var(--sky-deep);}
+  .social:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+  .social small{font-family:var(--font-mono);font-weight:500;font-size:12px;color:var(--ink-soft);}
+  form.news{display:flex;flex-direction:column;gap:12px;}
+  form.news label{font-weight:800;font-size:14px;}
+  .news-row{display:flex;gap:8px;flex-wrap:wrap;}
+  .news-row input{
+    flex:1 1 220px;min-width:0;
+    font:inherit;font-size:16px;
+    padding:12px 16px;border-radius:999px;
+    border:1.5px solid var(--line);background:var(--bg);color:var(--ink);
+  }
+  .news-row input:focus{outline:none;border-color:var(--sky-deep);}
+  .news-legal{font-size:12.5px;color:var(--ink-soft);margin:0;}
+  .news-status{font-weight:700;min-height:1.4em;margin:0;}
+  .news-status.ok{color:#2E8B57;}
+  .news-status.err{color:#C0472F;}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+
+  /* ---------- Association ---------- */
+  .asso{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:40px;align-items:start;}
+  .asso p{margin:0 0 14px;max-width:62ch;}
+  .contact{
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .contact-line{
+    display:flex;align-items:center;gap:10px;flex-wrap:wrap;
+    font-family:var(--font-mono);font-size:14px;
+    background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
+  }
+  .contact-line span{user-select:all;word-break:break-all;min-width:0;flex:1;}
+  .copy{
+    font:inherit;font-family:var(--font-body);font-weight:800;font-size:13px;
+    border:none;background:var(--ink);color:var(--bg);
+    padding:6px 12px;border-radius:999px;cursor:pointer;
+  }
+
+  footer{
+    border-top:1px solid var(--line);
+    padding-block:28px 40px;
+    font-size:13.5px;color:var(--ink-soft);
+  }
+  footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;}
+
+  @media (max-width:760px){
+    section{padding-block:40px;}
+    .hero{padding-block:36px 24px;}
+    .hero-grid,.tools,.follow,.asso{grid-template-columns:minmax(0,1fr);gap:28px;}
+    .finder,.tool,.panel{padding:22px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    *{transition:none !important;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html" aria-current="page">Accueil</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="index.html#nous-suivre">Nous suivre</a>
+  </div>
+</nav>
+
+<main>
+  <section class="hero">
+    <div class="wrap hero-grid">
+      <div>
+        <p class="eyebrow">Média associatif · Châlons-en-Champagne</p>
+        <h1>Châlons, vu par <em>ceux qui y vivent</em>.</h1>
+        <p class="lead">Actualité locale, photographie, culture, sport et événements : une équipe de passionnés fait vivre Châlons-en-Champagne et ses alentours, avec vous.</p>
+        <div class="actions">
+          <a class="btn btn-main" href="bons-plans.html">Explorer les bons plans</a>
+          <a class="btn btn-ghost" href="quiz.html">Faire le quiz</a>
+        </div>
+      </div>
+      <div class="finder vf" aria-label="Notre communauté">
+        <div>Notre communauté</div>
+        <div class="big">164 000</div>
+        <p class="caption">personnes nous suivaient sur Facebook. Merci d'être là, ici aussi.</p>
+        <dl>
+          <dt>Lieu</dt><dd>Châlons-en-Champagne, Marne</dd>
+          <dt>Coord.</dt><dd>48°57′ N · 4°22′ E</dd>
+          <dt>Réglage</dt><dd>f/2.8 · 1/250 s · ISO 200</dd>
+        </dl>
+      </div>
+    </div>
+  </section>
+
+  <div class="wrap">
+    <div class="notice" role="status">
+      <p><strong>Notre page Facebook est suspendue pour le moment.</strong> Une demande de réexamen est en cours auprès de Meta. En attendant, retrouvez-nous ici et sur nos autres réseaux.</p>
+      <a href="#nous-suivre">Nous suivre →</a>
+    </div>
+  </div>
+
+  <section>
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">À découvrir</p>
+        <h2>Deux façons de (re)découvrir la ville</h2>
+      </div>
+      <div class="tools">
+        <a class="tool vf" href="bons-plans.html">
+          <h3>Les bons plans</h3>
+          <p>La carte participative de Châlons : restos, balades, lieux insolites et événements du week-end, repérés et notés par les Chalonnais. Ajoutez les vôtres !</p>
+          <div class="tags"><span>Bonnes tables</span><span>Champagne &amp; terroir</span><span>Nature</span><span>Événements</span></div>
+          <span class="go">Ouvrir la carte →</span>
+        </a>
+        <a class="tool vf" href="quiz.html">
+          <h3>Connais-tu Châlons ?</h3>
+          <p>Douze questions sur les canaux, la collégiale, le cirque et les jardins. Chalonnais(e) dans l'âme ou touriste de passage ? Faites le test et défiez vos amis.</p>
+          <div class="tags"><span>12 questions</span><span>Patrimoine</span><span>Histoire</span></div>
+          <span class="go">Lancer le quiz →</span>
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section id="nous-suivre">
+    <div class="wrap">
+      <div class="section-head">
+        <p class="eyebrow">Restons en contact</p>
+        <h2>Nous suivre</h2>
+      </div>
+      <div class="follow">
+        <div class="panel">
+          <h3>Sur les réseaux</h3>
+          <p>Reportages, photos et vidéos de Châlons continuent sur nos autres comptes.</p>
+          <div class="socials" id="socials"></div>
+        </div>
+        <div class="panel">
+          <h3>La lettre de L'Objectif</h3>
+          <p>Le meilleur de l'actualité châlonnaise et les événements à venir, directement dans votre boîte mail. Aucun réseau social ne pourra nous couper de vous.</p>
+          <form class="news" id="news-form" novalidate>
+            <label for="news-email">Votre adresse e-mail</label>
+            <div class="news-row">
+              <input id="news-email" type="email" autocomplete="email" placeholder="prenom@exemple.fr" required>
+              <button class="btn btn-main" type="submit" id="news-submit">S'inscrire</button>
+            </div>
+            <div class="hp" aria-hidden="true">
+              <label for="news-website">Site web</label>
+              <input id="news-website" type="text" tabindex="-1" autocomplete="off">
+            </div>
+            <p class="news-status" id="news-status" aria-live="polite"></p>
+            <p class="news-legal">Votre adresse sert uniquement à l'envoi de notre lettre. Désinscription possible à tout moment sur simple demande.</p>
+          </form>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="wrap asso">
+      <div>
+        <p class="eyebrow">L'association</p>
+        <h2 style="font-size:clamp(30px,4vw,40px);font-weight:800;margin-bottom:18px;">Derrière l'objectif</h2>
+        <p>L'Objectif Châlonnais est une association loi 1901. Depuis des années, nos bénévoles photographient, filment et racontent la vie de Châlons-en-Champagne : ses fêtes, ses clubs, ses artistes, ses commerçants et ses habitants.</p>
+        <p>Vous organisez un événement, vous tenez un commerce, vous avez une info à partager ? Écrivez-nous.</p>
+      </div>
+      <div class="contact">
+        <div class="contact-line"><span id="contact-email">lobjectifchalonnais@gmail.com</span><button class="copy" type="button" id="copy-email">Copier</button></div>
+        <a class="btn btn-main" id="dons-btn" href="#" target="_blank" rel="noopener" hidden>Soutenir l'association</a>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <span>© L'Objectif Châlonnais · Association loi 1901</span>
+    <span>Fait avec passion à Châlons-en-Champagne</span>
+  </div>
+</footer>
+
+<script src="config.js"></script>
+<script src="storage.js"></script>
+<script>
+(function(){
+  const cfg = window.OC_CONFIG || {};
+
+  // Réseaux
+  const RESEAUX = [
+    ['tiktok', 'TikTok', 'Vidéos courtes'],
+    ['instagram', 'Instagram', 'Photos & stories'],
+    ['youtube', 'YouTube', 'Reportages vidéo'],
+    ['facebook', 'Facebook', 'Page officielle']
+  ];
+  const box = document.getElementById('socials');
+  RESEAUX.forEach(([cle, nom, desc])=>{
+    const lien = (cfg.reseaux || {})[cle];
+    if(!lien) return;
+    const a = document.createElement('a');
+    a.className = 'social';
+    a.href = lien; a.target = '_blank'; a.rel = 'noopener';
+    a.innerHTML = `<span>${nom}</span><small>${desc} →</small>`;
+    box.appendChild(a);
+  });
+
+  // Contact
+  if(cfg.contact) document.getElementById('contact-email').textContent = cfg.contact;
+  document.getElementById('copy-email').onclick = async (e)=>{
+    const txt = document.getElementById('contact-email').textContent;
+    try{ await navigator.clipboard.writeText(txt); e.target.textContent = 'Copié'; }
+    catch(err){
+      const r = document.createRange(); r.selectNodeContents(document.getElementById('contact-email'));
+      const s = getSelection(); s.removeAllRanges(); s.addRange(r);
+      e.target.textContent = 'Sélectionné';
+    }
+    setTimeout(()=> e.target.textContent = 'Copier', 2000);
+  };
+
+  // Dons
+  if(cfg.dons){
+    const d = document.getElementById('dons-btn');
+    d.href = cfg.dons; d.hidden = false;
+  }
+
+  // Newsletter
+  const form = document.getElementById('news-form');
+  const input = document.getElementById('news-email');
+  const status = document.getElementById('news-status');
+  const submit = document.getElementById('news-submit');
+  const openedAt = Date.now();
+  form.addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    status.className = 'news-status';
+    const email = input.value.trim();
+    if(document.getElementById('news-website').value || Date.now() - openedAt < 1500) return;
+    if(!/^[^\s@]+@[^\s@]+\.[^\s@]{2,}$/.test(email)){
+      status.textContent = "Cette adresse ne semble pas valide. Vérifiez-la et réessayez.";
+      status.classList.add('err'); input.focus(); return;
+    }
+    submit.disabled = true;
+    try{
+      const res = await window.OC_inscrireNewsletter(email);
+      if(res === 'indisponible'){
+        status.textContent = `Les inscriptions ouvrent très bientôt. En attendant, écrivez-nous à ${cfg.contact || 'notre adresse'}.`;
+      }else{
+        status.textContent = res === 'deja' ? "Vous êtes déjà inscrit(e), merci !" : "C'est noté, merci ! À très vite dans votre boîte mail.";
+        status.classList.add('ok');
+        form.reset();
+      }
+    }catch(err){
+      status.textContent = "L'inscription n'a pas pu être enregistrée. Réessayez dans quelques minutes.";
+      status.classList.add('err');
+    }finally{
+      submit.disabled = false;
+    }
+  });
+})();
+</script>
+</body>
+</html>

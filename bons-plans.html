@@ -1,0 +1,3727 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Bons plans à Châlons</title>
+<link rel="stylesheet" href="site.css">
+<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --craie:#F7F2EA;
+    --craie-2:#EFE8DB;
+    --encre:#0A0A0A;
+    --encre-soft:#4A4F54;
+    --bouteille:#0A0A0A;
+    --bouteille-2:#1C1C1C;
+    --or:#C9A227;
+    --brique:#B5502B;
+    --ardoise:#4A6670;
+    --prune:#6D3B5E;
+    --line:#E5DFD2;
+    --sky:#9FD8F5;
+    --sky-deep:#2E97C7;
+    --navy:#183140;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;height:100%;}
+  body{
+    background:var(--craie);
+    color:var(--encre);
+    font-family:'Nunito',sans-serif;
+    display:flex;
+    flex-direction:column;
+    height:100vh;
+    height:100dvh;
+    overflow:hidden;
+  }
+
+  /* ---------- HEADER ---------- */
+  header{
+    background:var(--craie);
+    color:var(--bouteille);
+    padding:12px 20px;
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:16px;
+    flex-wrap:wrap;
+    border-bottom:3px solid var(--sky-deep);
+    z-index:20;
+  }
+  .brand{
+    display:flex;
+    align-items:center;
+    gap:14px;
+    line-height:1.1;
+  }
+  .brand img{
+    height:38px;
+    width:auto;
+    display:block;
+  }
+  .brand .brand-text{
+    display:flex;
+    flex-direction:column;
+    gap:2px;
+    border-left:1.5px solid var(--line);
+    padding-left:14px;
+  }
+  .brand .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.12em;
+    text-transform:uppercase;
+    color:var(--sky-deep);
+    font-weight:600;
+  }
+  .brand h1{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:17px;
+    margin:0;
+    color:var(--encre);
+  }
+  .brand .sub{
+    font-size:11.5px;
+    color:var(--encre-soft);
+    margin-top:1px;
+  }
+  .header-actions{
+    display:flex;
+    align-items:center;
+    gap:10px;
+    flex-wrap:wrap;
+    justify-content:flex-end;
+  }
+  #add-btn{
+    position:fixed;
+    right:22px;
+    bottom:78px;
+    z-index:60;
+    display:flex;
+    align-items:center;
+    gap:9px;
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    font-size:15px;
+    background:var(--bouteille);
+    color:var(--craie);
+    border:none;
+    padding:15px 22px 15px 18px;
+    border-radius:999px;
+    cursor:pointer;
+    box-shadow:0 6px 18px rgba(10,10,10,0.28);
+    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
+  }
+  #add-btn .fab-icon{
+    font-size:20px;
+    line-height:1;
+    display:inline-block;
+  }
+  #add-btn::after{
+    content:'';
+    position:absolute;
+    inset:0;
+    border-radius:999px;
+    box-shadow:0 0 0 0 rgba(159,216,245,0.55);
+    animation:fabPulse 2.8s ease-out infinite;
+    pointer-events:none;
+  }
+  @keyframes fabPulse{
+    0%{box-shadow:0 0 0 0 rgba(159,216,245,0.55);}
+    70%{box-shadow:0 0 0 14px rgba(159,216,245,0);}
+    100%{box-shadow:0 0 0 0 rgba(159,216,245,0);}
+  }
+  #add-btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 24px rgba(10,10,10,0.32);background:var(--bouteille-2);}
+  #add-btn:active{transform:translateY(0) scale(1);}
+  @media (prefers-reduced-motion: reduce){
+    #add-btn::after{animation:none;}
+  }
+  @media (max-width:520px){
+    #add-btn{padding:16px;border-radius:50%;bottom:92px;}
+    #add-btn .fab-label{display:none;}
+  }
+
+  /* ---------- SEARCH BAR ---------- */
+  #search-bar{
+    display:flex;
+    align-items:center;
+    gap:8px;
+    padding:10px 20px;
+    background:var(--craie);
+    border-bottom:1px solid var(--line);
+    flex-shrink:0;
+  }
+  #search-icon{font-size:14px;opacity:0.6;flex-shrink:0;}
+  #search-input{
+    flex:1;
+    border:none;
+    background:transparent;
+    font-family:'Nunito',sans-serif;
+    font-size:13.5px;
+    color:var(--encre);
+    outline:none;
+    min-width:0;
+  }
+  #search-input::placeholder{color:#9A9A9A;}
+  #search-clear{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    color:var(--encre-soft);
+    cursor:pointer;
+    flex-shrink:0;
+    padding:2px 4px;
+  }
+  #search-clear:hover{color:var(--sky-deep);}
+
+  /* ---------- FILTER BAR ---------- */
+  #filters{
+    display:flex;
+    gap:8px;
+    padding:10px 20px;
+    background:var(--craie-2);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+    flex-shrink:0;
+  }
+  #quartier-filters{
+    display:flex;
+    gap:8px;
+    padding:8px 20px;
+    background:var(--craie);
+    border-bottom:1px solid var(--line);
+    overflow-x:auto;
+    flex-shrink:0;
+  }
+  .chip-quartier{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    white-space:nowrap;
+    padding:6px 12px;
+    border-radius:999px;
+    border:1.5px solid var(--sky-deep);
+    background:#fff;
+    color:var(--sky-deep);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:5px;
+    transition:all .12s ease;
+  }
+  .chip-quartier.active{
+    background:var(--sky-deep);
+    color:#fff;
+  }
+  .chip-quartier:hover{opacity:0.85;}
+  .chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11.5px;
+    letter-spacing:0.03em;
+    white-space:nowrap;
+    padding:7px 13px;
+    border-radius:999px;
+    border:1.5px solid var(--line);
+    background:var(--craie);
+    color:var(--encre-soft);
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    transition:all .12s ease;
+  }
+  .chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
+  .chip.active{
+    background:var(--encre);
+    color:var(--craie);
+    border-color:var(--encre);
+  }
+  .chip:hover{border-color:var(--encre-soft);}
+
+  /* ---------- SIGNATURE: VIEWFINDER CORNERS ---------- */
+  /* A nod to L'Objectif's own mark — the lens watching over the town. */
+  .viewfinder,
+  .card{position:relative;}
+  .viewfinder::before, .card::before,
+  .viewfinder::after, .card::after{
+    content:'';
+    position:absolute;
+    width:14px;height:14px;
+    border:2px solid var(--sky-deep);
+    opacity:0;
+    transition:opacity .18s ease, transform .18s ease;
+    pointer-events:none;
+  }
+  .viewfinder::before, .card::before{
+    top:9px;left:9px;
+    border-right:none;border-bottom:none;
+    transform:translate(5px,5px);
+  }
+  .viewfinder::after, .card::after{
+    bottom:9px;right:9px;
+    border-left:none;border-top:none;
+    transform:translate(-5px,-5px);
+  }
+  .viewfinder:hover::before, .card:hover::before,
+  .viewfinder:hover::after, .card:hover::after,
+  .viewfinder.always-framed::before,
+  .viewfinder.always-framed::after{
+    opacity:1;
+    transform:translate(0,0);
+  }
+
+  /* ---------- MAIN LAYOUT ---------- */
+  #main{
+    flex:1;
+    display:flex;
+    min-height:0;
+    overflow:hidden;
+  }
+  header,#filters,#discovery-bar,#partner-cta{position:relative;z-index:20;}
+
+  #panel{
+    flex:1;
+    background:var(--craie);
+    overflow-y:auto;
+    padding:28px 28px 24px 28px;
+  }
+  #panel-heading{
+    position:relative;
+    display:inline-block;
+    padding:6px 22px;
+    margin-bottom:4px;
+  }
+  #panel h2{
+    font-family:'Baloo 2',sans-serif;
+    font-size:22px;
+    font-weight:800;
+    letter-spacing:-0.01em;
+    margin:0;
+  }
+  #panel .tagline{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    color:var(--sky-deep);
+    margin:0 0 18px 0;
+  }
+  #panel-toolbar{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    flex-wrap:wrap;
+    gap:10px;
+    margin-bottom:16px;
+  }
+  #panel .count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--encre-soft);
+    margin-bottom:0;
+  }
+  #sort-controls{
+    display:flex;
+    gap:6px;
+    flex-wrap:wrap;
+  }
+  .sort-chip{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    padding:5px 11px;
+    border-radius:999px;
+    border:1.5px solid var(--line);
+    background:#fff;
+    color:var(--encre-soft);
+    cursor:pointer;
+    white-space:nowrap;
+    transition:all .12s ease;
+  }
+  .sort-chip.active{background:var(--encre);color:var(--craie);border-color:var(--encre);}
+  .sort-chip:hover{border-color:var(--sky-deep);}
+  .reset-filters-link{
+    display:block;
+    margin-top:14px;
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    font-size:13px;
+    color:var(--sky-deep);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  #cards{
+    display:grid;
+    grid-template-columns:repeat(auto-fill, minmax(268px, 1fr));
+    gap:16px;
+  }
+  .card{
+    border:1px solid var(--line);
+    border-radius:3px;
+    padding:16px 17px;
+    cursor:pointer;
+    background:#fff;
+    transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
+  }
+  .card:hover{border-color:var(--sky-deep);transform:translateY(-2px);box-shadow:0 10px 22px rgba(10,10,10,0.09);}
+  .card-thumb{
+    width:calc(100% + 34px);
+    margin:-16px -17px 12px -17px;
+    height:140px;
+    border-radius:3px 3px 0 0;
+    overflow:hidden;
+    background:var(--craie-2);
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  .card-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
+  .card-thumb .thumb-placeholder{font-size:22px;opacity:0.3;}
+  .card .tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    letter-spacing:0.08em;
+    text-transform:uppercase;
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    margin-bottom:8px;
+  }
+  .card .tag .dot{
+    width:8px;height:8px;border-radius:50%;
+    box-shadow:0 0 0 2px #fff, 0 0 0 3px currentColor;
+  }
+  .card h3{
+    font-family:'Baloo 2',sans-serif;
+    font-size:16px;
+    font-weight:700;
+    letter-spacing:-0.005em;
+    margin:0 0 5px 0;
+  }
+  .card p{
+    font-size:12.5px;
+    color:var(--encre-soft);
+    margin:0;
+    line-height:1.45;
+  }
+  .card .quartier{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--sky-deep);
+    margin-top:7px;
+  }
+  .directions-link{
+    display:inline-flex;
+    align-items:center;
+    gap:5px;
+    font-family:'Nunito',sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    color:var(--sky-deep);
+    text-decoration:none;
+    cursor:pointer;
+    margin-top:4px;
+  }
+  .directions-link:hover{text-decoration:underline;}
+  .card .meta{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    color:#9A9A9A;
+    margin-top:7px;
+  }
+  .empty-note{
+    font-size:13px;
+    color:var(--encre-soft);
+    line-height:1.6;
+    border:1.5px dashed var(--line);
+    border-radius:3px;
+    padding:32px 24px;
+    text-align:center;
+    grid-column:1/-1;
+  }
+
+  /* ---------- STAMP badge on popup ---------- */
+  .stamp{
+    display:inline-block;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:9.5px;
+    letter-spacing:0.06em;
+    text-transform:uppercase;
+    color:var(--bouteille);
+    border:1.5px solid var(--bouteille);
+    border-radius:4px;
+    padding:2px 6px;
+    transform:rotate(-3deg);
+    margin-top:8px;
+  }
+
+  /* ---------- STARS ---------- */
+  .stars{display:inline-flex;gap:2px;line-height:1;}
+  .stars .star{font-size:14px;color:#DADADA;}
+  .stars .star.filled{color:var(--or);}
+  .stars.interactive .star{cursor:pointer;font-size:24px;transition:transform .08s ease;}
+  .stars.interactive .star:hover{transform:scale(1.15);}
+  .rating-row{display:flex;align-items:center;gap:7px;margin-top:6px;}
+  .rating-row .avg-num{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--encre-soft);}
+  .card .rating-row{margin-top:8px;}
+
+  /* ---------- DETAIL MODAL ---------- */
+  #detail-overlay{
+    position:fixed;inset:0;
+    background:rgba(30,27,22,0.55);
+    display:none;
+    align-items:center;justify-content:center;
+    z-index:110;
+    padding:20px;
+  }
+  #detail-overlay.open{display:flex;}
+  #detail-modal{
+    background:var(--craie);
+    border-radius:14px;
+    max-width:440px;
+    width:100%;
+    padding:22px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    max-height:88vh;
+    overflow-y:auto;
+    position:relative;
+  }
+  #d-cover-photo{
+    margin:-22px -22px 16px -22px;
+    position:relative;
+  }
+  #d-cover-photo img{
+    width:100%;
+    height:180px;
+    object-fit:cover;
+    display:block;
+    border-radius:14px 14px 0 0;
+  }
+  #d-cover-photo .cover-caption{
+    position:absolute;
+    bottom:0;left:0;right:0;
+    background:linear-gradient(transparent,rgba(10,10,10,0.75));
+    color:#fff;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    padding:20px 14px 8px 14px;
+  }
+  #d-cover-admin{
+    background:var(--craie-2);
+    border:1.5px dashed var(--line);
+    border-radius:8px;
+    padding:11px 13px;
+    margin-top:10px;
+  }
+  #d-cover-admin .cover-admin-title{
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    font-size:12.5px;
+    margin-bottom:8px;
+  }
+  #d-cover-admin .cover-admin-actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center;}
+  .cover-upload-btn{
+    display:inline-flex;
+    align-items:center;
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    font-size:12px;
+    background:var(--bouteille);
+    color:#fff;
+    padding:7px 12px;
+    border-radius:7px;
+    cursor:pointer;
+  }
+  .cover-remove-link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--brique);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  }
+  #detail-modal .d-tag{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;text-transform:uppercase;letter-spacing:0.05em;
+    display:flex;align-items:center;gap:6px;margin-bottom:6px;
+  }
+  #detail-modal h2{font-family:'Baloo 2',sans-serif;font-size:20px;margin:0 0 6px 0;}
+  #detail-modal .d-desc{font-size:13.5px;color:var(--encre-soft);line-height:1.5;margin-bottom:4px;}
+  #detail-modal .locate-link{
+    display:inline-block;margin-top:8px;font-family:'IBM Plex Mono',monospace;
+    font-size:11px;color:var(--ardoise);cursor:pointer;text-decoration:underline;
+  }
+  .section-divider{border:none;border-top:1px solid var(--line);margin:16px 0;}
+  .rate-block{
+    background:var(--craie-2);
+    border-radius:10px;
+    padding:12px 14px;
+    text-align:center;
+  }
+  .rate-block .prompt{font-size:12.5px;color:var(--encre-soft);margin-bottom:8px;}
+  .thanks{font-size:12.5px;color:var(--bouteille);font-weight:600;}
+  .comments-title{font-family:'Baloo 2',sans-serif;font-size:15px;font-weight:600;margin:0 0 10px 0;}
+  .comment{
+    border-bottom:1px solid var(--line);
+    padding:9px 0;
+  }
+  .comment:last-child{border-bottom:none;}
+  .comment .c-head{
+    display:flex;justify-content:space-between;align-items:baseline;
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--encre-soft);margin-bottom:3px;
+  }
+  .comment .c-text{font-size:13px;color:var(--encre);line-height:1.4;}
+  .no-comments{font-size:12.5px;color:var(--encre-soft);font-style:italic;padding:6px 0;}
+  .comment-form textarea{margin-bottom:8px;}
+
+  /* ---------- MODAL ---------- */
+  #overlay{
+    position:fixed;inset:0;
+    background:rgba(30,27,22,0.55);
+    display:none;
+    align-items:center;justify-content:center;
+    z-index:100;
+    padding:20px;
+  }
+  #overlay.open{display:flex;}
+  #modal{
+    background:var(--craie);
+    border-radius:14px;
+    max-width:420px;
+    width:100%;
+    padding:22px;
+    box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    max-height:90vh;
+    overflow-y:auto;
+  }
+  #modal h2{
+    font-family:'Baloo 2',sans-serif;
+    font-size:19px;
+    margin:0 0 4px 0;
+  }
+  #modal .loc-hint{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--encre-soft);
+    margin-bottom:16px;
+  }
+  .field{margin-bottom:13px;}
+  .field label{
+    display:block;
+    font-size:11.5px;
+    font-weight:600;
+    margin-bottom:5px;
+    color:var(--encre-soft);
+  }
+  .field input, .field select, .field textarea{
+    width:100%;
+    font-family:'Nunito',sans-serif;
+    font-size:13.5px;
+    padding:9px 10px;
+    border:1.5px solid var(--line);
+    border-radius:7px;
+    background:#fff;
+    color:var(--encre);
+  }
+  .field textarea{resize:vertical;min-height:60px;}
+  .field input:focus, .field select:focus, .field textarea:focus{
+    outline:2px solid var(--sky-deep);
+    outline-offset:1px;
+    border-color:var(--sky-deep);
+  }
+  .cat-picker{display:flex;flex-wrap:wrap;gap:7px;}
+  .cat-opt{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    padding:7px 11px;
+    border-radius:999px;
+    border:1.5px solid var(--line);
+    cursor:pointer;
+    display:flex;align-items:center;gap:5px;
+  }
+  .cat-opt.selected{border-color:var(--encre);background:var(--encre);color:var(--craie);}
+  .modal-actions{display:flex;gap:8px;margin-top:16px;}
+  .btn-primary,.btn-secondary{
+    flex:1;
+    font-family:'Nunito',sans-serif;
+    font-weight:600;
+    font-size:13.5px;
+    padding:10px;
+    border-radius:8px;
+    cursor:pointer;
+    border:none;
+  }
+  .btn-primary{background:var(--bouteille);color:#fff;}
+  .btn-primary:disabled{background:#C4C4C4;cursor:not-allowed;}
+  .btn-secondary{background:transparent;color:var(--encre-soft);border:1.5px solid var(--line);}
+  #status-msg{
+    font-size:12px;color:var(--brique);margin-top:6px;min-height:16px;
+  }
+
+  #mod-btn{
+    background:transparent;
+    border:1.5px solid rgba(10,10,10,0.2);
+    color:var(--bouteille);
+    cursor:pointer;
+    flex-shrink:0;
+    transition:all .12s ease;
+  }
+  #mod-btn:hover{border-color:var(--sky-deep);color:var(--sky-deep);}
+  #admin-pill{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    background:var(--or);
+    color:var(--encre);
+    padding:6px 11px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  #admin-logout{cursor:pointer;text-decoration:underline;}
+
+  .report-link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--brique);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .admin-delete{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:#8B2E2E;
+    cursor:pointer;
+    text-decoration:underline;
+  }
+  .comment .c-actions{
+    display:flex;gap:10px;margin-top:4px;
+  }
+  .comment .c-actions span{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    cursor:pointer;
+    text-decoration:underline;
+    color:var(--encre-soft);
+  }
+  .comment .c-actions .c-report{color:var(--brique);}
+  .comment .c-actions .c-delete{color:#8B2E2E;}
+
+  /* ---------- PASSWORD MODAL ---------- */
+  #password-overlay{
+    position:fixed;inset:0;background:rgba(30,27,22,0.55);
+    display:none;align-items:center;justify-content:center;z-index:120;padding:20px;
+  }
+  #password-overlay.open{display:flex;}
+  #password-modal{
+    background:var(--craie);border-radius:14px;max-width:340px;width:100%;
+    padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+  }
+  #password-modal h2{font-family:'Baloo 2',sans-serif;font-size:19px;margin:0 0 4px 0;}
+  #password-modal .loc-hint{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--encre-soft);margin-bottom:14px;
+  }
+
+  /* ---------- MODERATION PANEL ---------- */
+  #mod-overlay{
+    position:fixed;inset:0;background:rgba(30,27,22,0.55);
+    display:none;align-items:center;justify-content:center;z-index:120;padding:20px;
+  }
+  #mod-overlay.open{display:flex;}
+  #mod-panel{
+    background:var(--craie);border-radius:14px;max-width:520px;width:100%;
+    padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    max-height:85vh;overflow-y:auto;
+  }
+  #mod-panel h2{font-family:'Baloo 2',sans-serif;font-size:20px;margin:0 0 4px 0;}
+  #mod-panel .loc-hint{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--encre-soft);margin-bottom:14px;
+  }
+  .report-item{
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#fff;
+  }
+  .report-item .r-head{
+    font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;color:var(--brique);
+    margin-bottom:5px;
+  }
+  .report-item .r-target{font-family:'Baloo 2',sans-serif;font-size:14.5px;font-weight:600;margin-bottom:4px;}
+  .report-item .r-snippet{font-size:12.5px;color:var(--encre-soft);margin-bottom:6px;font-style:italic;}
+  .report-item .r-reason{font-size:12.5px;margin-bottom:8px;}
+  .report-item .r-actions{display:flex;gap:8px;}
+  .report-item .r-actions button{
+    font-family:'Nunito',sans-serif;font-size:11.5px;font-weight:600;
+    padding:6px 10px;border-radius:7px;border:none;cursor:pointer;
+  }
+  .r-actions .r-delete{background:#8B2E2E;color:#fff;}
+  .r-actions .r-dismiss{background:var(--craie-2);color:var(--encre-soft);border:1px solid var(--line) !important;}
+  .r-actions .r-publish{background:#2E7D4F;color:#fff;}
+  .r-actions .r-reject{background:#8B2E2E;color:#fff;}
+  .no-reports{font-size:12.5px;color:var(--encre-soft);font-style:italic;}
+
+  /* ---------- GRADE BADGES & LEADERBOARD ---------- */
+  .grade-badge{
+    display:inline-flex;
+    font-size:12px;
+    cursor:default;
+    margin-left:3px;
+  }
+  .grade-badge-full{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--encre-soft);
+    margin-top:4px;
+  }
+  #board-btn, #archive-btn, #podium-btn, #geoloc-btn, #mod-btn{
+    display:inline-flex;
+    align-items:center;
+    gap:6px;
+    background:transparent;
+    border:1.5px solid rgba(30,27,22,0.2);
+    color:var(--bouteille);
+    padding:7px 13px 7px 11px;
+    border-radius:999px;
+    cursor:pointer;
+    font-size:13px;
+    flex-shrink:0;
+    transition:all .12s ease;
+  }
+  .btn-icon{font-size:15px;line-height:1;}
+  .btn-label{
+    font-family:'Nunito',sans-serif;
+    font-weight:700;
+    font-size:12px;
+    white-space:nowrap;
+  }
+  #board-btn:hover, #archive-btn:hover, #podium-btn:hover, #geoloc-btn:hover{border-color:var(--sky-deep);background:var(--craie-2);}
+  #geoloc-btn.loading{opacity:0.5;cursor:wait;}
+  #board-overlay{
+    position:fixed;inset:0;background:rgba(30,27,22,0.55);
+    display:none;align-items:center;justify-content:center;z-index:120;padding:20px;
+  }
+  #board-overlay.open{display:flex;}
+  #board-panel, #archive-panel{
+    background:var(--craie);border-radius:14px;max-width:480px;width:100%;
+    padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    max-height:85vh;overflow-y:auto;
+  }
+  #board-panel h2, #archive-panel h2{font-family:'Baloo 2',sans-serif;font-size:20px;margin:0 0 4px 0;}
+  #board-panel .loc-hint, #archive-panel .loc-hint{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--encre-soft);margin-bottom:16px;
+  }
+  #archive-overlay{
+    position:fixed;inset:0;background:rgba(30,27,22,0.55);
+    display:none;align-items:center;justify-content:center;z-index:120;padding:20px;
+  }
+  #archive-overlay.open{display:flex;}
+  .archive-row{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 4px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .archive-row:last-child{border-bottom:none;}
+  .archive-row:hover{background:var(--craie-2);}
+  .archive-icon{font-size:20px;flex-shrink:0;}
+  .archive-info{flex:1;min-width:0;}
+  .archive-name{font-family:'Baloo 2',sans-serif;font-weight:600;font-size:14px;}
+  .archive-detail{font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--encre-soft);margin-top:2px;}
+  .no-archive{font-size:12.5px;color:var(--encre-soft);font-style:italic;}
+
+  /* ---------- RSVP / ATTENDANCE ---------- */
+  .attendance-count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:13px;
+    color:var(--encre-soft);
+    margin-bottom:10px;
+  }
+  .attendance-count strong{color:var(--bouteille);font-size:16px;}
+  .attendee-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--encre-soft);
+    margin-top:4px;
+  }
+
+  /* ---------- PODIUM ---------- */
+  #podium-overlay{
+    position:fixed;inset:0;background:rgba(30,27,22,0.55);
+    display:none;align-items:center;justify-content:center;z-index:120;padding:20px;
+  }
+  #podium-overlay.open{display:flex;}
+  #podium-panel{
+    background:var(--craie);border-radius:14px;max-width:520px;width:100%;
+    padding:22px;box-shadow:0 20px 60px rgba(0,0,0,0.3);
+    max-height:85vh;overflow-y:auto;
+  }
+  #podium-panel h2{font-family:'Baloo 2',sans-serif;font-size:20px;margin:0 0 4px 0;}
+  #podium-panel .loc-hint{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--encre-soft);margin-bottom:18px;
+  }
+  #podium-top3{
+    display:flex;
+    align-items:flex-end;
+    justify-content:center;
+    gap:10px;
+    margin-bottom:20px;
+  }
+  .podium-stand{
+    flex:1;
+    max-width:150px;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
+    cursor:pointer;
+    text-align:center;
+  }
+  .podium-medal{font-size:26px;margin-bottom:6px;}
+  .podium-stand-name{
+    font-family:'Baloo 2',sans-serif;
+    font-weight:600;
+    font-size:12.5px;
+    line-height:1.25;
+    margin-bottom:4px;
+    min-height:32px;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .podium-stand-count{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--encre-soft);
+    margin-bottom:8px;
+  }
+  .podium-block{
+    width:100%;
+    border-radius:8px 8px 0 0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    color:#fff;
+    font-family:'Baloo 2',sans-serif;
+    font-weight:700;
+    font-size:22px;
+  }
+  .podium-stand.gold .podium-block{background:linear-gradient(180deg,#E4C34E,#C9A227);height:90px;}
+  .podium-stand.silver .podium-block{background:linear-gradient(180deg,#C9C9C9,#9E9E9E);height:65px;}
+  .podium-stand.bronze .podium-block{background:linear-gradient(180deg,#C88A5A,#A8663A);height:48px;}
+  .podium-rest-row{
+    display:flex;align-items:center;gap:10px;
+    padding:9px 4px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .podium-rest-row:last-child{border-bottom:none;}
+  .podium-rest-row:hover{background:var(--craie-2);}
+  .podium-rest-rank{
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:14px;
+    color:var(--encre-soft);width:20px;text-align:center;flex-shrink:0;
+  }
+  .podium-rest-info{flex:1;min-width:0;}
+  .podium-rest-name{font-family:'Baloo 2',sans-serif;font-weight:600;font-size:13.5px;}
+  .podium-rest-detail{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--encre-soft);}
+  .no-podium{font-size:12.5px;color:var(--encre-soft);font-style:italic;text-align:center;padding:10px 0;}
+  .board-row{
+    display:flex;align-items:center;gap:12px;
+    padding:10px 4px;
+    border-bottom:1px solid var(--line);
+  }
+  .board-row:last-child{border-bottom:none;}
+  .board-rank{
+    font-family:'Baloo 2',sans-serif;font-weight:700;font-size:16px;
+    color:var(--encre-soft);
+    width:24px;flex-shrink:0;text-align:center;
+  }
+  .board-row:nth-child(1) .board-rank{color:var(--or);}
+  .board-info{flex:1;min-width:0;}
+  .board-name{font-family:'Baloo 2',sans-serif;font-weight:600;font-size:14px;}
+  .board-detail{
+    font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--encre-soft);margin-top:2px;
+  }
+  .board-icon{font-size:20px;flex-shrink:0;}
+  .no-board{font-size:12.5px;color:var(--encre-soft);font-style:italic;}
+
+  /* ---------- DISCOVERY BAR (top contributor spotlight) ---------- */
+  #discovery-bar:empty{display:none;}
+  .discovery-pill{
+    display:flex;
+    align-items:center;
+    justify-content:space-between;
+    gap:14px;
+    background:var(--bouteille);
+    color:var(--craie);
+    padding:10px 18px;
+    margin:10px 20px 0 20px;
+    border-radius:10px;
+    font-size:13px;
+    flex-wrap:wrap;
+  }
+  .discovery-pill strong{color:var(--or);}
+  .discovery-pill.spotlight{background:var(--sky);color:var(--encre);}
+  .discovery-pill.spotlight strong{color:var(--bouteille);}
+  .dp-action{
+    font-family:'Nunito',sans-serif;
+    font-weight:600;
+    cursor:pointer;
+    text-decoration:underline;
+    white-space:nowrap;
+    color:var(--sky-deep);
+  }
+  .discovery-pill.spotlight .dp-action{color:var(--bouteille);}
+  .board-row{cursor:pointer;transition:background .12s ease;}
+  .board-row:hover{background:var(--craie-2);}
+
+  /* ---------- PARTNER CTA BAR ---------- */
+  #partner-cta{
+    flex-shrink:0;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    gap:16px;
+    background:#F2E4C4;
+    border-top:1px solid var(--or);
+    color:var(--encre);
+    font-size:12.5px;
+    padding:9px 20px;
+    text-align:center;
+    flex-wrap:wrap;
+  }
+  #partner-cta a{color:var(--bouteille);font-weight:600;}
+  #partner-cta-close{
+    cursor:pointer;
+    color:var(--encre-soft);
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    flex-shrink:0;
+  }
+
+  /* ---------- PARTNER BADGE ---------- */
+  .partner-badge{
+    display:inline-flex;
+    align-items:center;
+    gap:4px;
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10px;
+    text-transform:uppercase;
+    letter-spacing:0.04em;
+    background:linear-gradient(90deg,#C9A227,#E4C34E);
+    color:var(--encre);
+    padding:3px 8px;
+    border-radius:999px;
+    margin:6px 0;
+  }
+  .partner-toggle-link{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:11px;
+    color:var(--bouteille);
+    cursor:pointer;
+    text-decoration:underline;
+  }
+
+  /* ---------- PHOTO GALLERY ---------- */
+  .photos-grid{
+    display:grid;
+    grid-template-columns:repeat(3,1fr);
+    gap:8px;
+    margin-bottom:12px;
+  }
+  .photo-thumb{
+    position:relative;
+    aspect-ratio:1/1;
+    border-radius:8px;
+    overflow:hidden;
+    background:var(--craie-2);
+    cursor:pointer;
+  }
+  .photo-thumb img{
+    width:100%;height:100%;object-fit:cover;display:block;
+    transition:transform .15s ease;
+  }
+  .photo-thumb:hover img{transform:scale(1.05);}
+  .photo-thumb .photo-actions{
+    position:absolute;top:3px;right:3px;
+    display:flex;gap:3px;
+  }
+  .photo-thumb .photo-actions span{
+    background:rgba(30,27,22,0.65);
+    color:#fff;
+    border-radius:50%;
+    width:20px;height:20px;
+    display:flex;align-items:center;justify-content:center;
+    font-size:10px;
+    cursor:pointer;
+  }
+  .photo-thumb .p-credit{
+    position:absolute;bottom:0;left:0;right:0;
+    background:linear-gradient(transparent,rgba(30,27,22,0.75));
+    color:#fff;font-family:'IBM Plex Mono',monospace;font-size:8.5px;
+    padding:8px 5px 3px 5px;
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
+  }
+  .photo-upload-btn{
+    display:inline-flex;
+    align-items:center;
+    cursor:pointer;
+    font-size:13px;
+  }
+  .photo-empty-note{
+    font-size:12px;color:var(--encre-soft);font-style:italic;margin-bottom:10px;
+  }
+
+  /* ---------- HONEYPOT (anti-spam, invisible to real visitors) ---------- */
+  .hp-field{
+    position:absolute;
+    left:-5000px;
+    top:auto;
+    width:1px;
+    height:1px;
+    overflow:hidden;
+  }
+
+  /* ---------- DUPLICATE WARNING ---------- */
+  #f-duplicate-warning{
+    background:#FBF0DC;
+    border:1.5px solid #E0B968;
+    border-radius:8px;
+    padding:11px 13px;
+    margin:-6px 0 14px 0;
+    font-size:12.5px;
+    color:var(--encre);
+  }
+  #f-duplicate-warning .dw-title{
+    font-weight:600;
+    margin-bottom:6px;
+    display:flex;
+    align-items:center;
+    gap:6px;
+  }
+  #f-duplicate-warning .dw-item{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    gap:8px;
+    padding:5px 0;
+    border-top:1px solid rgba(0,0,0,0.08);
+  }
+  #f-duplicate-warning .dw-item:first-of-type{border-top:none;}
+  #f-duplicate-warning .dw-name{font-weight:600;font-size:12.5px;}
+  #f-duplicate-warning .dw-meta{font-family:'IBM Plex Mono',monospace;font-size:10px;color:var(--encre-soft);}
+  #f-duplicate-warning .dw-view{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:10.5px;
+    color:var(--sky-deep);
+    cursor:pointer;
+    text-decoration:underline;
+    white-space:nowrap;
+    flex-shrink:0;
+  }
+  #f-duplicate-warning .dw-note{
+    margin-top:8px;
+    font-size:11.5px;
+    color:var(--encre-soft);
+    font-style:italic;
+  }
+  .fb-link{
+    display:inline-flex;
+    text-decoration:none;
+    font-size:12px;
+    margin-left:2px;
+    opacity:0.85;
+  }
+  .fb-link:hover{opacity:1;}
+  .since-line{
+    font-size:10.5px;
+    color:var(--encre-soft);
+    margin-top:2px;
+    font-family:'IBM Plex Mono',monospace;
+  }
+  #lightbox-overlay{
+    position:fixed;inset:0;
+    background:rgba(20,18,14,0.92);
+    display:none;
+    align-items:center;justify-content:center;
+    z-index:150;
+    padding:30px;
+  }
+  #lightbox-overlay.open{display:flex;}
+  #lightbox-img{max-width:100%;max-height:90vh;border-radius:8px;box-shadow:0 10px 40px rgba(0,0,0,0.5);}
+  #lightbox-close{
+    position:absolute;top:20px;right:26px;
+    color:#fff;font-size:22px;cursor:pointer;
+    font-family:'IBM Plex Mono',monospace;
+  }
+
+  #toast{
+    position:fixed;
+    bottom:20px;left:50%;
+    transform:translateX(-50%) translateY(20px);
+    background:var(--encre);
+    color:var(--craie);
+    padding:11px 18px;
+    border-radius:999px;
+    font-size:13px;
+    font-family:'Nunito',sans-serif;
+    opacity:0;
+    transition:all .25s ease;
+    pointer-events:none;
+    z-index:200;
+  }
+  #toast.show{opacity:1;transform:translateX(-50%) translateY(0);}
+
+
+  @media (max-width:760px){
+    #cards{grid-template-columns:1fr;}
+    #panel{padding:14px;}
+    header{padding:10px 14px;}
+    .brand h1{font-size:15px;}
+    .brand img{height:32px;}
+    .brand .brand-text{padding-left:10px;}
+    .brand .sub{display:none;}
+    .header-actions{gap:7px;width:100%;}
+    #board-btn, #archive-btn, #podium-btn, #mod-btn, #geoloc-btn{
+      padding:6px 10px 6px 9px;
+    }
+    .btn-icon{font-size:14px;}
+    .btn-label{font-size:11px;}
+    #admin-pill{font-size:10px;}
+    #search-bar, #filters, #discovery-bar{padding-left:14px;padding-right:14px;}
+    #partner-cta{font-size:11.5px;padding:8px 14px;}
+    .discovery-pill{margin-left:14px;margin-right:14px;flex-direction:column;align-items:flex-start;gap:6px;}
+    .photos-grid{grid-template-columns:repeat(3,1fr);gap:6px;}
+    #podium-top3{gap:6px;}
+    .podium-stand{max-width:120px;}
+    .podium-stand-name{font-size:11px;}
+    #password-modal, #detail-modal, #modal, #mod-panel, #board-panel, #archive-panel, #podium-panel{
+      max-height:88vh;
+    }
+  }
+
+  /* ---------- CARTE ---------- */
+  .brand .brand-text{border-left:none;padding-left:0;}
+  #panel{flex:0 0 440px;max-width:440px;border-right:1px solid var(--line);}
+  #map-wrap{flex:1;position:relative;min-width:0;z-index:0;isolation:isolate;}
+  #map{position:absolute;inset:0;background:var(--craie-2);}
+  #map-hint{
+    position:absolute;top:12px;left:50%;transform:translateX(-50%);
+    z-index:500;pointer-events:none;
+    background:rgba(24,49,64,.88);color:#fff;
+    font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;
+    padding:6px 14px;border-radius:999px;white-space:nowrap;
+    max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;
+  }
+  .map-add-popup button{
+    border:none;background:var(--navy);color:#fff;
+    font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;
+    padding:8px 12px;border-radius:8px;cursor:pointer;
+  }
+  .map-add-popup button:hover{background:var(--sky-deep);}
+  .leaflet-container{font-family:'Nunito',sans-serif;}
+  .leaflet-tooltip{font-weight:700;}
+  #view-toggle{display:none;}
+  .hint-short{display:none;}
+  @media (max-width:760px){
+    #panel{flex:1;max-width:none;border-right:none;}
+    #view-toggle{
+      display:flex;gap:6px;padding:8px 14px;
+      background:var(--craie);border-bottom:1px solid var(--line);
+      position:relative;z-index:20;
+    }
+    #view-toggle button{
+      flex:1;border:1.5px solid var(--line);background:#fff;color:var(--navy);
+      font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;
+      padding:8px;border-radius:999px;cursor:pointer;
+    }
+    #view-toggle button.active{background:var(--navy);border-color:var(--navy);color:#fff;}
+    #main.show-map #panel{display:none;}
+    #main:not(.show-map) #map-wrap{display:none;}
+    .hint-long{display:none;}
+    .hint-short{display:inline;}
+    #map-hint{left:auto;right:12px;transform:none;}
+  }
+</style>
+</head>
+<body>
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="bons-plans.html" aria-current="page">Bons plans</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="index.html#nous-suivre">Nous suivre</a>
+  </div>
+</nav>
+
+<header>
+  <div class="brand">
+    <div class="brand-text">
+      <div class="eyebrow">Le guide des bons plans</div>
+      <h1>Restos, balades, insolite &amp; événements</h1>
+      <div class="sub">À Châlons, par les Chalonnais</div>
+    </div>
+  </div>
+  <div class="header-actions">
+    <span id="admin-pill" style="display:none;">🛡 Mode modérateur <span id="admin-logout">— quitter</span></span>
+    <button id="board-btn" title="Classement des contributeurs" style="background:var(--craie);"><span class="btn-icon">🏆</span><span class="btn-label">Classement</span></button>
+    <button id="archive-btn" title="Événements passés" style="background:var(--craie);"><span class="btn-icon">🗄</span><span class="btn-label">Archives</span></button>
+    <button id="podium-btn" title="The Place to Be" style="background:var(--craie);"><span class="btn-icon">🔥</span><span class="btn-label">Tendances</span></button>
+    <button id="mod-btn" title="Espace modérateur"><span class="btn-icon">⚙</span><span class="btn-label">Modération</span></button>
+    <button id="geoloc-btn" title="Ajouter un bon plan à ma position actuelle"><span class="btn-icon">📍</span><span class="btn-label">Ma position</span></button>
+  </div>
+</header>
+
+<div id="search-bar">
+  <span id="search-icon">🔎</span>
+  <input id="search-input" type="text" placeholder="Rechercher un bon plan (nom, description...)">
+  <span id="search-clear" style="display:none;">✕</span>
+</div>
+<div id="filters"></div>
+<div id="quartier-filters"></div>
+<div id="discovery-bar"></div>
+
+<div id="view-toggle" role="group" aria-label="Affichage">
+  <button type="button" id="view-list" class="active">☰ Liste</button>
+  <button type="button" id="view-map">🗺️ Carte</button>
+</div>
+<div id="main">
+  <div id="panel">
+    <div id="panel-heading" class="viewfinder always-framed">
+      <h2>Les bons plans</h2>
+    </div>
+    <div class="tagline">Repérés, testés et partagés par les Chalonnais</div>
+    <div id="panel-toolbar">
+      <div class="count" id="panel-count">chargement…</div>
+      <div id="sort-controls">
+        <span class="sort-chip active" data-sort="recent">Récents</span>
+        <span class="sort-chip" data-sort="rating">Mieux notés</span>
+        <span class="sort-chip" data-sort="comments">Plus commentés</span>
+      </div>
+    </div>
+    <div id="cards"></div>
+  </div>
+  <div id="map-wrap">
+    <div id="map" aria-label="Carte des bons plans"></div>
+    <div id="map-hint"><span class="hint-long">Touchez la carte pour proposer un bon plan à cet endroit</span><span class="hint-short">Touchez la carte pour ajouter un lieu</span></div>
+  </div>
+</div>
+
+<div id="partner-cta">
+  <span>🤝 Vous êtes commerçant à Châlons ? Devenez partenaire de L'Objectif Chalonnais en soutenant l'association — <a href="mailto:lobjectifchalonnais@gmail.com">lobjectifchalonnais@gmail.com</a></span>
+  <span id="partner-cta-close" title="Masquer">✕</span>
+</div>
+
+<div id="overlay">
+  <div id="modal">
+    <h2>Ajouter un bon plan</h2>
+    <div class="loc-hint" id="loc-hint">📍 Choisissez votre quartier ci-dessous</div>
+    <div class="field">
+      <label>Nom du lieu ou de l'événement</label>
+      <input id="f-name" type="text" maxlength="60" placeholder="Ex. Le café du Jard">
+    </div>
+    <div id="f-duplicate-warning" style="display:none;"></div>
+    <div class="field">
+      <label>Catégorie</label>
+      <div class="cat-picker" id="f-cat"></div>
+    </div>
+    <div class="field">
+      <label>Quartier</label>
+      <div class="cat-picker" id="f-quartier"></div>
+    </div>
+    <div class="field">
+      <label>Adresse précise (optionnel)</label>
+      <input id="f-address" type="text" maxlength="100" placeholder="Ex. 12 rue du Général Sarrail">
+    </div>
+    <div class="field" id="f-eventdate-field" style="display:none;">
+      <label id="f-eventdate-label">Cet événement a lieu le...</label>
+      <input id="f-eventdate" type="date">
+    </div>
+    <div class="field">
+      <label>Pourquoi c'est un bon plan ?</label>
+      <textarea id="f-desc" maxlength="220" placeholder="Une phrase ou deux, l'essentiel..."></textarea>
+    </div>
+    <div class="field">
+      <label>Votre prénom (optionnel)</label>
+      <input id="f-author" type="text" maxlength="30" placeholder="Ex. Sophie">
+    </div>
+    <div class="field">
+      <label>Votre Facebook (optionnel)</label>
+      <input id="f-fb" type="text" maxlength="80" placeholder="Pseudo ou lien du profil, si vous voulez être identifiable">
+    </div>
+    <div class="hp-field" aria-hidden="true">
+      <label for="f-website">Site web</label>
+      <input id="f-website" type="text" tabindex="-1" autocomplete="off">
+    </div>
+    <div id="status-msg"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="cancel-btn">Annuler</button>
+      <button class="btn-primary" id="submit-btn" disabled>Ajouter le bon plan</button>
+    </div>
+  </div>
+</div>
+
+<div id="detail-overlay">
+  <div id="detail-modal">
+    <div id="d-cover-photo" style="display:none;"></div>
+    <div class="d-tag" id="d-tag"></div>
+    <h2 id="d-name"></h2>
+    <div id="d-partner-badge"></div>
+    <div id="d-cover-admin" style="display:none;"></div>
+    <div class="d-desc" id="d-desc"></div>
+    <div class="quartier" id="d-address" style="display:none;"></div>
+    <div class="grade-badge-full" id="d-author-line"></div>
+    <div class="rating-row" id="d-avg-row"></div>
+    <div style="display:flex;gap:14px;align-items:center;margin-top:8px;flex-wrap:wrap;">
+      <span class="locate-link" id="d-locate">🗺️ Voir l'itinéraire</span>
+      <span class="locate-link" id="d-copy-link">🔗 Copier le lien</span>
+      <span class="locate-link" id="d-share-fb">📘 Partager sur Facebook</span>
+      <span class="report-link" id="d-report-pin-link">🚩 Signaler ce bon plan</span>
+      <span class="admin-delete" id="d-delete-pin-link" style="display:none;">🗑 Supprimer</span>
+      <span class="partner-toggle-link" id="d-toggle-partner-link" style="display:none;">⭐ Marquer comme partenaire</span>
+      <span class="partner-toggle-link" id="d-reschedule-link" style="display:none;">🔁 Reprogrammer</span>
+    </div>
+    <div id="d-reschedule-box" style="display:none;margin-top:10px;">
+      <div class="field">
+        <label>Nouvelle date de cette édition</label>
+        <input id="d-reschedule-date" type="date">
+      </div>
+      <div id="d-reschedule-status" style="font-size:12px;color:var(--brique);min-height:16px;"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="d-reschedule-cancel">Annuler</button>
+        <button class="btn-primary" id="d-reschedule-confirm">Créer la nouvelle édition</button>
+      </div>
+    </div>
+    <div id="d-report-box" style="display:none;margin-top:10px;">
+      <div class="field">
+        <label>Pourquoi signalez-vous ce contenu ?</label>
+        <textarea id="d-report-reason" maxlength="200" placeholder="Ex. contenu inapproprié, information fausse, doublon..."></textarea>
+      </div>
+      <div id="d-report-status" style="font-size:12px;color:var(--brique);min-height:16px;"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="d-report-cancel">Annuler</button>
+        <button class="btn-primary" id="d-report-send">Envoyer le signalement</button>
+      </div>
+    </div>
+
+    <div id="d-attendance-section" style="display:none;">
+      <hr class="section-divider">
+      <div class="comments-title">🙋 Qui y sera ?</div>
+      <div id="d-attendance-count" class="attendance-count"></div>
+      <div id="d-attendance-form">
+        <input id="d-attend-author" type="text" maxlength="30" placeholder="Votre prénom (optionnel)" style="margin-bottom:8px;">
+        <input id="d-attend-fb" type="text" maxlength="80" placeholder="Votre Facebook (optionnel)" style="margin-bottom:8px;">
+        <button class="btn-primary" id="d-attend-btn" style="width:100%;">🙋 Je compte y aller !</button>
+      </div>
+    </div>
+
+    <div id="d-photos-section" style="display:none;">
+      <hr class="section-divider">
+      <div class="comments-title">📷 Photos insolites</div>
+      <div id="d-photos-grid" class="photos-grid"></div>
+      <div id="d-photos-upload">
+        <input id="d-photo-author" type="text" maxlength="30" placeholder="Votre prénom (optionnel)" style="margin-bottom:8px;">
+        <input id="d-photo-fb" type="text" maxlength="80" placeholder="Votre Facebook (optionnel)" style="margin-bottom:8px;">
+        <div class="hp-field" aria-hidden="true">
+          <label for="d-photo-website">Site web</label>
+          <input id="d-photo-website" type="text" tabindex="-1" autocomplete="off">
+        </div>
+        <label class="btn-secondary photo-upload-btn" id="d-photo-add-label">
+          + Ajouter une photo
+          <input id="d-photo-add-input" type="file" accept="image/*" style="display:none;">
+        </label>
+        <div id="d-photo-status" style="font-size:12px;color:var(--brique);margin-top:6px;min-height:16px;"></div>
+      </div>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="rate-block" id="d-rate-block">
+      <div class="prompt">Votre note</div>
+      <input id="d-rate-author" type="text" maxlength="30" placeholder="Votre prénom (optionnel)" style="width:auto;max-width:200px;margin:0 auto 10px auto;display:block;font-family:'Nunito',sans-serif;font-size:12.5px;padding:6px 9px;border:1.5px solid var(--line);border-radius:7px;">
+      <div class="stars interactive" id="d-star-picker"></div>
+    </div>
+
+    <hr class="section-divider">
+
+    <div class="comments-title" id="d-comments-title">Commentaires</div>
+    <div id="d-comments-list"></div>
+
+    <div class="comment-form" style="margin-top:12px;">
+      <div class="field">
+        <textarea id="d-comment-text" maxlength="240" placeholder="Votre avis, une astuce, un conseil..."></textarea>
+      </div>
+      <div class="field">
+        <input id="d-comment-author" type="text" maxlength="30" placeholder="Votre prénom (optionnel)">
+      </div>
+      <div class="field">
+        <input id="d-comment-fb" type="text" maxlength="80" placeholder="Votre Facebook (optionnel)">
+      </div>
+      <div class="hp-field" aria-hidden="true">
+        <label for="d-comment-website">Site web</label>
+        <input id="d-comment-website" type="text" tabindex="-1" autocomplete="off">
+      </div>
+      <div id="d-comment-status" style="font-size:12px;color:var(--brique);min-height:16px;"></div>
+      <div class="modal-actions">
+        <button class="btn-secondary" id="d-close-btn">Fermer</button>
+        <button class="btn-primary" id="d-comment-submit">Publier le commentaire</button>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div id="password-overlay">
+  <div id="password-modal">
+    <h2>Espace modérateur</h2>
+    <div class="loc-hint">Réservé aux administrateurs de la page</div>
+    <div class="field">
+      <label>Code d'accès</label>
+      <input id="pw-input" type="password" placeholder="••••••••">
+    </div>
+    <div id="pw-status" style="font-size:12px;color:var(--brique);min-height:16px;"></div>
+    <div class="modal-actions">
+      <button class="btn-secondary" id="pw-cancel">Annuler</button>
+      <button class="btn-primary" id="pw-submit">Entrer</button>
+    </div>
+  </div>
+</div>
+
+<div id="board-overlay">
+  <div id="board-panel">
+    <h2>🏆 Les meilleurs contributeurs</h2>
+    <div class="loc-hint">Classement basé sur les bons plans ajoutés, les commentaires et les notes données</div>
+    <div id="board-list"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-secondary" id="board-close-btn">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div id="archive-overlay">
+  <div id="archive-panel">
+    <h2>🗄 Événements passés</h2>
+    <div class="loc-hint">Retrouvez les week-ends et événements du mois écoulés — vous pouvez toujours les noter et les commenter</div>
+    <div id="archive-list"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-secondary" id="archive-close-btn">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div id="podium-overlay">
+  <div id="podium-panel">
+    <h2>🔥 The Place to Be</h2>
+    <div class="loc-hint">Classement des prochains événements selon les intentions de participation</div>
+    <div id="podium-top3"></div>
+    <div id="podium-rest"></div>
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-secondary" id="podium-close-btn">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div id="mod-overlay">
+  <div id="mod-panel">
+    <h2>🛡 Modération</h2>
+
+    <div class="comments-title" style="margin-top:4px;">🎉🗓️ Événements en attente de publication</div>
+    <div class="loc-hint" id="mod-weekend-count">chargement…</div>
+    <div id="mod-weekend-list"></div>
+
+    <hr class="section-divider">
+
+    <div class="comments-title">🚩 Signalements</div>
+    <div class="loc-hint" id="mod-count">chargement…</div>
+    <div id="mod-list"></div>
+
+    <hr class="section-divider">
+
+    <div class="comments-title">🗄 Événements archivés</div>
+    <div class="loc-hint" id="mod-archive-count">chargement…</div>
+    <div id="mod-archive-list"></div>
+
+    <div class="modal-actions" style="margin-top:16px;">
+      <button class="btn-secondary" id="mod-close-btn">Fermer</button>
+    </div>
+  </div>
+</div>
+
+<div id="lightbox-overlay">
+  <span id="lightbox-close">✕</span>
+  <img id="lightbox-img" src="" alt="Photo agrandie">
+</div>
+
+<button id="add-btn">
+  <span class="fab-icon">＋</span>
+  <span class="fab-label">Ajouter un bon plan</span>
+</button>
+
+<div id="toast"></div>
+
+<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+<script src="config.js"></script>
+<script src="storage.js"></script>
+<script>
+(function(){
+  const CHALONS = [48.9564, 4.3667];
+  const STORAGE_KEY = 'chalons-bons-plans';
+  const REPORTS_KEY = 'chalons-reports';
+  const PHOTOS_KEY_PREFIX = 'chalons-photos-';
+  const MAX_PHOTOS_PER_PIN = 3;
+  const PHOTO_CATEGORIES = ['insolite'];
+
+  const QUARTIERS = {
+    centre:    { label: 'Centre-ville',           lat: 48.9564, lng: 4.3667 },
+    venise:    { label: 'Petite Venise / Canaux',  lat: 48.9540, lng: 4.3660 },
+    jard:      { label: 'Le Jard',                 lat: 48.9520, lng: 4.3706 },
+    gare:      { label: 'Gare',                    lat: 48.9600, lng: 4.3600 },
+    faubourg:  { label: 'Faubourg Saint-Antoine',  lat: 48.9610, lng: 4.3680 },
+    autre:     { label: 'Autre / Périphérie',      lat: 48.9564, lng: 4.3667 }
+  };
+
+  // SHA-256 hash of the admin password. Default password: ObjectifChalonnais2026
+  // Ask Claude to generate a new hash any time you want to change this code.
+  const ADMIN_PASSWORD_HASH = 'b75e73a3d6c4dc1516f6067bdac98eb64c232f1190441592b496781ed6d2c1f1';
+  let isAdmin = false;
+  let allReports = [];
+  let spotlightAuthor = null;
+  let searchQuery = '';
+  let activeQuartier = 'all';
+  let sortMode = 'recent';
+  const photoThumbCache = {}; // pinId -> dataUrl ('loading' while in flight)
+
+  // ---------- LIGHTWEIGHT ANTI-SPAM ----------
+  const sessionActionLog = [];
+  const RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+  const RATE_LIMIT_MAX = 8;
+  const MIN_FORM_TIME_MS = 2000;
+  let addModalOpenedAt = 0;
+  let detailOpenedAt = 0;
+
+  function isRateLimited(){
+    const now = Date.now();
+    while(sessionActionLog.length && now - sessionActionLog[0] > RATE_LIMIT_WINDOW_MS){
+      sessionActionLog.shift();
+    }
+    return sessionActionLog.length >= RATE_LIMIT_MAX;
+  }
+  function recordAction(){
+    sessionActionLog.push(Date.now());
+  }
+  function warnRateLimited(){
+    showToast('Beaucoup de contributions en peu de temps — patientez quelques minutes avant de continuer 🙏');
+  }
+  function looksLikeBot(honeypotEl, openedAt){
+    return (honeypotEl && honeypotEl.value.trim() !== '') || (Date.now() - openedAt) < MIN_FORM_TIME_MS;
+  }
+  let spotlightDisplayName = null;
+
+  const CATEGORIES = {
+    resto:   {label:'Bonnes tables', color:'#B5502B', icon:'🥐'},
+    champagne:{label:'Champagne & terroir', color:'#9C6B30', icon:'🥂'},
+    nature:  {label:'Nature & balades', color:'#4A6670', icon:'🌿'},
+    culture: {label:'Culture & patrimoine', color:'#1F3B2C', icon:'🏛'},
+    insolite:{label:'Insolite', color:'#C9A227', icon:'✦'},
+    event:   {label:'Événements', color:'#6D3B5E', icon:'📅'},
+    weekend: {label:'Ce week-end à Châlons', color:'#C23B5A', icon:'🎉'},
+    month:   {label:'Ce mois-ci à Châlons', color:'#4A4E9C', icon:'🗓️'}
+  };
+  const MODERATED_CATEGORIES = ['weekend', 'month'];
+
+  const SEED = [
+    {id:'seed-1', name:'Le long des canaux', cat:'nature', desc:"La balade classique mais toujours belle : les bras de la Marne autour du centre, surnommés la « petite Venise ».", author:"L'Objectif Chalonnais", lat:48.9540, lng:4.3660, ts:Date.now(), seeded:true, ratings:[], comments:[]},
+    {id:'seed-2', name:'Notre-Dame-en-Vaux', cat:'culture', desc:"Collégiale classée, étape historique des chemins de Saint-Jacques-de-Compostelle. À voir de jour comme de nuit.", author:"L'Objectif Chalonnais", lat:48.9556, lng:4.3626, ts:Date.now(), seeded:true, ratings:[], comments:[]},
+    {id:'seed-3', name:'Le Jard', cat:'nature', desc:"Le grand parc à l'anglaise du centre-ville, parfait pour un pique-nique ou une pause au calme.", author:"L'Objectif Chalonnais", lat:48.9520, lng:4.3706, ts:Date.now(), seeded:true, ratings:[], comments:[]},
+    {id:'seed-4', name:'Quartier du Marché Couvert', cat:'resto', desc:"Petites adresses gourmandes et marché animé — idéal pour un déjeuner sur le pouce.", author:"L'Objectif Chalonnais", lat:48.9585, lng:4.3644, ts:Date.now(), seeded:true, ratings:[], comments:[]}
+  ];
+
+  let allPins = [];
+  let activeFilters = new Set(Object.keys(CATEGORIES));
+  let pendingLatLng = null;
+  let selectedCat = null;
+  let selectedQuartier = null;
+  let detailPinId = null;
+  let pendingStarValue = 0;
+  const ratedThisSession = new Set();
+  const attendanceThisSession = new Map(); // pinId -> attendee entry id
+
+
+  // ---------- FILTER BAR ----------
+  // ---------- SEARCH BAR ----------
+  const searchInput = document.getElementById('search-input');
+  const searchClear = document.getElementById('search-clear');
+  let searchDebounce = null;
+  searchInput.oninput = ()=>{
+    searchClear.style.display = searchInput.value ? 'inline' : 'none';
+    clearTimeout(searchDebounce);
+    searchDebounce = setTimeout(()=>{
+      searchQuery = normalizeText(searchInput.value.trim());
+      render();
+    }, 200);
+  };
+  searchClear.onclick = ()=>{
+    searchInput.value = '';
+    searchClear.style.display = 'none';
+    searchQuery = '';
+    render();
+    searchInput.focus();
+  };
+
+  const filterBar = document.getElementById('filters');
+  Object.entries(CATEGORIES).forEach(([key,c])=>{
+    const chip = document.createElement('div');
+    chip.className = 'chip active';
+    chip.dataset.cat = key;
+    chip.innerHTML = `<span class="dot" style="background:${c.color}"></span>${c.label}`;
+    chip.onclick = ()=>{
+      if(activeFilters.has(key)){activeFilters.delete(key); chip.classList.remove('active');}
+      else{activeFilters.add(key); chip.classList.add('active');}
+      render();
+    };
+    filterBar.appendChild(chip);
+  });
+
+  // ---------- CATEGORY PICKER IN MODAL ----------
+  const fCat = document.getElementById('f-cat');
+  Object.entries(CATEGORIES).forEach(([key,c])=>{
+    const opt = document.createElement('div');
+    opt.className='cat-opt';
+    opt.dataset.cat=key;
+    opt.innerHTML = `<span>${c.icon}</span>${c.label}`;
+    opt.onclick = ()=>{
+      selectedCat = key;
+      document.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      document.getElementById('f-eventdate-field').style.display = MODERATED_CATEGORIES.includes(key) ? 'block' : 'none';
+      document.getElementById('f-eventdate-label').textContent = key === 'month' ? 'Cet événement a lieu quel jour, ce mois-ci ?' : 'Ce week-end a lieu le...';
+      validateForm();
+    };
+    fCat.appendChild(opt);
+  });
+
+  // ---------- QUARTIER PICKER IN MODAL ----------
+  const fQuartier = document.getElementById('f-quartier');
+  Object.entries(QUARTIERS).forEach(([key,q])=>{
+    const opt = document.createElement('div');
+    opt.className='cat-opt quartier-opt';
+    opt.dataset.quartier=key;
+    opt.innerHTML = `<span>📍</span>${q.label}`;
+    opt.onclick = ()=>{
+      selectedQuartier = key;
+      document.querySelectorAll('.quartier-opt').forEach(o=>o.classList.remove('selected'));
+      opt.classList.add('selected');
+      validateForm();
+      checkDuplicatesDebounced();
+    };
+    fQuartier.appendChild(opt);
+  });
+
+  // ---------- STORAGE ----------
+  const DAY_MS = 24*60*60*1000;
+
+  function archiveTimeFor(p){
+    if(!p.eventDate) return null;
+    const d = new Date(p.eventDate + 'T00:00:00');
+    if(isNaN(d.getTime())) return null;
+    if(p.cat === 'weekend'){
+      // archive 2 days after the given date (covers the weekend + a buffer)
+      return d.getTime() + 2*DAY_MS;
+    }
+    if(p.cat === 'month'){
+      // archive 5 days after the end of the calendar month containing the event date
+      const endOfMonth = new Date(d.getFullYear(), d.getMonth()+1, 1);
+      return endOfMonth.getTime() + 5*DAY_MS;
+    }
+    return null;
+  }
+
+  function archiveExpiredTimedPins(){
+    const now = Date.now();
+    let changed = false;
+    allPins.forEach(p=>{
+      if(MODERATED_CATEGORIES.includes(p.cat) && p.status === 'published' && !p.keepPublished){
+        const archiveTime = archiveTimeFor(p);
+        if(archiveTime !== null && now > archiveTime){
+          p.status = 'archived';
+          changed = true;
+        }
+      }
+    });
+    return changed;
+  }
+
+  async function loadPins(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, true);
+      allPins = res ? JSON.parse(res.value) : SEED;
+      if(!res){
+        // first ever visit: seed the shared board
+        try{ await window.storage.set(STORAGE_KEY, JSON.stringify(SEED), true); }catch(e){}
+      }
+    }catch(e){
+      allPins = SEED;
+    }
+    // guarantee shape for pins saved before ratings/comments existed
+    allPins.forEach(p=>{
+      if(!Array.isArray(p.ratings)) p.ratings = [];
+      if(!Array.isArray(p.comments)) p.comments = [];
+      if(typeof p.isPartner !== 'boolean') p.isPartner = false;
+      if(typeof p.photoCount !== 'number') p.photoCount = 0;
+      if(typeof p.hasCoverPhoto !== 'boolean') p.hasCoverPhoto = false;
+      if(typeof p.fb !== 'string') p.fb = '';
+      if(typeof p.address !== 'string') p.address = '';
+      if(typeof p.status !== 'string') p.status = 'published';
+      if(typeof p.eventDate !== 'string') p.eventDate = null;
+      if(typeof p.keepPublished !== 'boolean') p.keepPublished = false;
+      if(!Array.isArray(p.attendees)) p.attendees = [];
+      if(typeof p.preciseLocation !== 'boolean') p.preciseLocation = false;
+      if(!p.quartier || !QUARTIERS[p.quartier]) p.quartier = nearestQuartier(p.lat, p.lng);
+      p.comments.forEach(cm=>{ if(typeof cm.fb !== 'string') cm.fb = ''; });
+    });
+    const archived = archiveExpiredTimedPins();
+    if(archived) await savePins();
+    render();
+  }
+
+  async function savePins(){
+    try{
+      const result = await window.storage.set(STORAGE_KEY, JSON.stringify(allPins), true);
+      if(!result) throw new Error('save failed');
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  async function sha256(text){
+    const enc = new TextEncoder().encode(text);
+    const buf = await crypto.subtle.digest('SHA-256', enc);
+    return Array.from(new Uint8Array(buf)).map(b=>b.toString(16).padStart(2,'0')).join('');
+  }
+
+  // ---------- PHOTOS ----------
+  async function loadPhotosForPin(pinId){
+    try{
+      const res = await window.storage.get(PHOTOS_KEY_PREFIX + pinId, true);
+      return res ? JSON.parse(res.value) : [];
+    }catch(e){
+      return [];
+    }
+  }
+
+  async function savePhotosForPin(pinId, photos){
+    try{
+      const result = await window.storage.set(PHOTOS_KEY_PREFIX + pinId, JSON.stringify(photos), true);
+      return !!result;
+    }catch(e){
+      return false;
+    }
+  }
+
+  function compressImage(file){
+    return new Promise((resolve, reject)=>{
+      if(!file.type.startsWith('image/')){ reject(new Error('not-an-image')); return; }
+      if(file.size > 8 * 1024 * 1024){ reject(new Error('too-large')); return; }
+      const reader = new FileReader();
+      reader.onerror = ()=> reject(new Error('read-failed'));
+      reader.onload = (e)=>{
+        const img = new Image();
+        img.onerror = ()=> reject(new Error('decode-failed'));
+        img.onload = ()=>{
+          const maxDim = 900;
+          let w = img.width, h = img.height;
+          if(w > h && w > maxDim){ h = Math.round(h * maxDim / w); w = maxDim; }
+          else if(h >= w && h > maxDim){ w = Math.round(w * maxDim / h); h = maxDim; }
+          const canvas = document.createElement('canvas');
+          canvas.width = w; canvas.height = h;
+          canvas.getContext('2d').drawImage(img, 0, 0, w, h);
+          resolve(canvas.toDataURL('image/jpeg', 0.72));
+        };
+        img.src = e.target.result;
+      };
+      reader.readAsDataURL(file);
+    });
+  }
+
+  async function loadReports(){
+    try{
+      const res = await window.storage.get(REPORTS_KEY, true);
+      allReports = res ? JSON.parse(res.value) : [];
+    }catch(e){
+      allReports = [];
+    }
+  }
+
+  async function saveReports(){
+    try{
+      const result = await window.storage.set(REPORTS_KEY, JSON.stringify(allReports), true);
+      if(!result) throw new Error('save failed');
+      return true;
+    }catch(e){
+      return false;
+    }
+  }
+
+  // ---------- RENDER ----------
+  function todayISO(){
+    return new Date().toISOString().slice(0,10);
+  }
+
+  function isUpcomingEvent(p){
+    return MODERATED_CATEGORIES.includes(p.cat) && p.status === 'published' && p.eventDate && p.eventDate >= todayISO();
+  }
+
+  function attendeeBadge(p){
+    if(!MODERATED_CATEGORIES.includes(p.cat)) return '';
+    const n = (p.attendees||[]).length;
+    if(n === 0) return '';
+    return `<div class="attendee-badge">🙋 ${n} personne${n>1?'s':''} y ser${n>1?'ont':'a'}</div>`;
+  }
+
+  function eventDateBadge(p){
+    if(!MODERATED_CATEGORIES.includes(p.cat) || !p.eventDate) return '';
+    const label = new Date(p.eventDate + 'T00:00:00').toLocaleDateString('fr-FR', {weekday:'long', day:'numeric', month:'long'});
+    const gradient = p.cat === 'month' ? 'linear-gradient(90deg,#4A4E9C,#7477C2)' : 'linear-gradient(90deg,#C23B5A,#DE6E85)';
+    const icon = CATEGORIES[p.cat].icon;
+    return `<div class="partner-badge" style="background:${gradient};color:#fff;">${icon} ${label}</div>`;
+  }
+
+  function directionsUrl(p){
+    if(p.address && p.address.trim()){
+      const q = `${p.address.trim()}, Châlons-en-Champagne`;
+      return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(q)}`;
+    }
+    return `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+  }
+
+  function escapeHtml(s){
+    const d = document.createElement('div');
+    d.textContent = s || '';
+    return d.innerHTML;
+  }
+
+  function avgRating(p){
+    const ratings = p.ratings || [];
+    if(ratings.length === 0) return {value:0, label:'Pas encore noté'};
+    const sum = ratings.reduce((a,r)=>a+r.value,0);
+    const value = sum / ratings.length;
+    return {value, label:`${value.toFixed(1)} · ${ratings.length} avis`};
+  }
+
+  function starsHtml(value, interactive){
+    const rounded = Math.round(value);
+    let out = `<span class="stars${interactive?' interactive':''}">`;
+    for(let i=1;i<=5;i++){
+      out += `<span class="star${i<=rounded?' filled':''}" data-val="${i}">★</span>`;
+    }
+    out += `</span>`;
+    return out;
+  }
+
+  // ---------- GRADES & LEADERBOARD ----------
+  const GRADES = [
+    {min:1,  icon:'🌱', label:'Nouveau Chalonnais'},
+    {min:3,  icon:'🥐', label:'Habitué·e'},
+    {min:6,  icon:'🏛', label:'Expert·e du coin'},
+    {min:11, icon:'🥂', label:'Ambassadeur·rice'},
+    {min:21, icon:'👑', label:'Légende chalonnaise'}
+  ];
+
+  function gradeForTotal(total){
+    let g = null;
+    for(const tier of GRADES){ if(total >= tier.min) g = tier; }
+    return g;
+  }
+
+  function computeContributions(){
+    // key = lowercased trimmed name -> {display, pins, comments, ratings, firstSeen, lastFb, lastFbTs}
+    const map = {};
+    function bump(rawName, field, ts, fb){
+      const name = (rawName||'').trim();
+      if(!name) return;
+      const key = name.toLowerCase();
+      if(!map[key]) map[key] = {display:name, pins:0, comments:0, ratings:0, firstSeen:ts, lastFb:'', lastFbTs:0};
+      map[key][field]++;
+      if(ts < map[key].firstSeen) map[key].firstSeen = ts;
+      if(fb && fb.trim() && ts >= map[key].lastFbTs){
+        map[key].lastFb = fb.trim();
+        map[key].lastFbTs = ts;
+      }
+    }
+    allPins.forEach(p=>{
+      if(!p.seeded && p.status==='published') bump(p.author, 'pins', p.ts, p.fb);
+      (p.comments||[]).forEach(cm=> bump(cm.author, 'comments', cm.ts, cm.fb));
+      (p.ratings||[]).forEach(r=> bump(r.author, 'ratings', r.ts));
+    });
+    return map;
+  }
+
+  function contributionsFor(rawName){
+    const name = (rawName||'').trim();
+    if(!name) return null;
+    const map = computeContributions();
+    return map[name.toLowerCase()] || null;
+  }
+
+  function fbUrl(raw){
+    if(!raw) return null;
+    let v = raw.trim();
+    if(!v) return null;
+    if(/^https?:\/\//i.test(v)) return v;
+    v = v.replace(/^@/, '');
+    return `https://facebook.com/${v}`;
+  }
+
+  function fbLink(raw){
+    const url = fbUrl(raw);
+    if(!url) return '';
+    return `<a href="${escapeHtml(url)}" target="_blank" rel="noopener noreferrer" class="fb-link" title="Voir le profil Facebook" onclick="event.stopPropagation()">📘</a>`;
+  }
+
+  function sinceLabel(ts){
+    return new Date(ts).toLocaleDateString('fr-FR', {month:'long', year:'numeric'});
+  }
+
+  function badgeInline(rawName){
+    const c = contributionsFor(rawName);
+    if(!c) return '';
+    const total = c.pins + c.comments + c.ratings;
+    const g = gradeForTotal(total);
+    if(!g) return '';
+    return `<span class="grade-badge" title="${g.label} · ${total} contribution${total>1?'s':''} · Depuis ${sinceLabel(c.firstSeen)}">${g.icon}</span>`;
+  }
+
+  function badgeFull(rawName){
+    const c = contributionsFor(rawName);
+    if(!c) return '';
+    const total = c.pins + c.comments + c.ratings;
+    const g = gradeForTotal(total);
+    if(!g) return '';
+    return `<span class="grade-badge-full" style="display:inline-flex;">${g.icon} ${g.label}</span>`;
+  }
+
+  function renderLeaderboard(){
+    const map = computeContributions();
+    const list = Object.entries(map).map(([key,c])=>({key, ...c, total:c.pins+c.comments+c.ratings}))
+      .filter(c=>c.total>0)
+      .sort((a,b)=>b.total-a.total)
+      .slice(0,20);
+
+    const boardList = document.getElementById('board-list');
+    boardList.innerHTML = '';
+    if(list.length === 0){
+      boardList.innerHTML = `<div class="no-board">Personne n'a encore contribué. Le premier bon plan ajouté prend la tête du classement !</div>`;
+      return;
+    }
+    list.forEach((c,idx)=>{
+      const g = gradeForTotal(c.total) || {icon:'🌱', label:'Nouveau Chalonnais'};
+      const row = document.createElement('div');
+      row.className = 'board-row';
+      row.innerHTML = `
+        <div class="board-rank">${idx+1}</div>
+        <div class="board-icon">${g.icon}</div>
+        <div class="board-info">
+          <div class="board-name">${escapeHtml(c.display)}${fbLink(c.lastFb)}</div>
+          <div class="board-detail">${g.label} · ${c.pins} bon${c.pins>1?'s':''} plan${c.pins>1?'s':''}, ${c.comments} commentaire${c.comments>1?'s':''}, ${c.ratings} note${c.ratings>1?'s':''}</div>
+          <div class="since-line">Contributeur·rice depuis ${sinceLabel(c.firstSeen)}</div>
+        </div>
+        <div class="dp-action" style="font-size:11px;">Voir ses bons plans →</div>
+      `;
+      row.onclick = ()=>{
+        boardOverlay.classList.remove('open');
+        activateSpotlight(c.key, c.display);
+      };
+      boardList.appendChild(row);
+    });
+  }
+
+  function renderDiscoveryBar(){
+    const bar = document.getElementById('discovery-bar');
+    if(spotlightAuthor){
+      const count = allPins.filter(p=>(p.author||'').trim().toLowerCase() === spotlightAuthor).length;
+      bar.innerHTML = `<div class="discovery-pill spotlight">
+        <span>🏆 Vous voyez les coups de cœur de <strong>${escapeHtml(spotlightDisplayName)}</strong> — ${count} lieu${count>1?'x':''}</span>
+        <span class="dp-action" id="dp-reset">✕ Réinitialiser la vue</span>
+      </div>`;
+      document.getElementById('dp-reset').onclick = clearSpotlight;
+    }else{
+      const map = computeContributions();
+      const list = Object.entries(map).map(([key,c])=>({key, ...c, total:c.pins+c.comments+c.ratings}))
+        .filter(c=>c.total>0)
+        .sort((a,b)=>b.total-a.total);
+      if(list.length === 0){ bar.innerHTML = ''; return; }
+      const top = list[0];
+      const g = gradeForTotal(top.total) || {icon:'🌱', label:'Nouveau Chalonnais'};
+      bar.innerHTML = `<div class="discovery-pill">
+        <span>${g.icon} Le meilleur contributeur est <strong>${escapeHtml(top.display)}</strong> (${g.label}) — envie de voir ses coups de cœur ?</span>
+        <span class="dp-action" id="dp-goto-top">Voir ses bons plans →</span>
+      </div>`;
+      document.getElementById('dp-goto-top').onclick = ()=> activateSpotlight(top.key, top.display);
+    }
+  }
+
+  function activateSpotlight(key, display){
+    spotlightAuthor = key;
+    spotlightDisplayName = display;
+    render();
+    showToast(`Vous voyez les coups de cœur de ${display} ✦`);
+  }
+
+  function clearSpotlight(){
+    spotlightAuthor = null;
+    spotlightDisplayName = null;
+    render();
+  }
+
+  function normalizeText(s){
+    return (s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  }
+
+  function distanceMeters(lat1, lng1, lat2, lng2){
+    const R = 6371000;
+    const toRad = d => d * Math.PI / 180;
+    const dLat = toRad(lat2-lat1);
+    const dLng = toRad(lng2-lng1);
+    const a = Math.sin(dLat/2)**2 + Math.cos(toRad(lat1))*Math.cos(toRad(lat2))*Math.sin(dLng/2)**2;
+    return R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+  }
+
+  function nearestQuartier(lat, lng){
+    let best = 'autre', bestDist = Infinity;
+    Object.entries(QUARTIERS).forEach(([key,q])=>{
+      const d = distanceMeters(lat, lng, q.lat, q.lng);
+      if(d < bestDist){ bestDist = d; best = key; }
+    });
+    return best;
+  }
+
+  function findPossibleDuplicates(name, quartierKey, preciseCoords){
+    const normName = normalizeText(name);
+    if(normName.length < 3) return [];
+    return allPins
+      .filter(p=> p.status === 'published')
+      .map(p=>{
+        const pName = normalizeText(p.name);
+        const nameClose = pName === normName || pName.includes(normName) || normName.includes(pName);
+        let dist = null;
+        if(preciseCoords && p.preciseLocation){
+          dist = distanceMeters(preciseCoords.lat, preciseCoords.lng, p.lat, p.lng);
+        }
+        const sameQuartier = p.quartier === quartierKey;
+        return {p, dist, nameClose, sameQuartier};
+      })
+      .filter(x => (x.dist !== null && x.dist < 60) || (x.nameClose && x.sameQuartier))
+      .sort((a,b)=> (a.dist ?? 9999) - (b.dist ?? 9999))
+      .slice(0, 3);
+  }
+
+  function matchesSearch(p){
+    if(!searchQuery) return true;
+    const haystack = normalizeText(p.name + ' ' + p.desc + ' ' + (p.author||''));
+    return haystack.includes(searchQuery);
+  }
+
+  function sortComparator(a, b){
+    if(sortMode === 'rating'){
+      const diff = avgRating(b).value - avgRating(a).value;
+      if(diff !== 0) return diff;
+      return b.ts - a.ts;
+    }
+    if(sortMode === 'comments'){
+      const diff = (b.comments||[]).length - (a.comments||[]).length;
+      if(diff !== 0) return diff;
+      return b.ts - a.ts;
+    }
+    return b.ts - a.ts; // recent (default)
+  }
+
+  function hasActiveFilters(){
+    return searchQuery || activeQuartier !== 'all' || spotlightAuthor || activeFilters.size !== Object.keys(CATEGORIES).length;
+  }
+
+  function resetAllFilters(){
+    searchQuery = '';
+    searchInput.value = '';
+    searchClear.style.display = 'none';
+    activeQuartier = 'all';
+    spotlightAuthor = null;
+    spotlightDisplayName = null;
+    activeFilters = new Set(Object.keys(CATEGORIES));
+    document.querySelectorAll('.chip').forEach(el=>el.classList.add('active'));
+    document.querySelectorAll('.chip-quartier').forEach(el=>{
+      el.classList.toggle('active', el.textContent === 'Tous les quartiers');
+    });
+    render();
+  }
+
+  function render(){
+    renderDiscoveryBar();
+    renderQuartierFilters();
+    const visible = allPins.filter(p=>
+      p.status === 'published' &&
+      activeFilters.has(p.cat) &&
+      (activeQuartier === 'all' || p.quartier === activeQuartier) &&
+      (!spotlightAuthor || (p.author||'').trim().toLowerCase() === spotlightAuthor) &&
+      matchesSearch(p)
+    );
+
+    renderMapMarkers(visible);
+    document.getElementById('panel-count').textContent = `${visible.length} bon${visible.length>1?'s':''} plan${visible.length>1?'s':''} affiché${visible.length>1?'s':''}`;
+
+    const cardsEl = document.getElementById('cards');
+    cardsEl.innerHTML = '';
+    if(visible.length === 0){
+      const msg = searchQuery
+        ? `Aucun résultat pour « ${escapeHtml(searchInput.value)} ». Essayez un autre mot-clé.`
+        : spotlightAuthor
+        ? `${escapeHtml(spotlightDisplayName)} n'a rien ajouté dans cette catégorie pour l'instant.`
+        : `Aucun bon plan dans cette sélection pour l'instant. Soyez le·la premier·ère à en ajouter un !`;
+      const resetLink = hasActiveFilters() ? `<div class="reset-filters-link" id="reset-filters-link">✕ Réinitialiser tous les filtres</div>` : '';
+      cardsEl.innerHTML = `<div class="empty-note">${msg}${resetLink}</div>`;
+      const rl = document.getElementById('reset-filters-link');
+      if(rl) rl.onclick = resetAllFilters;
+      return;
+    }
+    [...visible]
+      .sort((a,b)=> (b.isPartner?1:0)-(a.isPartner?1:0) || sortComparator(a,b))
+      .forEach(p=>{
+      const c = CATEGORIES[p.cat];
+      const q = QUARTIERS[p.quartier];
+      const avg = avgRating(p);
+      const card = document.createElement('div');
+      card.className = 'card';
+      const showThumb = p.hasCoverPhoto || (PHOTO_CATEGORIES.includes(p.cat) && p.photoCount > 0);
+      card.innerHTML = `
+        ${showThumb ? `<div class="card-thumb" id="thumb-${p.id}"><span class="thumb-placeholder">📷</span></div>` : ''}
+        <div class="tag"><span class="dot" style="background:${c.color}"></span>${c.label}</div>
+        <h3>${escapeHtml(p.name)}</h3>
+        ${p.isPartner ? `<div class="partner-badge">🥂 Partenaire de L'Objectif Chalonnais</div>` : ''}
+        ${eventDateBadge(p)}
+        ${attendeeBadge(p)}
+        <p>${escapeHtml(p.desc)}</p>
+        ${p.address ? `<div class="quartier">📌 ${escapeHtml(p.address)}</div>` : ''}
+        <div class="rating-row">${starsHtml(avg.value,false)}<span class="avg-num">${avg.label} · ${(p.comments||[]).length} commentaire${(p.comments||[]).length>1?'s':''}${p.photoCount>0 ? ' · 📷 '+p.photoCount : ''}</span></div>
+        ${q ? `<div class="quartier">📍 ${q.label}</div>` : ''}
+        <a class="directions-link" href="${directionsUrl(p)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🗺️ Voir l'itinéraire</a>
+        <div class="meta">${escapeHtml(p.author || 'Anonyme')}${fbLink(p.fb)}${badgeInline(p.author)}</div>
+      `;
+      card.onclick = ()=> openDetail(p.id);
+      cardsEl.appendChild(card);
+      if(showThumb) loadCardThumb(p.id);
+    });
+  }
+
+  async function loadCardThumb(pinId){
+    if(photoThumbCache[pinId] === 'loading') return;
+    if(photoThumbCache[pinId]){
+      paintCardThumb(pinId, photoThumbCache[pinId]);
+      return;
+    }
+    photoThumbCache[pinId] = 'loading';
+    try{
+      const photos = await loadPhotosForPin(pinId);
+      const cover = photos.find(ph=>ph.official);
+      const chosen = cover || (photos.length > 0 ? photos[0] : null);
+      if(chosen){
+        photoThumbCache[pinId] = chosen.dataUrl;
+        paintCardThumb(pinId, chosen.dataUrl);
+      }else{
+        photoThumbCache[pinId] = null;
+      }
+    }catch(e){
+      photoThumbCache[pinId] = null;
+    }
+  }
+
+  function paintCardThumb(pinId, dataUrl){
+    const el = document.getElementById('thumb-' + pinId);
+    if(!el || !dataUrl) return;
+    el.innerHTML = `<img src="${dataUrl}" alt="Photo du lieu">`;
+  }
+
+  // ---------- ADMIN COVER PHOTO (any category, contributors cannot remove) ----------
+  async function renderCoverPhoto(p){
+    const bannerEl = document.getElementById('d-cover-photo');
+    const adminEl = document.getElementById('d-cover-admin');
+
+    if(isAdmin){
+      adminEl.style.display = 'block';
+      adminEl.innerHTML = `
+        <div class="cover-admin-title">🖼️ Photo officielle (visible par tous, modifiable uniquement par les admins)</div>
+        <div class="cover-admin-actions">
+          <label class="cover-upload-btn">
+            ${p.hasCoverPhoto ? 'Remplacer la photo' : '+ Ajouter une photo officielle'}
+            <input type="file" accept="image/*" id="d-cover-input" style="display:none;">
+          </label>
+          ${p.hasCoverPhoto ? `<span class="cover-remove-link" id="d-cover-remove">Retirer</span>` : ''}
+        </div>
+        <div id="d-cover-status" style="font-size:11.5px;color:var(--brique);margin-top:6px;"></div>
+      `;
+      document.getElementById('d-cover-input').onchange = (e)=> handleCoverUpload(p.id, e.target.files[0]);
+      const removeLink = document.getElementById('d-cover-remove');
+      if(removeLink) removeLink.onclick = ()=> removeCoverPhoto(p.id);
+    }else{
+      adminEl.style.display = 'none';
+    }
+
+    if(!p.hasCoverPhoto){
+      bannerEl.style.display = 'none';
+      return;
+    }
+
+    bannerEl.style.display = 'block';
+    bannerEl.innerHTML = `<div class="thumb-placeholder" style="height:180px;display:flex;align-items:center;justify-content:center;background:var(--craie-2);border-radius:14px 14px 0 0;">🖼️</div>`;
+    try{
+      const photos = await loadPhotosForPin(p.id);
+      const cover = photos.find(ph=>ph.official);
+      if(cover && detailPinId === p.id){
+        bannerEl.innerHTML = `
+          <img src="${cover.dataUrl}" alt="${escapeHtml(p.name)}">
+          <div class="cover-caption">Photo ajoutée par ${escapeHtml(cover.author || "L'Objectif Chalonnais")}</div>
+        `;
+      }
+    }catch(e){
+      bannerEl.style.display = 'none';
+    }
+  }
+
+  async function handleCoverUpload(pinId, file){
+    if(!file) return;
+    const statusEl = document.getElementById('d-cover-status');
+    statusEl.style.color = 'var(--encre-soft)';
+    statusEl.textContent = 'Compression et envoi en cours…';
+    try{
+      const dataUrl = await compressImage(file);
+      const photos = await loadPhotosForPin(pinId);
+      const filtered = photos.filter(ph=>!ph.official);
+      filtered.push({
+        id: 'ph-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+        dataUrl,
+        author: "L'Objectif Chalonnais",
+        official: true,
+        ts: Date.now()
+      });
+      const success = await savePhotosForPin(pinId, filtered);
+      if(success){
+        const p = findPin(pinId);
+        if(p){ p.hasCoverPhoto = true; await savePins(); }
+        delete photoThumbCache[pinId];
+        renderDetail();
+        render();
+        showToast('Photo officielle ajoutée ✦');
+      }else{
+        statusEl.style.color = 'var(--brique)';
+        statusEl.textContent = "Impossible d'envoyer la photo, réessayez.";
+      }
+    }catch(err){
+      statusEl.style.color = 'var(--brique)';
+      statusEl.textContent = err.message === 'too-large'
+        ? 'Cette image est trop lourde (max 8 Mo).'
+        : "Ce fichier n'a pas pu être traité, essayez une autre photo.";
+    }
+  }
+
+  async function removeCoverPhoto(pinId){
+    if(!confirm('Retirer la photo officielle de ce bon plan ?')) return;
+    const photos = await loadPhotosForPin(pinId);
+    const filtered = photos.filter(ph=>!ph.official);
+    const success = await savePhotosForPin(pinId, filtered);
+    if(success){
+      const p = findPin(pinId);
+      if(p){ p.hasCoverPhoto = false; await savePins(); }
+      delete photoThumbCache[pinId];
+      renderDetail();
+      render();
+      showToast('Photo officielle retirée');
+    }else{
+      showToast('Impossible de retirer la photo, réessayez.');
+    }
+  }
+
+  document.querySelectorAll('.sort-chip').forEach(chip=>{
+    chip.onclick = ()=>{
+      sortMode = chip.dataset.sort;
+      document.querySelectorAll('.sort-chip').forEach(c=>c.classList.remove('active'));
+      chip.classList.add('active');
+      render();
+    };
+  });
+
+  function renderQuartierFilters(){
+    const bar = document.getElementById('quartier-filters');
+    if(bar.children.length) return; // build once
+    const allChip = document.createElement('div');
+    allChip.className = 'chip-quartier active';
+    allChip.textContent = 'Tous les quartiers';
+    allChip.onclick = ()=>{ setActiveQuartier('all'); };
+    bar.appendChild(allChip);
+    Object.entries(QUARTIERS).forEach(([key, q])=>{
+      const chip = document.createElement('div');
+      chip.className = 'chip-quartier';
+      chip.dataset.quartier = key;
+      chip.textContent = q.label;
+      chip.onclick = ()=>{ setActiveQuartier(key); };
+      bar.appendChild(chip);
+    });
+  }
+
+  function setActiveQuartier(key){
+    activeQuartier = key;
+    document.querySelectorAll('.chip-quartier').forEach(el=>{
+      const isAll = el.textContent === 'Tous les quartiers';
+      el.classList.toggle('active', (key==='all' && isAll) || el.dataset.quartier === key);
+    });
+    render();
+  }
+
+  // ---------- ADD FLOW ----------
+  const addBtn = document.getElementById('add-btn');
+  const overlay = document.getElementById('overlay');
+  const locHint = document.getElementById('loc-hint');
+  const submitBtn = document.getElementById('submit-btn');
+  const nameInput = document.getElementById('f-name');
+  const descInput = document.getElementById('f-desc');
+  const authorInput = document.getElementById('f-author');
+  const fbInput = document.getElementById('f-fb');
+  const addressInput = document.getElementById('f-address');
+  const statusMsg = document.getElementById('status-msg');
+
+  addBtn.onclick = ()=>{
+    pendingLatLng = null;
+    openModal();
+  };
+
+  const geolocBtn = document.getElementById('geoloc-btn');
+  geolocBtn.onclick = ()=>{
+    if(!navigator.geolocation){
+      showToast("Localisation non disponible sur cet appareil — choisissez votre quartier dans le formulaire");
+      pendingLatLng = null;
+      openModal();
+      return;
+    }
+    geolocBtn.classList.add('loading');
+    geolocBtn.disabled = true;
+    navigator.geolocation.getCurrentPosition(
+      (pos)=>{
+        geolocBtn.classList.remove('loading');
+        geolocBtn.disabled = false;
+        pendingLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude, precise: true };
+        openModal();
+      },
+      (err)=>{
+        geolocBtn.classList.remove('loading');
+        geolocBtn.disabled = false;
+        const msg = err.code === err.PERMISSION_DENIED
+          ? "Localisation refusée — choisissez votre quartier dans le formulaire"
+          : "Impossible de vous localiser — choisissez votre quartier dans le formulaire";
+        showToast(msg);
+        pendingLatLng = null;
+        openModal();
+      },
+      { enableHighAccuracy:true, timeout:8000 }
+    );
+  };
+
+  function openModal(){
+    addModalOpenedAt = Date.now();
+    nameInput.value=''; descInput.value=''; authorInput.value=''; fbInput.value=''; addressInput.value='';
+    document.getElementById('f-eventdate').value = '';
+    document.getElementById('f-eventdate-field').style.display = 'none';
+    document.getElementById('f-duplicate-warning').style.display = 'none';
+    selectedCat = null;
+    document.querySelectorAll('.cat-opt').forEach(o=>o.classList.remove('selected'));
+    selectedQuartier = null;
+    document.querySelectorAll('.quartier-opt').forEach(o=>o.classList.remove('selected'));
+    statusMsg.textContent='';
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Ajouter le bon plan';
+    locHint.textContent = pendingLatLng
+      ? (pendingLatLng.fromMap ? `📍 Emplacement choisi sur la carte` : `📍 Votre position actuelle a été enregistrée`)
+      : `📍 Choisissez votre quartier ci-dessous`;
+    overlay.classList.add('open');
+    nameInput.focus();
+  }
+
+  function closeModal(){
+    overlay.classList.remove('open');
+    pendingLatLng = null;
+  }
+
+  document.getElementById('cancel-btn').onclick = closeModal;
+  overlay.onclick = (e)=>{ if(e.target===overlay) closeModal(); };
+
+  function validateForm(){
+    const needsDate = MODERATED_CATEGORIES.includes(selectedCat);
+    const dateOk = !needsDate || document.getElementById('f-eventdate').value;
+    const ok = nameInput.value.trim().length>0 && descInput.value.trim().length>0 && selectedCat && selectedQuartier && dateOk;
+    submitBtn.disabled = !ok;
+  }
+
+  const dupWarning = document.getElementById('f-duplicate-warning');
+  let dupDebounce = null;
+
+  function renderDuplicateWarning(){
+    if(!selectedQuartier){ dupWarning.style.display = 'none'; return; }
+    const matches = findPossibleDuplicates(nameInput.value, selectedQuartier, pendingLatLng);
+    if(matches.length === 0){ dupWarning.style.display = 'none'; return; }
+
+    dupWarning.innerHTML = `<div class="dw-title">⚠️ Un lieu similaire existe peut-être déjà</div>`;
+    matches.forEach(({p, dist})=>{
+      const c = CATEGORIES[p.cat];
+      const distLabel = dist !== null ? (dist < 15 ? 'même endroit' : `à ${Math.round(dist)} m`) : 'même quartier';
+      const row = document.createElement('div');
+      row.className = 'dw-item';
+      row.innerHTML = `
+        <div>
+          <div class="dw-name">${c.icon} ${escapeHtml(p.name)}</div>
+          <div class="dw-meta">${distLabel}</div>
+        </div>
+        <span class="dw-view">👀 Voir</span>
+      `;
+      row.querySelector('.dw-view').onclick = ()=>{
+        closeModal();
+        openDetail(p.id);
+      };
+      dupWarning.appendChild(row);
+    });
+    const note = document.createElement('div');
+    note.className = 'dw-note';
+    note.textContent = "C'est un lieu différent ? Continuez tranquillement, ce n'est qu'un avertissement.";
+    dupWarning.appendChild(note);
+    dupWarning.style.display = 'block';
+  }
+
+  function checkDuplicatesDebounced(){
+    clearTimeout(dupDebounce);
+    dupDebounce = setTimeout(renderDuplicateWarning, 250);
+  }
+
+  nameInput.oninput = ()=>{ validateForm(); checkDuplicatesDebounced(); };
+  descInput.oninput = validateForm;
+  document.getElementById('f-eventdate').oninput = validateForm;
+
+  submitBtn.onclick = async ()=>{
+    if(!selectedCat || !selectedQuartier) return;
+
+    if(looksLikeBot(document.getElementById('f-website'), addModalOpenedAt)){
+      // silently fake success without saving anything, to avoid tipping off simple bots
+      closeModal();
+      showToast('Bon plan ajouté ✦');
+      return;
+    }
+    if(isRateLimited()){
+      warnRateLimited();
+      return;
+    }
+
+    submitBtn.disabled = true;
+    submitBtn.textContent = 'Ajout en cours…';
+    statusMsg.textContent = '';
+
+    const coords = pendingLatLng || QUARTIERS[selectedQuartier];
+    const needsApproval = MODERATED_CATEGORIES.includes(selectedCat);
+    const newPin = {
+      id: 'pin-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      name: nameInput.value.trim(),
+      cat: selectedCat,
+      quartier: selectedQuartier,
+      desc: descInput.value.trim(),
+      address: addressInput.value.trim(),
+      author: authorInput.value.trim(),
+      fb: fbInput.value.trim(),
+      lat: coords.lat,
+      lng: coords.lng,
+      preciseLocation: !!(pendingLatLng && pendingLatLng.precise),
+      ts: Date.now(),
+      isPartner: false,
+      photoCount: 0,
+      status: needsApproval ? 'pending' : 'published',
+      eventDate: MODERATED_CATEGORIES.includes(selectedCat) ? document.getElementById('f-eventdate').value : null
+    };
+
+    allPins.push(newPin);
+    const success = await savePins();
+
+    if(success){
+      recordAction();
+      render();
+      closeModal();
+      showToast(needsApproval
+        ? 'Merci ! Votre événement sera visible après validation par un·e admin ✦'
+        : 'Bon plan ajouté ✦');
+    }else{
+      allPins.pop();
+      statusMsg.textContent = "Impossible d'enregistrer pour l'instant — réessayez dans un instant.";
+      submitBtn.disabled = false;
+      submitBtn.textContent = 'Ajouter le bon plan';
+    }
+  };
+
+  function showToast(msg){
+    const t = document.getElementById('toast');
+    t.textContent = msg;
+    t.classList.add('show');
+    clearTimeout(showToast._tid);
+    showToast._tid = setTimeout(()=>t.classList.remove('show'), 2600);
+  }
+
+  // ---------- DETAIL MODAL (rating + comments) ----------
+  const detailOverlay = document.getElementById('detail-overlay');
+  const dTag = document.getElementById('d-tag');
+  const dName = document.getElementById('d-name');
+  const dDesc = document.getElementById('d-desc');
+  const dAvgRow = document.getElementById('d-avg-row');
+  const dLocate = document.getElementById('d-locate');
+  const dRateBlock = document.getElementById('d-rate-block');
+  const dStarPicker = document.getElementById('d-star-picker');
+  const dCommentsTitle = document.getElementById('d-comments-title');
+  const dCommentsList = document.getElementById('d-comments-list');
+  const dCommentText = document.getElementById('d-comment-text');
+  const dCommentAuthor = document.getElementById('d-comment-author');
+  const dCommentStatus = document.getElementById('d-comment-status');
+  const dCommentSubmit = document.getElementById('d-comment-submit');
+  const dCloseBtn = document.getElementById('d-close-btn');
+
+  function findPin(id){ return allPins.find(p=>p.id===id); }
+
+  function pinShareUrl(pinId){
+    return location.origin + location.pathname + '#pin=' + encodeURIComponent(pinId);
+  }
+
+  function openDetail(id){
+    detailPinId = id;
+    detailOpenedAt = Date.now();
+    pendingStarValue = 0;
+    dCommentText.value = '';
+    dCommentAuthor.value = '';
+    document.getElementById('d-comment-fb').value = '';
+    dCommentStatus.textContent = '';
+    renderDetail();
+    detailOverlay.classList.add('open');
+    try{ history.replaceState(null, '', '#pin=' + encodeURIComponent(id)); }catch(e){}
+  }
+  window.openDetail = openDetail;
+
+  function closeDetail(){
+    detailOverlay.classList.remove('open');
+    detailPinId = null;
+    try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+  }
+  dCloseBtn.onclick = closeDetail;
+  detailOverlay.onclick = (e)=>{ if(e.target===detailOverlay) closeDetail(); };
+
+  document.getElementById('d-copy-link').onclick = async (e)=>{
+    e.stopPropagation();
+    if(!detailPinId) return;
+    const url = pinShareUrl(detailPinId);
+    try{
+      await navigator.clipboard.writeText(url);
+      showToast('Lien copié — collez-le où vous voulez 🔗');
+    }catch(err){
+      try{
+        const ta = document.createElement('textarea');
+        ta.value = url;
+        ta.style.position = 'fixed';
+        ta.style.opacity = '0';
+        document.body.appendChild(ta);
+        ta.select();
+        document.execCommand('copy');
+        document.body.removeChild(ta);
+        showToast('Lien copié — collez-le où vous voulez 🔗');
+      }catch(err2){
+        showToast("Impossible de copier automatiquement : " + url);
+      }
+    }
+  };
+
+  document.getElementById('d-share-fb').onclick = (e)=>{
+    e.stopPropagation();
+    if(!detailPinId) return;
+    const url = pinShareUrl(detailPinId);
+    const fbShareUrl = `https://www.facebook.com/sharer/sharer.php?u=${encodeURIComponent(url)}`;
+    window.open(fbShareUrl, '_blank', 'noopener,noreferrer,width=600,height=500');
+  };
+
+  function renderDetail(){
+    const p = findPin(detailPinId);
+    if(!p) return closeDetail();
+    const c = CATEGORIES[p.cat];
+    const avg = avgRating(p);
+
+    dTag.innerHTML = `<span style="color:${c.color}">${c.icon} ${c.label}</span>`;
+    dName.textContent = p.name;
+    document.getElementById('d-partner-badge').innerHTML = (p.isPartner ? `<div class="partner-badge">🥂 Partenaire de L'Objectif Chalonnais</div>` : '') + eventDateBadge(p);
+    renderCoverPhoto(p);
+    dDesc.textContent = p.desc;
+    const dAddress = document.getElementById('d-address');
+    if(p.address && p.address.trim()){
+      dAddress.textContent = `📌 ${p.address.trim()}`;
+      dAddress.style.display = 'block';
+    }else{
+      dAddress.style.display = 'none';
+    }
+    const authorName = (p.author || '').trim();
+    const authorContrib = contributionsFor(authorName);
+    document.getElementById('d-author-line').innerHTML = authorName
+      ? `<div>Ajouté par ${escapeHtml(authorName)} ${fbLink(p.fb)} ${badgeFull(authorName)}</div>${authorContrib ? `<div class="since-line">Contributeur·rice depuis ${sinceLabel(authorContrib.firstSeen)}</div>` : ''}`
+      : `Ajouté par un·e Chalonnais·e anonyme`;
+    dAvgRow.innerHTML = `${starsHtml(avg.value,false)}<span class="avg-num">${avg.label}</span>`;
+
+    dLocate.onclick = ()=>{
+      window.open(directionsUrl(p), '_blank', 'noopener,noreferrer');
+    };
+
+    document.getElementById('d-report-pin-link').onclick = ()=> openReportBox({type:'pin', pinId:p.id, label:p.name});
+
+    const deletePinLink = document.getElementById('d-delete-pin-link');
+    if(isAdmin){
+      deletePinLink.style.display = 'inline';
+      deletePinLink.onclick = ()=> deletePin(p.id);
+    }else{
+      deletePinLink.style.display = 'none';
+    }
+
+    const togglePartnerLink = document.getElementById('d-toggle-partner-link');
+    if(isAdmin){
+      togglePartnerLink.style.display = 'inline';
+      togglePartnerLink.textContent = p.isPartner ? '🥂 Retirer le partenariat' : '⭐ Marquer comme partenaire';
+      togglePartnerLink.onclick = ()=> togglePartner(p.id);
+    }else{
+      togglePartnerLink.style.display = 'none';
+    }
+
+    const rescheduleLink = document.getElementById('d-reschedule-link');
+    const rescheduleBox = document.getElementById('d-reschedule-box');
+    rescheduleBox.style.display = 'none';
+    if(isAdmin && MODERATED_CATEGORIES.includes(p.cat)){
+      rescheduleLink.style.display = 'inline';
+      rescheduleLink.onclick = ()=>{
+        document.getElementById('d-reschedule-date').value = '';
+        document.getElementById('d-reschedule-status').textContent = '';
+        rescheduleBox.style.display = 'block';
+      };
+    }else{
+      rescheduleLink.style.display = 'none';
+    }
+
+    // attendance / RSVP (upcoming weekend & month events only)
+    const attendanceSection = document.getElementById('d-attendance-section');
+    if(isUpcomingEvent(p)){
+      attendanceSection.style.display = 'block';
+      renderAttendanceSection(p);
+    }else{
+      attendanceSection.style.display = 'none';
+    }
+
+    // photo gallery (Insolite only)
+    const photosSection = document.getElementById('d-photos-section');
+    if(PHOTO_CATEGORIES.includes(p.cat)){
+      photosSection.style.display = 'block';
+      renderPhotosSection(p.id);
+    }else{
+      photosSection.style.display = 'none';
+    }
+
+    // rating widget
+    if(ratedThisSession.has(p.id)){
+      dRateBlock.innerHTML = `<div class="thanks">Merci, votre note a été enregistrée ✦</div>`;
+    }else{
+      dRateBlock.innerHTML = `<div class="prompt">Votre note</div><input id="d-rate-author" type="text" maxlength="30" placeholder="Votre prénom (optionnel)" style="width:auto;max-width:200px;margin:0 auto 10px auto;display:block;font-family:'Nunito',sans-serif;font-size:12.5px;padding:6px 9px;border:1.5px solid var(--line);border-radius:7px;"><div class="stars interactive" id="d-star-picker"></div>`;
+      const picker = document.getElementById('d-star-picker');
+      const authorInput = document.getElementById('d-rate-author');
+      for(let i=1;i<=5;i++){
+        const s = document.createElement('span');
+        s.className = 'star';
+        s.dataset.val = i;
+        s.textContent = '★';
+        s.onclick = ()=> submitRating(p.id, i, authorInput.value.trim());
+        picker.appendChild(s);
+      }
+    }
+
+    // comments
+    const comments = (p.comments||[]).slice().sort((a,b)=>b.ts-a.ts);
+    dCommentsTitle.textContent = `Commentaires (${comments.length})`;
+    dCommentsList.innerHTML = '';
+    if(comments.length === 0){
+      dCommentsList.innerHTML = `<div class="no-comments">Aucun commentaire pour l'instant. Soyez le·la premier·ère à en laisser un !</div>`;
+    }else{
+      comments.forEach(cm=>{
+        const date = new Date(cm.ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+        const row = document.createElement('div');
+        row.className = 'comment';
+        row.innerHTML = `
+          <div class="c-head"><span>${escapeHtml(cm.author || 'Anonyme')}${fbLink(cm.fb)}${badgeInline(cm.author)}</span><span>${date}</span></div>
+          <div class="c-text">${escapeHtml(cm.text)}</div>
+        `;
+        const actions = document.createElement('div');
+        actions.className = 'c-actions';
+        const reportSpan = document.createElement('span');
+        reportSpan.className = 'c-report';
+        reportSpan.textContent = '🚩 Signaler';
+        reportSpan.onclick = ()=> openReportBox({type:'comment', pinId:p.id, commentId:cm.id, label:`Commentaire de ${cm.author||'Anonyme'}`});
+        actions.appendChild(reportSpan);
+        if(isAdmin){
+          const delSpan = document.createElement('span');
+          delSpan.className = 'c-delete';
+          delSpan.textContent = '🗑 Supprimer';
+          delSpan.onclick = ()=> deleteComment(p.id, cm.id);
+          actions.appendChild(delSpan);
+        }
+        row.appendChild(actions);
+        dCommentsList.appendChild(row);
+      });
+    }
+  }
+
+  // ---------- REPORTING ----------
+  let pendingReportTarget = null;
+  const dReportBox = document.getElementById('d-report-box');
+  const dReportReason = document.getElementById('d-report-reason');
+  const dReportStatus = document.getElementById('d-report-status');
+
+  function openReportBox(target){
+    pendingReportTarget = target;
+    dReportReason.value = '';
+    dReportStatus.textContent = '';
+    dReportBox.style.display = 'block';
+    dReportReason.focus();
+  }
+  document.getElementById('d-report-cancel').onclick = ()=>{
+    dReportBox.style.display = 'none';
+    pendingReportTarget = null;
+  };
+  document.getElementById('d-report-send').onclick = async ()=>{
+    if(!pendingReportTarget) return;
+    const reason = dReportReason.value.trim();
+    if(reason.length < 3){
+      dReportStatus.textContent = 'Précisez la raison du signalement (quelques mots suffisent).';
+      return;
+    }
+    const btn = document.getElementById('d-report-send');
+    btn.disabled = true;
+    btn.textContent = 'Envoi…';
+
+    allReports.push({
+      id: 'r-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      type: pendingReportTarget.type,
+      pinId: pendingReportTarget.pinId,
+      commentId: pendingReportTarget.commentId || null,
+      photoId: pendingReportTarget.photoId || null,
+      label: pendingReportTarget.label,
+      reason,
+      ts: Date.now(),
+      status: 'pending'
+    });
+    const success = await saveReports();
+    btn.disabled = false;
+    btn.textContent = 'Envoyer le signalement';
+
+    if(success){
+      dReportBox.style.display = 'none';
+      pendingReportTarget = null;
+      showToast('Signalement envoyé aux modérateurs, merci 🚩');
+    }else{
+      allReports.pop();
+      dReportStatus.textContent = "Impossible d'envoyer le signalement, réessayez.";
+    }
+  };
+
+  // ---------- ADMIN MODERATION ACTIONS ----------
+  async function togglePartner(pinId){
+    const p = findPin(pinId);
+    if(!p) return;
+    const previous = p.isPartner;
+    p.isPartner = !p.isPartner;
+    const success = await savePins();
+    if(success){
+      renderDetail();
+      render();
+      showToast(p.isPartner ? `${p.name} est maintenant partenaire 🥂` : 'Statut partenaire retiré');
+    }else{
+      p.isPartner = previous;
+      showToast("Impossible de mettre à jour, réessayez.");
+    }
+  }
+
+  document.getElementById('d-reschedule-cancel').onclick = ()=>{
+    document.getElementById('d-reschedule-box').style.display = 'none';
+  };
+
+  document.getElementById('d-reschedule-confirm').onclick = async ()=>{
+    const original = findPin(detailPinId);
+    if(!original) return;
+    const dateInput = document.getElementById('d-reschedule-date');
+    const statusEl = document.getElementById('d-reschedule-status');
+    const newDate = dateInput.value;
+    if(!newDate){
+      statusEl.textContent = 'Choisissez une date pour cette nouvelle édition.';
+      return;
+    }
+    const confirmBtn = document.getElementById('d-reschedule-confirm');
+    confirmBtn.disabled = true;
+    confirmBtn.textContent = 'Création…';
+
+    const newPin = {
+      id: 'pin-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      name: original.name,
+      cat: original.cat,
+      quartier: original.quartier,
+      desc: original.desc,
+      address: original.address,
+      author: original.author,
+      fb: original.fb,
+      lat: original.lat,
+      lng: original.lng,
+      preciseLocation: original.preciseLocation,
+      ts: Date.now(),
+      isPartner: original.isPartner,
+      photoCount: 0,
+      status: 'published',
+      eventDate: newDate,
+      keepPublished: false,
+      attendees: [],
+      ratings: [],
+      comments: []
+    };
+    allPins.push(newPin);
+    const success = await savePins();
+
+    confirmBtn.disabled = false;
+    confirmBtn.textContent = 'Créer la nouvelle édition';
+
+    if(success){
+      document.getElementById('d-reschedule-box').style.display = 'none';
+      render();
+      showToast(`Nouvelle édition de « ${original.name} » créée ✦`);
+      openDetail(newPin.id);
+    }else{
+      allPins.pop();
+      statusEl.textContent = "Impossible de créer la nouvelle édition, réessayez.";
+    }
+  };
+
+  async function deletePin(pinId){
+    if(!confirm('Supprimer définitivement ce bon plan et tous ses commentaires ?')) return;
+    const idx = allPins.findIndex(p=>p.id===pinId);
+    if(idx === -1) return;
+    const removed = allPins.splice(idx,1)[0];
+    const success = await savePins();
+    if(success){
+      // auto-resolve any reports tied to this pin
+      allReports.forEach(r=>{ if(r.pinId===pinId) r.status='resolved'; });
+      await saveReports();
+      closeDetail();
+      render();
+      showToast('Bon plan supprimé');
+    }else{
+      allPins.splice(idx,0,removed);
+      showToast('Impossible de supprimer, réessayez.');
+    }
+  }
+
+  async function deleteComment(pinId, commentId){
+    if(!confirm('Supprimer ce commentaire ?')) return;
+    const p = findPin(pinId);
+    if(!p) return;
+    const idx = (p.comments||[]).findIndex(c=>c.id===commentId);
+    if(idx === -1) return;
+    const removed = p.comments.splice(idx,1)[0];
+    const success = await savePins();
+    if(success){
+      allReports.forEach(r=>{ if(r.commentId===commentId) r.status='resolved'; });
+      await saveReports();
+      renderDetail();
+      render();
+      showToast('Commentaire supprimé');
+    }else{
+      p.comments.splice(idx,0,removed);
+      showToast('Impossible de supprimer, réessayez.');
+    }
+  }
+
+  // ---------- PHOTOS: gallery, upload, delete ----------
+  async function renderPhotosSection(pinId){
+    const grid = document.getElementById('d-photos-grid');
+    const uploadBox = document.getElementById('d-photos-upload');
+    grid.innerHTML = `<div class="photo-empty-note">Chargement des photos…</div>`;
+
+    const allPhotos = await loadPhotosForPin(pinId);
+    if(detailPinId !== pinId) return; // user navigated away while loading
+    const photos = allPhotos.filter(ph=>!ph.official);
+
+    grid.innerHTML = '';
+    if(photos.length === 0){
+      grid.innerHTML = `<div class="photo-empty-note">Aucune photo pour l'instant. Soyez le·la premier·ère à en ajouter une !</div>`;
+    }else{
+      photos.forEach(photo=>{
+        const thumb = document.createElement('div');
+        thumb.className = 'photo-thumb';
+        const img = document.createElement('img');
+        img.src = photo.dataUrl;
+        img.alt = 'Photo insolite';
+        img.onclick = ()=> openLightbox(photo.dataUrl);
+        thumb.appendChild(img);
+
+        const credit = document.createElement('div');
+        credit.className = 'p-credit';
+        credit.innerHTML = `${escapeHtml(photo.author || 'Anonyme')} ${fbLink(photo.fb)}`;
+        credit.onclick = (e)=> e.stopPropagation();
+        thumb.appendChild(credit);
+
+        const actions = document.createElement('div');
+        actions.className = 'photo-actions';
+        const reportSpan = document.createElement('span');
+        reportSpan.textContent = '🚩';
+        reportSpan.title = 'Signaler cette photo';
+        reportSpan.onclick = (e)=>{
+          e.stopPropagation();
+          openReportBox({type:'photo', pinId, photoId:photo.id, label:'Photo insolite'});
+        };
+        actions.appendChild(reportSpan);
+        if(isAdmin){
+          const delSpan = document.createElement('span');
+          delSpan.textContent = '🗑';
+          delSpan.title = 'Supprimer cette photo';
+          delSpan.onclick = (e)=>{
+            e.stopPropagation();
+            deletePhoto(pinId, photo.id);
+          };
+          actions.appendChild(delSpan);
+        }
+        thumb.appendChild(actions);
+        grid.appendChild(thumb);
+      });
+    }
+
+    // upload control
+    const addLabel = document.getElementById('d-photo-add-label');
+    const addInput = document.getElementById('d-photo-add-input');
+    const authorInput = document.getElementById('d-photo-author');
+    const fbInput = document.getElementById('d-photo-fb');
+    const statusEl = document.getElementById('d-photo-status');
+    statusEl.textContent = '';
+    addInput.value = '';
+
+    if(photos.length >= MAX_PHOTOS_PER_PIN){
+      addLabel.style.display = 'none';
+      statusEl.textContent = `Maximum de ${MAX_PHOTOS_PER_PIN} photos atteint pour ce lieu.`;
+    }else{
+      addLabel.style.display = 'inline-flex';
+      addInput.onchange = async ()=>{
+        const file = addInput.files[0];
+        if(!file) return;
+        const hp = document.getElementById('d-photo-website');
+        if(hp && hp.value.trim() !== ''){
+          showToast('Photo ajoutée ✦');
+          addInput.value = '';
+          return;
+        }
+        if(isRateLimited()){
+          warnRateLimited();
+          addInput.value = '';
+          return;
+        }
+        statusEl.style.color = 'var(--encre-soft)';
+        statusEl.textContent = 'Compression et envoi en cours…';
+        try{
+          const dataUrl = await compressImage(file);
+          const freshAll = await loadPhotosForPin(pinId);
+          const freshPhotos = freshAll.filter(ph=>!ph.official);
+          if(freshPhotos.length >= MAX_PHOTOS_PER_PIN){
+            statusEl.style.color = 'var(--brique)';
+            statusEl.textContent = `Maximum de ${MAX_PHOTOS_PER_PIN} photos atteint entre-temps.`;
+            renderPhotosSection(pinId);
+            return;
+          }
+          const newPhoto = {
+            id: 'ph-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+            dataUrl,
+            author: authorInput.value.trim(),
+            fb: fbInput.value.trim(),
+            ts: Date.now()
+          };
+          const toSave = [...freshAll, newPhoto];
+          const success = await savePhotosForPin(pinId, toSave);
+          if(success){
+            recordAction();
+            const p = findPin(pinId);
+            if(p){ p.photoCount = freshPhotos.length + 1; await savePins(); render(); }
+            showToast('Photo ajoutée ✦');
+            renderPhotosSection(pinId);
+          }else{
+            statusEl.style.color = 'var(--brique)';
+            statusEl.textContent = "Impossible d'envoyer la photo, réessayez.";
+          }
+        }catch(err){
+          statusEl.style.color = 'var(--brique)';
+          statusEl.textContent = err.message === 'too-large'
+            ? 'Cette image est trop lourde (max 8 Mo).'
+            : "Ce fichier n'a pas pu être traité, essayez une autre photo.";
+        }
+      };
+    }
+  }
+
+  async function deletePhoto(pinId, photoId){
+    if(!confirm('Supprimer cette photo ?')) return;
+    const photos = await loadPhotosForPin(pinId);
+    const idx = photos.findIndex(ph=>ph.id===photoId);
+    if(idx === -1) return;
+    photos.splice(idx,1);
+    const success = await savePhotosForPin(pinId, photos);
+    if(success){
+      const p = findPin(pinId);
+      if(p){ p.photoCount = photos.filter(ph=>!ph.official).length; await savePins(); render(); }
+      allReports.forEach(r=>{ if(r.photoId===photoId) r.status='resolved'; });
+      await saveReports();
+      renderPhotosSection(pinId);
+      showToast('Photo supprimée');
+    }else{
+      showToast('Impossible de supprimer, réessayez.');
+    }
+  }
+
+  function openLightbox(dataUrl){
+    document.getElementById('lightbox-img').src = dataUrl;
+    document.getElementById('lightbox-overlay').classList.add('open');
+  }
+  function closeLightbox(){
+    document.getElementById('lightbox-overlay').classList.remove('open');
+    document.getElementById('lightbox-img').src = '';
+  }
+  document.getElementById('lightbox-close').onclick = closeLightbox;
+  document.getElementById('lightbox-overlay').onclick = (e)=>{
+    if(e.target.id === 'lightbox-overlay') closeLightbox();
+  };
+
+  function renderAttendanceSection(p){
+    const countEl = document.getElementById('d-attendance-count');
+    const formEl = document.getElementById('d-attendance-form');
+    const n = (p.attendees||[]).length;
+    countEl.innerHTML = n > 0
+      ? `<strong>${n}</strong> personne${n>1?'s':''} y ser${n>1?'ont':'a'}`
+      : `Personne n'a encore annoncé sa venue — soyez le·la premier·ère !`;
+
+    const attendingId = attendanceThisSession.get(p.id);
+    if(attendingId){
+      formEl.innerHTML = `<div class="thanks">✅ Vous y serez ! <span class="dp-action" id="d-attend-cancel" style="margin-left:6px;">Annuler ma participation</span></div>`;
+      document.getElementById('d-attend-cancel').onclick = ()=> cancelAttendance(p.id, attendingId);
+    }else{
+      formEl.innerHTML = `
+        <input id="d-attend-author" type="text" maxlength="30" placeholder="Votre prénom (optionnel)" style="margin-bottom:8px;">
+        <input id="d-attend-fb" type="text" maxlength="80" placeholder="Votre Facebook (optionnel)" style="margin-bottom:8px;">
+        <button class="btn-primary" id="d-attend-btn" style="width:100%;">🙋 Je compte y aller !</button>
+      `;
+      document.getElementById('d-attend-btn').onclick = ()=>{
+        const author = document.getElementById('d-attend-author').value.trim();
+        const fb = document.getElementById('d-attend-fb').value.trim();
+        markAttendance(p.id, author, fb);
+      };
+    }
+  }
+
+  async function markAttendance(pinId, author, fb){
+    const p = findPin(pinId);
+    if(!p) return;
+    if(!Array.isArray(p.attendees)) p.attendees = [];
+    const entry = { id: 'att-' + Date.now() + '-' + Math.random().toString(36).slice(2,7), author, fb, ts: Date.now() };
+    p.attendees.push(entry);
+    const success = await savePins();
+    if(success){
+      attendanceThisSession.set(pinId, entry.id);
+      renderAttendanceSection(p);
+      render();
+      showToast('Merci, on vous compte ! 🙋');
+    }else{
+      p.attendees.pop();
+      showToast("Impossible d'enregistrer, réessayez.");
+    }
+  }
+
+  async function cancelAttendance(pinId, attendeeId){
+    const p = findPin(pinId);
+    if(!p) return;
+    const idx = (p.attendees||[]).findIndex(a=>a.id===attendeeId);
+    if(idx === -1){ attendanceThisSession.delete(pinId); renderAttendanceSection(p); return; }
+    const removed = p.attendees.splice(idx,1)[0];
+    const success = await savePins();
+    if(success){
+      attendanceThisSession.delete(pinId);
+      renderAttendanceSection(p);
+      render();
+      showToast('Participation annulée');
+    }else{
+      p.attendees.splice(idx,0,removed);
+      showToast('Impossible d\'annuler, réessayez.');
+    }
+  }
+
+  async function submitRating(pinId, value, author){
+    const p = findPin(pinId);
+    if(!p) return;
+    if(isRateLimited()){
+      warnRateLimited();
+      return;
+    }
+    if(!Array.isArray(p.ratings)) p.ratings = [];
+    p.ratings.push({value, author: (author||'').trim(), ts:Date.now()});
+    const success = await savePins();
+    if(success){
+      recordAction();
+      ratedThisSession.add(pinId);
+      renderDetail();
+      render();
+      showToast('Merci pour votre note ★');
+    }else{
+      p.ratings.pop();
+      showToast("Impossible d'enregistrer la note, réessayez.");
+    }
+  }
+
+  dCommentSubmit.onclick = async ()=>{
+    const p = findPin(detailPinId);
+    if(!p) return;
+    const text = dCommentText.value.trim();
+    if(text.length === 0){
+      dCommentStatus.textContent = 'Écrivez un commentaire avant de publier.';
+      return;
+    }
+    if(looksLikeBot(document.getElementById('d-comment-website'), detailOpenedAt)){
+      dCommentText.value = '';
+      dCommentAuthor.value = '';
+      document.getElementById('d-comment-fb').value = '';
+      showToast('Commentaire publié ✦');
+      return;
+    }
+    if(isRateLimited()){
+      warnRateLimited();
+      return;
+    }
+    dCommentSubmit.disabled = true;
+    dCommentSubmit.textContent = 'Publication…';
+    dCommentStatus.textContent = '';
+
+    if(!Array.isArray(p.comments)) p.comments = [];
+    const newComment = {
+      id: 'c-' + Date.now() + '-' + Math.random().toString(36).slice(2,7),
+      author: dCommentAuthor.value.trim(),
+      fb: document.getElementById('d-comment-fb').value.trim(),
+      text,
+      ts: Date.now()
+    };
+    p.comments.push(newComment);
+    const success = await savePins();
+
+    dCommentSubmit.disabled = false;
+    dCommentSubmit.textContent = 'Publier le commentaire';
+
+    if(success){
+      recordAction();
+      dCommentText.value = '';
+      dCommentAuthor.value = '';
+      document.getElementById('d-comment-fb').value = '';
+      renderDetail();
+      render();
+      showToast('Commentaire publié ✦');
+    }else{
+      p.comments.pop();
+      dCommentStatus.textContent = "Impossible de publier pour l'instant — réessayez.";
+    }
+  };
+
+  // ---------- ADMIN LOGIN ----------
+  const modBtn = document.getElementById('mod-btn');
+  const adminPill = document.getElementById('admin-pill');
+  const passwordOverlay = document.getElementById('password-overlay');
+  const pwInput = document.getElementById('pw-input');
+  const pwStatus = document.getElementById('pw-status');
+  const modOverlay = document.getElementById('mod-overlay');
+  const modList = document.getElementById('mod-list');
+  const modCount = document.getElementById('mod-count');
+
+  modBtn.onclick = ()=>{
+    if(isAdmin){
+      openModPanel();
+    }else{
+      pwInput.value = '';
+      pwStatus.textContent = '';
+      passwordOverlay.classList.add('open');
+      pwInput.focus();
+    }
+  };
+
+  document.getElementById('pw-cancel').onclick = ()=> passwordOverlay.classList.remove('open');
+  passwordOverlay.onclick = (e)=>{ if(e.target===passwordOverlay) passwordOverlay.classList.remove('open'); };
+
+  document.getElementById('pw-submit').onclick = async ()=>{
+    const entered = pwInput.value;
+    const hash = await sha256(entered);
+    if(hash === ADMIN_PASSWORD_HASH){
+      isAdmin = true;
+      passwordOverlay.classList.remove('open');
+      adminPill.style.display = 'inline-block';
+      showToast('Mode modérateur activé 🛡');
+      if(detailPinId) renderDetail();
+      openModPanel();
+    }else{
+      pwStatus.textContent = 'Code incorrect.';
+    }
+  };
+  pwInput.onkeydown = (e)=>{ if(e.key==='Enter') document.getElementById('pw-submit').click(); };
+
+  document.getElementById('admin-logout').onclick = ()=>{
+    isAdmin = false;
+    adminPill.style.display = 'none';
+    if(detailPinId) renderDetail();
+    showToast('Mode modérateur désactivé');
+  };
+
+  function openModPanel(){
+    renderModPanel();
+    renderWeekendQueue();
+    renderArchivedQueue();
+    modOverlay.classList.add('open');
+  }
+  document.getElementById('mod-close-btn').onclick = ()=> modOverlay.classList.remove('open');
+  modOverlay.onclick = (e)=>{ if(e.target===modOverlay) modOverlay.classList.remove('open'); };
+
+  function renderWeekendQueue(){
+    const pending = allPins.filter(p=> p.status==='pending').sort((a,b)=>a.ts-b.ts);
+    const list = document.getElementById('mod-weekend-list');
+    const count = document.getElementById('mod-weekend-count');
+    count.textContent = `${pending.length} événement${pending.length>1?'s':''} en attente de publication`;
+    list.innerHTML = '';
+    if(pending.length === 0){
+      list.innerHTML = `<div class="no-reports">Rien en attente pour l'instant.</div>`;
+      return;
+    }
+    pending.forEach(p=>{
+      const item = document.createElement('div');
+      item.className = 'report-item';
+      const c = CATEGORIES[p.cat];
+      const date = new Date(p.ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+      const eventLabel = p.eventDate ? new Date(p.eventDate + 'T00:00:00').toLocaleDateString('fr-FR',{weekday:'long',day:'numeric',month:'long'}) : 'date non précisée';
+      item.innerHTML = `
+        <div class="r-head">${c.icon} ${c.label} · Proposé le ${date} par ${escapeHtml(p.author || 'un·e Chalonnais·e anonyme')}</div>
+        <div class="r-target">${escapeHtml(p.name)} — ${eventLabel}</div>
+        <div class="r-snippet">${escapeHtml(p.desc)}</div>
+      `;
+      const actions = document.createElement('div');
+      actions.className = 'r-actions';
+      const pubBtn = document.createElement('button');
+      pubBtn.className = 'r-publish';
+      pubBtn.textContent = '✅ Publier';
+      pubBtn.onclick = ()=> approvePin(p.id);
+      const rejBtn = document.createElement('button');
+      rejBtn.className = 'r-reject';
+      rejBtn.textContent = '❌ Rejeter';
+      rejBtn.onclick = ()=> rejectPin(p.id);
+      actions.appendChild(pubBtn);
+      actions.appendChild(rejBtn);
+      item.appendChild(actions);
+      list.appendChild(item);
+    });
+  }
+
+  async function republishArchivedPin(pinId){
+    const p = findPin(pinId);
+    if(!p) return;
+    const previousStatus = p.status;
+    p.status = 'published';
+    p.keepPublished = true;
+    const success = await savePins();
+    if(success){
+      render();
+      renderArchivedQueue();
+      showToast(`« ${p.name} » republié — il ne sera plus archivé automatiquement`);
+    }else{
+      p.status = previousStatus;
+      p.keepPublished = false;
+      showToast('Impossible de republier, réessayez.');
+    }
+  }
+
+  async function approvePin(pinId, refreshFn){
+    refreshFn = refreshFn || renderWeekendQueue;
+    const p = findPin(pinId);
+    if(!p) return;
+    const previousStatus = p.status;
+    p.status = 'published';
+    const success = await savePins();
+    if(success){
+      render();
+      refreshFn();
+      showToast(`« ${p.name} » est maintenant publié ✦`);
+    }else{
+      p.status = previousStatus;
+      showToast('Impossible de publier, réessayez.');
+    }
+  }
+
+  async function rejectPin(pinId, refreshFn){
+    refreshFn = refreshFn || renderWeekendQueue;
+    if(!confirm('Supprimer définitivement cette proposition ?')) return;
+    const idx = allPins.findIndex(p=>p.id===pinId);
+    if(idx === -1) return;
+    const removed = allPins.splice(idx,1)[0];
+    const success = await savePins();
+    if(success){
+      render();
+      refreshFn();
+      showToast('Proposition supprimée');
+    }else{
+      allPins.splice(idx,0,removed);
+      showToast('Impossible de supprimer, réessayez.');
+    }
+  }
+
+  function renderArchivedQueue(){
+    const archived = allPins.filter(p=> p.status==='archived').sort((a,b)=>b.ts-a.ts);
+    const list = document.getElementById('mod-archive-list');
+    const count = document.getElementById('mod-archive-count');
+    count.textContent = `${archived.length} événement${archived.length>1?'s':''} archivé${archived.length>1?'s':''}`;
+    list.innerHTML = '';
+    if(archived.length === 0){
+      list.innerHTML = `<div class="no-reports">Aucun événement archivé pour l'instant.</div>`;
+      return;
+    }
+    archived.forEach(p=>{
+      const item = document.createElement('div');
+      item.className = 'report-item';
+      const c = CATEGORIES[p.cat];
+      const dateLabel = p.eventDate
+        ? new Date(p.eventDate + 'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'short',year:'numeric'})
+        : 'date inconnue';
+      item.innerHTML = `
+        <div class="r-head">${c.icon} ${c.label} · ${dateLabel} · archivé automatiquement</div>
+        <div class="r-target">${escapeHtml(p.name)}</div>
+        <div class="r-snippet">${escapeHtml(p.desc)}</div>
+      `;
+      const actions = document.createElement('div');
+      actions.className = 'r-actions';
+      const republishBtn = document.createElement('button');
+      republishBtn.className = 'r-publish';
+      republishBtn.textContent = '♻️ Republier';
+      republishBtn.onclick = ()=> republishArchivedPin(p.id);
+      const reschedBtn = document.createElement('button');
+      reschedBtn.className = 'r-publish';
+      reschedBtn.style.background = 'var(--bouteille)';
+      reschedBtn.textContent = '🔁 Reprogrammer';
+      reschedBtn.onclick = ()=>{
+        modOverlay.classList.remove('open');
+        openDetail(p.id);
+        setTimeout(()=> document.getElementById('d-reschedule-link').click(), 150);
+      };
+      const delBtn = document.createElement('button');
+      delBtn.className = 'r-reject';
+      delBtn.textContent = '🗑 Supprimer définitivement';
+      delBtn.onclick = ()=> rejectPin(p.id, renderArchivedQueue);
+      actions.appendChild(republishBtn);
+      actions.appendChild(reschedBtn);
+      actions.appendChild(delBtn);
+      item.appendChild(actions);
+      list.appendChild(item);
+    });
+  }
+
+  function renderModPanel(){
+    const pending = allReports.filter(r=>r.status==='pending').sort((a,b)=>b.ts-a.ts);
+    modCount.textContent = `${pending.length} signalement${pending.length>1?'s':''} en attente`;
+    modList.innerHTML = '';
+    if(pending.length === 0){
+      modList.innerHTML = `<div class="no-reports">Aucun signalement en attente. Tout est calme du côté des bons plans ✦</div>`;
+      return;
+    }
+    pending.forEach(r=>{
+      const p = findPin(r.pinId);
+      const item = document.createElement('div');
+      item.className = 'report-item';
+      let snippet = '';
+      let typeLabel = 'Bon plan signalé';
+      if(p && r.type === 'comment'){
+        typeLabel = 'Commentaire signalé';
+        const cm = (p.comments||[]).find(c=>c.id===r.commentId);
+        snippet = cm ? `« ${cm.text} »` : '(commentaire déjà supprimé)';
+      }else if(p && r.type === 'photo'){
+        typeLabel = 'Photo signalée';
+        snippet = '(ouvrez la fiche du bon plan pour visualiser la photo)';
+      }else if(p){
+        snippet = p.desc;
+      }else{
+        snippet = '(contenu déjà supprimé)';
+      }
+      const date = new Date(r.ts).toLocaleDateString('fr-FR',{day:'numeric',month:'short'});
+      item.innerHTML = `
+        <div class="r-head">${typeLabel} · ${date}</div>
+        <div class="r-target">${escapeHtml(r.label || '')}</div>
+        <div class="r-snippet">${escapeHtml(snippet)}</div>
+        <div class="r-reason">Raison : ${escapeHtml(r.reason)}</div>
+      `;
+      if(p){
+        const viewLink = document.createElement('span');
+        viewLink.className = 'partner-toggle-link';
+        viewLink.style.display = 'inline-block';
+        viewLink.style.marginBottom = '8px';
+        viewLink.textContent = '🔍 Voir la fiche complète';
+        viewLink.onclick = ()=>{
+          modOverlay.classList.remove('open');
+          openDetail(r.pinId);
+        };
+        item.appendChild(viewLink);
+      }
+      const actions = document.createElement('div');
+      actions.className = 'r-actions';
+      const delBtn = document.createElement('button');
+      delBtn.className = 'r-delete';
+      delBtn.textContent = r.type==='comment' ? 'Supprimer le commentaire' : (r.type==='photo' ? 'Supprimer la photo' : 'Supprimer le bon plan');
+      delBtn.onclick = async ()=>{
+        if(r.type==='comment'){ await deleteComment(r.pinId, r.commentId); }
+        else if(r.type==='photo'){ await deletePhoto(r.pinId, r.photoId); }
+        else{ await deletePin(r.pinId); }
+        renderModPanel();
+      };
+      const dismissBtn = document.createElement('button');
+      dismissBtn.className = 'r-dismiss';
+      dismissBtn.textContent = 'Rejeter le signalement';
+      dismissBtn.onclick = async ()=>{
+        r.status = 'resolved';
+        await saveReports();
+        renderModPanel();
+        showToast('Signalement rejeté');
+      };
+      actions.appendChild(delBtn);
+      actions.appendChild(dismissBtn);
+      item.appendChild(actions);
+      modList.appendChild(item);
+    });
+  }
+
+  // ---------- PUBLIC LEADERBOARD ----------
+  const boardBtn = document.getElementById('board-btn');
+  const boardOverlay = document.getElementById('board-overlay');
+  boardBtn.onclick = ()=>{
+    renderLeaderboard();
+    boardOverlay.classList.add('open');
+  };
+  document.getElementById('board-close-btn').onclick = ()=> boardOverlay.classList.remove('open');
+  boardOverlay.onclick = (e)=>{ if(e.target===boardOverlay) boardOverlay.classList.remove('open'); };
+
+  // ---------- PUBLIC ARCHIVES ----------
+  const archiveBtn = document.getElementById('archive-btn');
+  const archiveOverlay = document.getElementById('archive-overlay');
+  archiveBtn.onclick = ()=>{
+    renderPublicArchive();
+    archiveOverlay.classList.add('open');
+  };
+  document.getElementById('archive-close-btn').onclick = ()=> archiveOverlay.classList.remove('open');
+  archiveOverlay.onclick = (e)=>{ if(e.target===archiveOverlay) archiveOverlay.classList.remove('open'); };
+
+  function renderPublicArchive(){
+    const archived = allPins.filter(p=> p.status==='archived')
+      .sort((a,b)=> (b.eventDate||'').localeCompare(a.eventDate||''));
+    const list = document.getElementById('archive-list');
+    list.innerHTML = '';
+    if(archived.length === 0){
+      list.innerHTML = `<div class="no-archive">Aucun événement passé pour l'instant.</div>`;
+      return;
+    }
+    archived.forEach(p=>{
+      const c = CATEGORIES[p.cat];
+      const avg = avgRating(p);
+      const dateLabel = p.eventDate
+        ? new Date(p.eventDate + 'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric'})
+        : 'date inconnue';
+      const row = document.createElement('div');
+      row.className = 'archive-row';
+      row.innerHTML = `
+        <div class="archive-icon">${c.icon}</div>
+        <div class="archive-info">
+          <div class="archive-name">${escapeHtml(p.name)}</div>
+          <div class="archive-detail">${c.label} · ${dateLabel} · ${starsHtml(avg.value,false)} ${avg.label}</div>
+        </div>
+      `;
+      row.onclick = ()=>{
+        archiveOverlay.classList.remove('open');
+        openDetail(p.id);
+      };
+      list.appendChild(row);
+    });
+  }
+
+  // ---------- PODIUM: "THE PLACE TO BE" ----------
+  const podiumBtn = document.getElementById('podium-btn');
+  const podiumOverlay = document.getElementById('podium-overlay');
+  podiumBtn.onclick = ()=>{
+    renderPodium();
+    podiumOverlay.classList.add('open');
+  };
+  document.getElementById('podium-close-btn').onclick = ()=> podiumOverlay.classList.remove('open');
+  podiumOverlay.onclick = (e)=>{ if(e.target===podiumOverlay) podiumOverlay.classList.remove('open'); };
+
+  function renderPodium(){
+    const ranked = allPins.filter(isUpcomingEvent)
+      .map(p=>({p, count:(p.attendees||[]).length}))
+      .filter(x=>x.count>0)
+      .sort((a,b)=>b.count-a.count);
+
+    const top3El = document.getElementById('podium-top3');
+    const restEl = document.getElementById('podium-rest');
+    top3El.innerHTML = '';
+    restEl.innerHTML = '';
+
+    if(ranked.length === 0){
+      top3El.innerHTML = `<div class="no-podium">Personne n'a encore annoncé sa venue à un événement à venir. Le podium attend ses premiers candidats !</div>`;
+      return;
+    }
+
+    const medals = [
+      {cls:'gold',  medal:'🥇'},
+      {cls:'silver',medal:'🥈'},
+      {cls:'bronze',medal:'🥉'}
+    ];
+    // Display order on podium: 2nd, 1st, 3rd (classic podium layout)
+    const order = [1,0,2].filter(i=>ranked[i]);
+    order.forEach(i=>{
+      const {p, count} = ranked[i];
+      const m = medals[i];
+      const c = CATEGORIES[p.cat];
+      const stand = document.createElement('div');
+      stand.className = `podium-stand ${m.cls}`;
+      stand.innerHTML = `
+        <div class="podium-medal">${m.medal}</div>
+        <div class="podium-stand-name">${c.icon} ${escapeHtml(p.name)}</div>
+        <div class="podium-stand-count">🙋 ${count}</div>
+        <div class="podium-block">${i+1}</div>
+      `;
+      stand.onclick = ()=>{ podiumOverlay.classList.remove('open'); openDetail(p.id); };
+      top3El.appendChild(stand);
+    });
+
+    ranked.slice(3).forEach((x,idx)=>{
+      const {p, count} = x;
+      const c = CATEGORIES[p.cat];
+      const dateLabel = p.eventDate ? new Date(p.eventDate+'T00:00:00').toLocaleDateString('fr-FR',{day:'numeric',month:'long'}) : '';
+      const row = document.createElement('div');
+      row.className = 'podium-rest-row';
+      row.innerHTML = `
+        <div class="podium-rest-rank">${idx+4}</div>
+        <div class="podium-rest-info">
+          <div class="podium-rest-name">${c.icon} ${escapeHtml(p.name)}</div>
+          <div class="podium-rest-detail">${dateLabel} · 🙋 ${count} intéressé${count>1?'s':''}</div>
+        </div>
+      `;
+      row.onclick = ()=>{ podiumOverlay.classList.remove('open'); openDetail(p.id); };
+      restEl.appendChild(row);
+    });
+  }
+
+  // ---------- CARTE (Leaflet + OpenStreetMap) ----------
+  const mainEl = document.getElementById('main');
+  let map = null, markersLayer = null, mapFitted = false;
+
+  function initMap(){
+    if(map || typeof L === 'undefined') return;
+    map = L.map('map', { zoomControl:true }).setView(CHALONS, 14);
+    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+      maxZoom: 19,
+      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
+    }).addTo(map);
+    markersLayer = L.layerGroup().addTo(map);
+    map.on('click', (e)=>{
+      const box = document.createElement('div');
+      box.className = 'map-add-popup';
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.textContent = '＋ Ajouter un bon plan ici';
+      b.onclick = ()=>{
+        map.closePopup();
+        pendingLatLng = { lat:e.latlng.lat, lng:e.latlng.lng, precise:true, fromMap:true };
+        const q = nearestQuartier(e.latlng.lat, e.latlng.lng);
+        openModal();
+        const opt = document.querySelector(`.quartier-opt[data-quartier="${q}"]`);
+        if(opt) opt.click();
+      };
+      box.appendChild(b);
+      L.popup({ closeButton:true }).setLatLng(e.latlng).setContent(box).openOn(map);
+    });
+  }
+
+  // Les bons plans placés seulement par quartier partagent le même point :
+  // on les écarte légèrement (toujours de la même façon) pour qu'ils restent cliquables.
+  function markerPosition(p){
+    if(p.preciseLocation || p.seeded) return [p.lat, p.lng];
+    let h = 0;
+    for(const ch of String(p.id)) h = (h*31 + ch.charCodeAt(0)) | 0;
+    const a = (Math.abs(h) % 360) * Math.PI / 180;
+    const r = 0.0006 + (Math.abs(h >> 8) % 10) * 0.0001;
+    return [p.lat + r*Math.sin(a), p.lng + r*1.5*Math.cos(a)];
+  }
+
+  function renderMapMarkers(visible){
+    initMap();
+    if(!map) return;
+    markersLayer.clearLayers();
+    const pts = [];
+    visible.forEach(p=>{
+      if(typeof p.lat !== 'number' || typeof p.lng !== 'number') return;
+      const c = CATEGORIES[p.cat] || { color:'#183140', icon:'•' };
+      const pos = markerPosition(p);
+      const m = L.circleMarker(pos, {
+        radius: p.isPartner ? 11 : 9,
+        color: p.isPartner ? '#C9A227' : '#FFFFFF',
+        weight: p.isPartner ? 3 : 2,
+        fillColor: c.color,
+        fillOpacity: .95
+      });
+      m.bindTooltip(`${c.icon} ${escapeHtml(p.name)}`, { direction:'top', offset:[0,-8] });
+      m.on('click', ()=> openDetail(p.id));
+      m.addTo(markersLayer);
+      pts.push(pos);
+    });
+    if(!mapFitted && pts.length){
+      map.fitBounds(pts, { padding:[40,40], maxZoom:15 });
+      mapFitted = true;
+    }
+  }
+
+  // Bascule Liste / Carte sur téléphone
+  const viewListBtn = document.getElementById('view-list');
+  const viewMapBtn = document.getElementById('view-map');
+  function setView(showMap){
+    mainEl.classList.toggle('show-map', showMap);
+    viewMapBtn.classList.toggle('active', showMap);
+    viewListBtn.classList.toggle('active', !showMap);
+    if(showMap && map) setTimeout(()=> map.invalidateSize(), 50);
+  }
+  viewListBtn.onclick = ()=> setView(false);
+  viewMapBtn.onclick = ()=> setView(true);
+  window.addEventListener('resize', ()=>{ if(map) map.invalidateSize(); });
+
+  // ---------- PARTNER CTA ----------
+  const partnerCtaClose = document.getElementById('partner-cta-close');
+  if(partnerCtaClose){
+    partnerCtaClose.onclick = ()=>{
+      document.getElementById('partner-cta').style.display = 'none';
+    };
+  }
+
+  (async function init(){
+    await loadPins();
+    await loadReports();
+    const match = location.hash.match(/^#pin=(.+)$/);
+    if(match){
+      const targetId = decodeURIComponent(match[1]);
+      if(findPin(targetId)){
+        openDetail(targetId);
+      }else{
+        try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+        showToast("Ce bon plan n'est plus disponible.");
+      }
+    }
+  })();
+})();
+</script>
+</body>
+</html>
