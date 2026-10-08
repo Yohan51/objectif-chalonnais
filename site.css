@@ -73,3 +73,38 @@
 .oc-install [data-install-action][hidden]{display:none;}
 .oc-install [data-install-close]{background:transparent;color:#FBFAF6;opacity:.75;width:32px;height:32px;font-size:16px;}
 .oc-install button:focus-visible{outline:2px solid #9FD8F5;outline-offset:2px;}
+
+/* Fenêtre de bienvenue : proposition d'activer les alertes */
+.oc-welcome{
+  position:fixed;inset:0;z-index:3000;
+  background:rgba(10,24,34,.55);
+  display:flex;align-items:flex-end;justify-content:center;
+  padding:16px;padding-bottom:calc(16px + env(safe-area-inset-bottom, 0px));
+  font-family:'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  animation:oc-fade .2s ease-out;
+}
+.oc-welcome-card{
+  width:100%;max-width:420px;
+  background:#FBFAF6;color:#183140;
+  border-radius:22px;padding:26px 22px 18px;
+  display:flex;flex-direction:column;align-items:center;gap:10px;text-align:center;
+  box-shadow:0 20px 50px -16px rgba(0,0,0,.5);
+  animation:oc-rise .25s ease-out;
+}
+.oc-welcome-card img{width:64px;height:64px;border-radius:16px;}
+.oc-welcome-card h2{font-family:'Baloo 2','Nunito',system-ui,sans-serif;font-size:24px;font-weight:800;line-height:1.15;margin:4px 0 0;}
+.oc-welcome-card p{margin:0;font-size:15px;line-height:1.5;color:#4B6372;}
+.oc-welcome-card .oc-welcome-small{font-size:13px;}
+.oc-welcome-card button{
+  width:100%;font:inherit;font-weight:800;font-size:16px;cursor:pointer;
+  border-radius:999px;padding:14px;border:2px solid transparent;
+}
+.oc-welcome-yes{background:#183140;color:#FBFAF6;margin-top:8px;}
+.oc-welcome-no{background:transparent;color:#183140;border-color:#D7E3EA !important;}
+.oc-welcome-card button:disabled{opacity:.6;cursor:wait;}
+.oc-welcome-card button:focus-visible{outline:3px solid #9FD8F5;outline-offset:2px;}
+.oc-welcome-status{min-height:1.2em;font-weight:700;font-size:14px !important;color:#2E7D57 !important;}
+@media (min-width:600px){ .oc-welcome{align-items:center;} }
+@keyframes oc-fade{from{opacity:0}to{opacity:1}}
+@keyframes oc-rise{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
+@media (prefers-reduced-motion: reduce){ .oc-welcome,.oc-welcome-card{animation:none;} }

@@ -3,7 +3,7 @@
      est en ligne, la dernière version enregistrée quand on est hors ligne.
    - Polices et bibliothèque de carte : gardées en mémoire.
    - Base de données, photos et fonds de carte : jamais mis en cache ici. */
-const VERSION = 'oc-v3';
+const VERSION = 'oc-v4';
 const SHELL = [
   './', './index.html', './bons-plans.html', './galerie.html', './quiz.html', './offline.html',
   './site.css', './config.js', './storage.js', './app.js', './push.js', './logo.png',
