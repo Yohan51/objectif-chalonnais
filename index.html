@@ -137,7 +137,7 @@
   .notice a{color:inherit;font-weight:800;}
 
   /* ---------- Rubriques ---------- */
-  .tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;}
+  .tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;}
   .tool{
     display:flex;flex-direction:column;gap:12px;
     background:var(--surface);
@@ -221,6 +221,7 @@
   }
   footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;}
 
+  @media (max-width:980px){ .tools{grid-template-columns:minmax(0,1fr);} }
   @media (max-width:760px){
     section{padding-block:40px;}
     .hero{padding-block:36px 24px;}
@@ -239,6 +240,7 @@
   <div class="oc-nav-links">
     <a href="index.html" aria-current="page">Accueil</a>
     <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
     <a href="quiz.html">Quiz</a>
     <a href="index.html#nous-suivre">Nous suivre</a>
   </div>
@@ -253,7 +255,7 @@
         <p class="lead">Actualité locale, photographie, culture, sport et événements : une équipe de passionnés fait vivre Châlons-en-Champagne et ses alentours, avec vous.</p>
         <div class="actions">
           <a class="btn btn-main" href="bons-plans.html">Explorer les bons plans</a>
-          <a class="btn btn-ghost" href="quiz.html">Faire le quiz</a>
+          <a class="btn btn-ghost" href="galerie.html">Voir la galerie</a>
         </div>
       </div>
       <div class="finder vf" aria-label="Notre communauté">
@@ -280,7 +282,7 @@
     <div class="wrap">
       <div class="section-head">
         <p class="eyebrow">À découvrir</p>
-        <h2>Deux façons de (re)découvrir la ville</h2>
+        <h2>(Re)découvrir la ville</h2>
       </div>
       <div class="tools">
         <a class="tool vf" href="bons-plans.html">
@@ -288,6 +290,12 @@
           <p>La carte participative de Châlons : restos, balades, lieux insolites et événements du week-end, repérés et notés par les Chalonnais. Ajoutez les vôtres !</p>
           <div class="tags"><span>Bonnes tables</span><span>Champagne &amp; terroir</span><span>Nature</span><span>Événements</span></div>
           <span class="go">Ouvrir la carte →</span>
+        </a>
+        <a class="tool vf" href="galerie.html">
+          <h3>La galerie</h3>
+          <p>Nos photos des événements, des rues et des habitants de Châlons, classées par album. Des années de reportages à parcourir.</p>
+          <div class="tags"><span>Événements</span><span>Sport</span><span>Culture</span></div>
+          <span class="go">Voir les photos →</span>
         </a>
         <a class="tool vf" href="quiz.html">
           <h3>Connais-tu Châlons ?</h3>

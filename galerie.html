@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Galerie photo — L'Objectif Châlonnais</title>
+<meta name="description" content="Les photos de L'Objectif Châlonnais : événements, sport, culture et vie de Châlons-en-Champagne.">
+<link rel="icon" href="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<style>
+  /* Planche contact : albums en grille, photos en colonnes, visionneuse plein écran */
+  :root{
+    --bg:#F4F8FA;
+    --surface:#FFFFFF;
+    --ink:#183140;
+    --ink-soft:#4B6372;
+    --line:#D7E3EA;
+    --sky:#9FD8F5;
+    --sky-deep:#2E97C7;
+    --tile:#E3EDF2;
+    --font-display:'Baloo 2', 'Nunito', system-ui, sans-serif;
+    --font-body:'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0;
+      --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0;
+    --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:20px;}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.1;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0 0 10px;}
+
+  .page-head{padding-block:44px 28px;display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between;}
+  .page-head h1{font-size:clamp(34px,5vw,52px);font-weight:800;}
+  .page-head p{margin:10px 0 0;color:var(--ink-soft);max-width:56ch;}
+  .back{
+    display:inline-flex;align-items:center;gap:6px;
+    font:inherit;font-weight:800;font-size:14px;color:var(--ink);
+    background:var(--surface);border:1.5px solid var(--line);border-radius:999px;
+    padding:8px 16px;cursor:pointer;text-decoration:none;
+  }
+  .back:hover{border-color:var(--sky-deep);}
+  .back:focus-visible,.album:focus-visible,.shot:focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .count{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);}
+
+  /* Albums */
+  .albums{display:grid;grid-template-columns:repeat(auto-fill,minmax(260px,1fr));gap:28px 24px;padding-bottom:64px;}
+  .album{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink);cursor:pointer;background:none;border:none;padding:0;text-align:left;font:inherit;}
+  .album-cover{
+    position:relative;aspect-ratio:4/3;max-width:100%;border-radius:10px;overflow:hidden;background:var(--tile);
+  }
+  .album-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease;}
+  .album:hover .album-cover img{transform:scale(1.04);}
+  .album-cover::before,.album-cover::after{
+    content:"";position:absolute;width:22px;height:22px;border-color:#fff;border-style:solid;z-index:1;opacity:.9;pointer-events:none;
+  }
+  .album-cover::before{top:10px;left:10px;border-width:3px 0 0 3px;border-radius:5px 0 0 0;}
+  .album-cover::after{bottom:10px;right:10px;border-width:0 3px 3px 0;border-radius:0 0 5px 0;}
+  .album h3{font-size:21px;font-weight:700;}
+  .album-meta{display:flex;gap:12px;font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);}
+
+  /* Photos d'un album */
+  .shots{columns:3 260px;column-gap:12px;padding-bottom:64px;}
+  .shot{
+    display:block;width:100%;margin:0 0 12px;break-inside:avoid;
+    border:none;padding:0;background:var(--tile);border-radius:8px;overflow:hidden;cursor:zoom-in;
+  }
+  .shot img{width:100%;height:auto;display:block;min-height:120px;}
+
+  /* États */
+  .state{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:32px;margin-bottom:64px;max-width:640px;
+  }
+  .state h2{font-size:26px;font-weight:800;margin-bottom:8px;}
+  .state p{margin:0;color:var(--ink-soft);}
+  .skeleton{aspect-ratio:4/3;border-radius:10px;background:var(--tile);}
+
+  /* Visionneuse */
+  .viewer{
+    position:fixed;inset:0;z-index:2000;
+    background:rgba(8,18,26,.96);color:#fff;
+    display:flex;flex-direction:column;
+    padding-top:env(safe-area-inset-top,0px);padding-bottom:env(safe-area-inset-bottom,0px);
+  }
+  .viewer-bar{display:flex;align-items:center;justify-content:space-between;gap:12px;padding:12px 16px;font-family:var(--font-mono);font-size:13px;}
+  .viewer-bar span{min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .viewer-stage{flex:1;position:relative;display:flex;align-items:center;justify-content:center;min-height:0;padding:0 56px 16px;touch-action:pan-y;}
+  .viewer-stage img{max-width:100%;max-height:100%;object-fit:contain;display:block;user-select:none;-webkit-user-drag:none;}
+  .vbtn{
+    background:rgba(255,255,255,.12);color:#fff;border:none;cursor:pointer;
+    width:44px;height:44px;border-radius:50%;font-size:20px;line-height:1;
+    display:flex;align-items:center;justify-content:center;
+  }
+  .vbtn:hover{background:rgba(255,255,255,.24);}
+  .vbtn:focus-visible{outline:2px solid #9FD8F5;outline-offset:2px;}
+  .vprev,.vnext{position:absolute;top:50%;transform:translateY(-50%);}
+  .vprev{left:8px;} .vnext{right:8px;}
+  .viewer-credit{text-align:center;font-size:12.5px;opacity:.7;padding:0 16px 14px;}
+  @media (max-width:600px){
+    .viewer-stage{padding:0 0 12px;}
+    .vprev,.vnext{top:auto;bottom:18px;transform:none;}
+    .shots{columns:2 150px;column-gap:8px;}
+    .shot{margin-bottom:8px;}
+    .albums{grid-template-columns:minmax(0,1fr);}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html" aria-current="page">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+    <a href="index.html#nous-suivre">Nous suivre</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <!-- Liste des albums -->
+  <section id="view-albums">
+    <div class="page-head">
+      <div>
+        <p class="eyebrow">Galerie photo</p>
+        <h1>Châlons en images</h1>
+        <p>Événements, sport, culture et vie de quartier : les reportages photo de L'Objectif Châlonnais, album par album.</p>
+      </div>
+      <span class="count" id="albums-count"></span>
+    </div>
+    <div class="albums" id="albums">
+      <div class="skeleton"></div><div class="skeleton"></div><div class="skeleton"></div>
+    </div>
+    <div class="state" id="albums-state" hidden></div>
+  </section>
+
+  <!-- Un album -->
+  <section id="view-album" hidden>
+    <div class="page-head">
+      <div>
+        <p class="eyebrow" id="album-date"></p>
+        <h1 id="album-title"></h1>
+        <p class="count" id="album-count"></p>
+      </div>
+      <div style="display:flex;gap:8px;flex-wrap:wrap;">
+        <button class="back" type="button" id="copy-album">🔗 Copier le lien</button>
+        <a class="back" href="galerie.html" id="back-albums">← Tous les albums</a>
+      </div>
+    </div>
+    <div class="shots" id="shots"></div>
+    <div class="state" id="album-state" hidden></div>
+  </section>
+</main>
+
+<div class="viewer" id="viewer" hidden role="dialog" aria-modal="true" aria-label="Visionneuse photo">
+  <div class="viewer-bar">
+    <span id="viewer-title"></span>
+    <div style="display:flex;align-items:center;gap:12px;">
+      <span id="viewer-pos"></span>
+      <button class="vbtn" type="button" id="viewer-close" aria-label="Fermer">✕</button>
+    </div>
+  </div>
+  <div class="viewer-stage" id="viewer-stage">
+    <button class="vbtn vprev" type="button" id="viewer-prev" aria-label="Photo précédente">‹</button>
+    <img id="viewer-img" alt="">
+    <button class="vbtn vnext" type="button" id="viewer-next" aria-label="Photo suivante">›</button>
+  </div>
+  <div class="viewer-credit">© L'Objectif Châlonnais · Toute réutilisation sur demande</div>
+</div>
+
+<script src="config.js"></script>
+<script>
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  const URL_BASE = (cfg.supabaseUrl || '').replace(/\/+$/, '');
+  const CLE = cfg.supabaseCle || '';
+  const BUCKET = cfg.galerieBucket || 'galerie';
+  const IMG = /\.(jpe?g|png|webp|gif|avif)$/i;
+
+  const headers = { 'apikey': CLE, 'Content-Type': 'application/json' };
+  if(CLE.startsWith('eyJ')) headers['Authorization'] = 'Bearer ' + CLE;
+
+  const $ = (id)=> document.getElementById(id);
+  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+
+  // « 2026-10-04 Foire de Châlons » -> { date:'4 octobre 2026', titre:'Foire de Châlons' }
+  function parseAlbum(name){
+    const m = name.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?[\s_-]+(.+)$/);
+    if(!m) return { date:'', titre:name.replace(/[_]+/g,' ') };
+    const mois = MOIS[parseInt(m[2],10)-1] || '';
+    const date = (m[3] ? parseInt(m[3],10)+' ' : '') + mois + ' ' + m[1];
+    return { date, titre:m[4].replace(/[_]+/g,' ') };
+  }
+  function publicUrl(path){
+    return `${URL_BASE}/storage/v1/object/public/${BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}`;
+  }
+  async function list(prefix){
+    const out = [];
+    for(let offset=0; ; offset+=1000){
+      const r = await fetch(`${URL_BASE}/storage/v1/object/list/${BUCKET}`, {
+        method:'POST', headers,
+        body: JSON.stringify({ prefix, limit:1000, offset, sortBy:{ column:'name', order:'asc' } })
+      });
+      if(!r.ok) throw new Error('liste ' + r.status);
+      const rows = await r.json();
+      out.push(...rows);
+      if(rows.length < 1000) break;
+    }
+    return out;
+  }
+  const isFolder = (o)=> o.id === null || (!o.metadata && !IMG.test(o.name));
+  const photosOf = (rows)=> rows.filter(o=> !isFolder(o) && IMG.test(o.name));
+
+  function showState(el, titre, texte){
+    el.innerHTML = `<h2></h2><p></p>`;
+    el.querySelector('h2').textContent = titre;
+    el.querySelector('p').textContent = texte;
+    el.hidden = false;
+  }
+
+  // ---------- Albums ----------
+  const albumCache = {};
+  async function renderAlbums(){
+    $('view-album').hidden = true;
+    $('view-albums').hidden = false;
+    document.title = 'Galerie photo — L\'Objectif Châlonnais';
+    const grid = $('albums');
+    if(!URL_BASE || !CLE){
+      grid.innerHTML = '';
+      showState($('albums-state'), 'La galerie arrive bientôt', 'Nos premiers albums sont en préparation. Revenez dans quelques jours !');
+      return;
+    }
+    try{
+      const root = await list('');
+      const folders = root.filter(isFolder).map(o=>o.name).sort().reverse();
+      if(!folders.length){
+        grid.innerHTML = '';
+        showState($('albums-state'), 'La galerie arrive bientôt', 'Nos premiers albums sont en préparation. Revenez dans quelques jours !');
+        return;
+      }
+      grid.innerHTML = '';
+      $('albums-count').textContent = `${folders.length} album${folders.length>1?'s':''}`;
+      folders.forEach(name=>{
+        const { date, titre } = parseAlbum(name);
+        const a = document.createElement('a');
+        a.className = 'album';
+        a.href = '#' + encodeURIComponent(name);
+        a.dataset.album = name;
+        a.innerHTML = `<div class="album-cover"></div><h3></h3><div class="album-meta"><span class="d"></span><span class="n"></span></div>`;
+        a.querySelector('h3').textContent = titre;
+        a.querySelector('.d').textContent = date;
+        grid.appendChild(a);
+        loadAlbum(name).then(photos=>{
+          a.querySelector('.n').textContent = `${photos.length} photo${photos.length>1?'s':''}`;
+          if(photos[0]){
+            const img = document.createElement('img');
+            img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
+            img.src = publicUrl(name + '/' + photos[0].name);
+            a.querySelector('.album-cover').appendChild(img);
+          }
+        }).catch(()=>{});
+      });
+    }catch(e){
+      grid.innerHTML = '';
+      showState($('albums-state'), 'Impossible d\'afficher la galerie', 'La connexion aux photos a échoué. Rechargez la page dans quelques instants.');
+    }
+  }
+  async function loadAlbum(name){
+    if(!albumCache[name]) albumCache[name] = list(name + '/').then(photosOf);
+    return albumCache[name];
+  }
+
+  // ---------- Un album ----------
+  let current = { name:'', photos:[] };
+  async function renderAlbum(name){
+    $('view-albums').hidden = true;
+    $('view-album').hidden = false;
+    $('album-state').hidden = true;
+    const { date, titre } = parseAlbum(name);
+    $('album-title').textContent = titre;
+    $('album-date').textContent = date || 'Album';
+    $('album-count').textContent = '';
+    document.title = `${titre} — Galerie L'Objectif Châlonnais`;
+    const shots = $('shots');
+    shots.innerHTML = '';
+    window.scrollTo(0,0);
+    try{
+      const photos = await loadAlbum(name);
+      current = { name, photos };
+      if(!photos.length){
+        showState($('album-state'), 'Cet album est vide', 'Les photos arrivent bientôt.');
+        return;
+      }
+      $('album-count').textContent = `${photos.length} photo${photos.length>1?'s':''}`;
+      photos.forEach((p,i)=>{
+        const b = document.createElement('button');
+        b.type = 'button'; b.className = 'shot';
+        b.setAttribute('aria-label', `Agrandir la photo ${i+1}`);
+        const img = document.createElement('img');
+        img.loading = 'lazy'; img.decoding = 'async';
+        img.alt = `${titre}, photo ${i+1}`;
+        img.src = publicUrl(name + '/' + p.name);
+        b.appendChild(img);
+        b.onclick = ()=> openViewer(i);
+        shots.appendChild(b);
+      });
+    }catch(e){
+      showState($('album-state'), 'Impossible d\'afficher cet album', 'La connexion aux photos a échoué. Rechargez la page dans quelques instants.');
+    }
+  }
+
+  $('copy-album').onclick = async (e)=>{
+    try{ await navigator.clipboard.writeText(location.href); e.target.textContent = '✓ Lien copié'; }
+    catch(err){ e.target.textContent = 'Copiez l\'adresse de la page'; }
+    setTimeout(()=> e.target.textContent = '🔗 Copier le lien', 2200);
+  };
+
+  // ---------- Visionneuse ----------
+  let vIndex = 0, lastFocus = null;
+  function showPhoto(i){
+    const n = current.photos.length;
+    vIndex = (i + n) % n;
+    $('viewer-img').src = publicUrl(current.name + '/' + current.photos[vIndex].name);
+    $('viewer-img').alt = `${parseAlbum(current.name).titre}, photo ${vIndex+1}`;
+    $('viewer-pos').textContent = `${vIndex+1} / ${n}`;
+    // précharge la suivante
+    const next = current.photos[(vIndex+1) % n];
+    if(next){ const pre = new Image(); pre.src = publicUrl(current.name + '/' + next.name); }
+  }
+  function openViewer(i){
+    lastFocus = document.activeElement;
+    $('viewer-title').textContent = parseAlbum(current.name).titre;
+    $('viewer').hidden = false;
+    document.body.style.overflow = 'hidden';
+    showPhoto(i);
+    $('viewer-close').focus();
+  }
+  function closeViewer(){
+    $('viewer').hidden = true;
+    document.body.style.overflow = '';
+    if(lastFocus) lastFocus.focus();
+  }
+  $('viewer-close').onclick = closeViewer;
+  $('viewer-prev').onclick = ()=> showPhoto(vIndex-1);
+  $('viewer-next').onclick = ()=> showPhoto(vIndex+1);
+  $('viewer-stage').addEventListener('click', (e)=>{ if(e.target.id === 'viewer-stage') closeViewer(); });
+  document.addEventListener('keydown', (e)=>{
+    if($('viewer').hidden) return;
+    if(e.key === 'Escape') closeViewer();
+    if(e.key === 'ArrowLeft') showPhoto(vIndex-1);
+    if(e.key === 'ArrowRight') showPhoto(vIndex+1);
+  });
+  let touchX = null;
+  $('viewer-stage').addEventListener('touchstart', (e)=>{ touchX = e.touches[0].clientX; }, { passive:true });
+  $('viewer-stage').addEventListener('touchend', (e)=>{
+    if(touchX === null) return;
+    const dx = e.changedTouches[0].clientX - touchX;
+    if(Math.abs(dx) > 50) showPhoto(vIndex + (dx < 0 ? 1 : -1));
+    touchX = null;
+  });
+  // Pas de clic droit « enregistrer l'image » dans la visionneuse
+  $('viewer-img').addEventListener('contextmenu', (e)=> e.preventDefault());
+
+  // ---------- Navigation par l'adresse (#nom_de_l_album) ----------
+  function route(){
+    const h = location.hash.slice(1);
+    if(h){
+      let name = h; try{ name = decodeURIComponent(h); }catch(e){}
+      renderAlbum(name);
+    }else{
+      if(!$('viewer').hidden) closeViewer();
+      renderAlbums();
+    }
+  }
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+</body>
+</html>

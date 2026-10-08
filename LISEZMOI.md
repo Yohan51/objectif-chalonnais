@@ -6,6 +6,7 @@
 |---|---|
 | `index.html` | Accueil : présentation, réseaux, inscription à la lettre, contact |
 | `bons-plans.html` | Le guide des bons plans, avec la carte OpenStreetMap |
+| `galerie.html` | La galerie photo, alimentée par les dossiers déposés dans Supabase |
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
 | `config.js` | **Le seul fichier à modifier** : liens des réseaux, contact, dons, base de données |
 | `storage.js` | Enregistrement des données (ne pas modifier) |
@@ -57,6 +58,40 @@ create policy "inscription publique" on newsletter for insert with check (true);
 
 3. Menu *Project Settings → API* : copie la *Project URL* et la clé *anon public*, puis colle-les dans `config.js` (`supabaseUrl` et `supabaseCle`).
 4. Les adresses inscrites se retrouvent dans *Table Editor → newsletter*, exportables en CSV pour Brevo, Mailchimp, etc.
+
+## 4. La galerie photo
+
+### Mise en place (une seule fois)
+
+Dans Supabase, *SQL Editor → New query*, colle ce bloc puis *Run* :
+
+```sql
+-- Espace de stockage public pour les photos
+insert into storage.buckets (id, name, public)
+values ('galerie', 'galerie', true)
+on conflict (id) do nothing;
+
+-- Le site peut lister les albums et les photos (lecture seule)
+create policy "galerie lecture publique"
+on storage.objects for select
+using (bucket_id = 'galerie');
+```
+
+Seul toi, depuis le tableau de bord Supabase, peux ajouter ou supprimer des photos.
+
+### Ajouter un album
+
+1. Supabase → *Storage* → *galerie* → *Create folder*.
+2. Nomme le dossier avec la date puis le titre : `2026-10-04 Foire de Châlons`. Le site affiche alors « Foire de Châlons · 4 octobre 2026 ». Pour un album sans jour précis : `2025-12 Marché de Noël`. Les albums les plus récents s'affichent en premier.
+3. Ouvre le dossier et glisse-y les photos (JPG, PNG ou WebP).
+
+Les photos apparaissent sur le site immédiatement, dans l'ordre alphabétique de leur nom de fichier. La première sert de couverture à l'album.
+
+### Préparer les photos
+
+- **Redimensionne-les avant l'envoi** : 2 000 pixels sur le grand côté, qualité JPG 80 %. Une photo pèse alors 300 à 600 Ko au lieu de 5 à 10 Mo. Le site se charge vite et l'offre gratuite (1 Go) contient 2 000 à 3 000 photos.
+- Outils gratuits pour redimensionner par lots : *Aperçu* sur Mac (Outils → Ajuster la taille), *XnConvert* sur Windows et Mac, ou l'export de Lightroom.
+- **Droit à l'image** : évite les gros plans de personnes identifiables sans leur accord, surtout les enfants. Les photos de foule et d'ambiance ne posent en général pas de problème.
 
 ## Bon à savoir
 
