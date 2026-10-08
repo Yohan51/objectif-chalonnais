@@ -37,13 +37,18 @@
     return btoa(bin).replace(/\+/g,'-').replace(/\//g,'_').replace(/=+$/,'');
   }
   async function saveSubscription(sub){
-    const headers = { 'apikey': CLE, 'Content-Type': 'application/json', 'Prefer': 'resolution=ignore-duplicates,return=minimal' };
+    const headers = { 'apikey': CLE, 'Content-Type': 'application/json', 'Prefer': 'return=minimal' };
     if(CLE.startsWith('eyJ')) headers['Authorization'] = 'Bearer ' + CLE;
     const r = await fetch(`${URL_BASE}/rest/v1/push_subscriptions`, {
       method: 'POST', headers,
       body: JSON.stringify({ endpoint: sub.endpoint, p256dh: keyToB64u(sub.getKey('p256dh')), auth: keyToB64u(sub.getKey('auth')) })
     });
-    if(!r.ok && r.status !== 409) throw new Error('enregistrement ' + r.status);
+    // 409 = ce téléphone est déjà enregistré : tout va bien
+    if(!r.ok && r.status !== 409){
+      let detail = '';
+      try{ const j = await r.json(); detail = j.message || j.msg || ''; }catch(e){}
+      throw new Error(`base ${r.status}${detail ? ' : ' + detail : ''}`);
+    }
   }
 
   function showSubscribed(){
@@ -72,7 +77,10 @@
     try{
       const reg = await navigator.serviceWorker.ready;
       const sub = await reg.pushManager.getSubscription();
-      if(sub){ showSubscribed(); saveSubscription(sub).catch(()=>{}); }
+      if(sub){
+        showSubscribed();
+        saveSubscription(sub).catch(e=> setStatus(`Alertes activées, mais l'enregistrement a échoué (${e.message}).`, 'err'));
+      }
       else showOff();
     }catch(e){ showOff(); }
   }
@@ -99,7 +107,7 @@
       await saveSubscription(sub);
       showSubscribed();
     }catch(e){
-      setStatus('L\'activation n\'a pas abouti. Réessayez dans quelques instants.', 'err');
+      setStatus(`L'activation n'a pas abouti (${e && e.message ? e.message : 'erreur inconnue'}).`, 'err');
     }finally{
       btn.disabled = false;
     }
