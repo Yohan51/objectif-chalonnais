@@ -197,6 +197,9 @@
     border:1.5px solid var(--line);background:var(--bg);color:var(--ink);
   }
   .news-row input:focus{outline:none;border-color:var(--sky-deep);}
+  .panel.alertes{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:8px 28px;align-items:center;}
+  .panel.alertes p{margin-bottom:0;}
+  .alertes-action{display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
   .news-legal{font-size:12.5px;color:var(--ink-soft);margin:0;}
   .news-status{font-weight:700;min-height:1.4em;margin:0;}
   .news-status.ok{color:#2E8B57;}
@@ -234,6 +237,7 @@
     .hero{padding-block:36px 24px;}
     .hero-grid,.tools,.follow,.asso{grid-template-columns:minmax(0,1fr);gap:28px;}
     .finder,.tool,.panel{padding:22px;}
+    .panel.alertes{grid-template-columns:minmax(0,1fr);}
   }
   @media (prefers-reduced-motion: reduce){
     *{transition:none !important;}
@@ -342,6 +346,16 @@
             <p class="news-status" id="news-status" aria-live="polite"></p>
             <p class="news-legal">Votre adresse sert uniquement à l'envoi de notre lettre. Désinscription possible à tout moment sur simple demande.</p>
           </form>
+        </div>
+        <div class="panel alertes">
+          <div>
+            <h3>Les alertes sur votre téléphone</h3>
+            <p>Nouvel album photo, événement à ne pas manquer, info importante : recevez une notification, sans dépendre d'aucun réseau social.</p>
+          </div>
+          <div class="alertes-action">
+            <button class="btn btn-main" type="button" id="alertes-btn">Recevoir les alertes</button>
+            <p class="news-status" id="alertes-status" aria-live="polite"></p>
+          </div>
         </div>
       </div>
     </div>
@@ -456,5 +470,6 @@
 })();
 </script>
 <script src="app.js"></script>
+<script src="push.js"></script>
 </body>
 </html>

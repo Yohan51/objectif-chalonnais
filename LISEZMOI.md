@@ -12,6 +12,8 @@
 | `storage.js` | Enregistrement des données (ne pas modifier) |
 | `site.css` | Barre de navigation commune |
 | `logo.png` | Logo de l'association |
+| `envoyer.html` | Page réservée pour envoyer une alerte (non visible dans le menu) |
+| `push.js`, `supabase/envoyer-notification.ts` | Alertes : abonnement des téléphones et fonction d'envoi à coller dans Supabase |
 | `manifest.webmanifest`, `sw.js`, `app.js`, `offline.html`, `icons/` | Mode application : installation sur téléphone et fonctionnement hors ligne (ne pas modifier) |
 
 ## 1. Mettre en ligne sur GitHub Pages
@@ -105,6 +107,40 @@ Le site s'installe comme une application, sans passer par les stores :
 Une fois installée, l'application s'ouvre en plein écran avec l'icône de l'œil. Les pages déjà visitées restent consultables sans connexion. Chaque mise à jour du site sur GitHub arrive automatiquement dans l'application, au prochain lancement avec une connexion.
 
 Attention : le mode application ne fonctionne qu'en ligne sur GitHub Pages (adresse en `https://`), pas en ouvrant les fichiers depuis ton ordinateur.
+
+## 6. Les alertes (notifications)
+
+### Mise en place (une seule fois)
+
+1. **Table des abonnés** : Supabase → *SQL Editor* → *New query* :
+
+```sql
+create table push_subscriptions (
+  endpoint text primary key,
+  p256dh text not null,
+  auth text not null,
+  created_at timestamptz default now()
+);
+alter table push_subscriptions enable row level security;
+create policy "abonnement public" on push_subscriptions for insert with check (true);
+```
+
+2. **Secrets** : *Edge Functions* → *Secrets* → ajoute :
+   - `VAPID_PUBLIC_KEY` et `VAPID_PRIVATE_KEY` (les deux clés données par Claude ; la clé privée ne doit jamais être publiée sur GitHub)
+   - `VAPID_SUBJECT` : `mailto:lobjectifchalonnais@gmail.com`
+   - `CODE_ENVOI` : un code de ton choix, que tu taperas pour envoyer une alerte
+
+3. **Fonction d'envoi** : *Edge Functions* → *Deploy a new function* → *Via Editor*. Nom : `envoyer-notification`. Remplace tout le code par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*.
+
+4. Dans les réglages de la fonction (*Details*), **désactive « Enforce JWT verification »** (ou « Verify JWT ») et enregistre. C'est ton code d'envoi qui protège la fonction.
+
+### Envoyer une alerte
+
+1. Ouvre `…/objectif-chalonnais/envoyer.html` (garde cette adresse en favori, elle n'est pas dans le menu).
+2. Tape ton code, un titre, un message, choisis la page à ouvrir.
+3. *M'envoyer un test* pour vérifier sur ton téléphone, puis *Envoyer à tous*.
+
+Les visiteurs s'abonnent avec le bouton « Recevoir les alertes » de l'accueil. Sur iPhone, ils doivent d'abord installer l'application.
 
 ## Bon à savoir
 

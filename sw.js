@@ -3,10 +3,10 @@
      est en ligne, la dernière version enregistrée quand on est hors ligne.
    - Polices et bibliothèque de carte : gardées en mémoire.
    - Base de données, photos et fonds de carte : jamais mis en cache ici. */
-const VERSION = 'oc-v1';
+const VERSION = 'oc-v2';
 const SHELL = [
   './', './index.html', './bons-plans.html', './galerie.html', './quiz.html', './offline.html',
-  './site.css', './config.js', './storage.js', './app.js', './logo.png',
+  './site.css', './config.js', './storage.js', './app.js', './push.js', './logo.png',
   './icons/icon-192.png', './manifest.webmanifest'
 ];
 const STATIC_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'unpkg.com'];
@@ -61,4 +61,34 @@ self.addEventListener('fetch', (event)=>{
     })());
   }
   // Tout le reste (Supabase, OpenStreetMap…) passe directement par le réseau
+});
+
+// ---------- Alertes (notifications) ----------
+self.addEventListener('push', (event)=>{
+  let data = {};
+  try{ data = event.data ? event.data.json() : {}; }catch(e){ data = { titre: event.data && event.data.text() }; }
+  const titre = data.titre || "L'Objectif Châlonnais";
+  event.waitUntil(self.registration.showNotification(titre, {
+    body: data.message || '',
+    icon: 'icons/icon-192.png',
+    badge: 'icons/icon-192.png',
+    lang: 'fr',
+    data: { lien: data.lien || './' }
+  }));
+});
+
+self.addEventListener('notificationclick', (event)=>{
+  event.notification.close();
+  const cible = new URL((event.notification.data && event.notification.data.lien) || './', self.registration.scope).href;
+  event.waitUntil((async ()=>{
+    const fenetres = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+    for(const f of fenetres){
+      if(f.url.startsWith(self.registration.scope) && 'focus' in f){
+        await f.focus();
+        if('navigate' in f) return f.navigate(cible);
+        return;
+      }
+    }
+    return self.clients.openWindow(cible);
+  })());
 });

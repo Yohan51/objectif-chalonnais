@@ -1,0 +1,246 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Envoyer une alerte — L'Objectif Châlonnais</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  /* Formulaire d'envoi : une colonne, aperçu de la notification juste au-dessus du bouton */
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7; --ok:#2E7D57; --err:#C0472F; --warn-bg:#FFF6E0; --warn-ink:#6B4A0E;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E;
+      --sky-deep:#6CC1EA; --ok:#6FCF97; --err:#F08A73; --warn-bg:#3A2E12; --warn-ink:#F5DDA0; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E;
+    --sky-deep:#6CC1EA; --ok:#6FCF97; --err:#F08A73; --warn-bg:#3A2E12; --warn-ink:#F5DDA0; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;}
+  main{max-width:560px;margin:0 auto;padding-inline:20px;padding-block:36px 64px;display:flex;flex-direction:column;gap:20px;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0 0 6px;}
+  h1{font-family:var(--font-display);font-size:36px;font-weight:800;line-height:1.1;margin:0;}
+  .intro{margin:8px 0 0;color:var(--ink-soft);}
+  form{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;display:flex;flex-direction:column;gap:16px;}
+  label{font-weight:800;font-size:14px;display:flex;justify-content:space-between;gap:8px;}
+  label small{font-family:var(--font-mono);font-weight:500;font-size:12px;color:var(--ink-soft);}
+  input,textarea,select{
+    width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);
+    border:1.5px solid var(--line);border-radius:10px;padding:11px 14px;margin-top:6px;
+  }
+  textarea{min-height:90px;resize:vertical;}
+  input:focus,textarea:focus,select:focus{outline:none;border-color:var(--sky-deep);}
+  .field{display:flex;flex-direction:column;}
+  .hint{font-size:13px;color:var(--ink-soft);margin:6px 0 0;}
+
+  .preview{
+    display:flex;gap:12px;align-items:flex-start;
+    background:var(--bg);border:1px solid var(--line);border-radius:16px;padding:12px 14px;
+  }
+  .preview img{width:38px;height:38px;border-radius:9px;flex-shrink:0;}
+  .preview div{min-width:0;}
+  .preview strong{display:block;font-size:15px;overflow-wrap:anywhere;}
+  .preview span{display:block;font-size:14px;color:var(--ink-soft);overflow-wrap:anywhere;}
+  .preview-label{font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);margin:0 0 -8px;}
+
+  .actions{display:flex;flex-wrap:wrap;gap:10px;}
+  .btn{
+    font:inherit;font-weight:800;font-size:15px;cursor:pointer;border-radius:999px;
+    padding:12px 20px;border:2px solid transparent;
+  }
+  .btn-main{background:var(--ink);color:var(--bg);}
+  .btn-ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+  .btn:disabled{opacity:.55;cursor:wait;}
+  .confirm{
+    background:var(--warn-bg);color:var(--warn-ink);border-radius:12px;padding:14px;
+    display:flex;flex-direction:column;gap:10px;
+  }
+  .confirm p{margin:0;}
+  .status{margin:0;font-weight:700;min-height:1.5em;}
+  .status.ok{color:var(--ok);} .status.err{color:var(--err);}
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="envoyer.html" aria-current="page">Envoyer une alerte</a>
+  </div>
+</nav>
+
+<main>
+  <div>
+    <p class="eyebrow">Réservé à l'équipe</p>
+    <h1>Envoyer une alerte</h1>
+    <p class="intro">La notification arrive sur tous les téléphones abonnés aux alertes de L'Objectif Châlonnais.</p>
+  </div>
+
+  <form id="form" novalidate>
+    <div class="field">
+      <label for="f-code">Code d'envoi</label>
+      <input id="f-code" type="password" autocomplete="current-password" placeholder="Le code choisi dans Supabase">
+    </div>
+    <div class="field">
+      <label for="f-titre">Titre <small id="c-titre">0/60</small></label>
+      <input id="f-titre" type="text" maxlength="60" placeholder="Nouvel album : Foire de Châlons">
+    </div>
+    <div class="field">
+      <label for="f-message">Message <small id="c-message">0/180</small></label>
+      <textarea id="f-message" maxlength="180" placeholder="120 photos de la soirée d'ouverture vous attendent dans la galerie."></textarea>
+    </div>
+    <div class="field">
+      <label for="f-lien">Au toucher, ouvrir</label>
+      <select id="f-lien">
+        <option value="./index.html">L'accueil</option>
+        <option value="./galerie.html">La galerie</option>
+        <option value="./bons-plans.html">Les bons plans</option>
+        <option value="./quiz.html">Le quiz</option>
+        <option value="autre">Une autre page du site…</option>
+      </select>
+      <input id="f-lien-autre" type="text" placeholder="galerie.html#2026-10-04%20Foire%20de%20Châlons" hidden>
+      <p class="hint" id="lien-hint" hidden>Pour un album précis : ouvre l'album sur le site, touche « Copier le lien » et colle-le ici.</p>
+    </div>
+
+    <p class="preview-label">Aperçu</p>
+    <div class="preview" aria-hidden="true">
+      <img src="icons/icon-192.png" alt="">
+      <div><strong id="p-titre">Titre de l'alerte</strong><span id="p-message">Le message apparaîtra ici.</span></div>
+    </div>
+
+    <div class="actions">
+      <button class="btn btn-ghost" type="button" id="btn-test">M'envoyer un test</button>
+      <button class="btn btn-main" type="button" id="btn-tous">Envoyer à tous</button>
+    </div>
+    <div class="confirm" id="confirm" hidden>
+      <p><strong>Confirmer l'envoi à tous les abonnés ?</strong> Une alerte envoyée ne peut pas être annulée.</p>
+      <div class="actions">
+        <button class="btn btn-main" type="button" id="btn-confirm">Oui, envoyer</button>
+        <button class="btn btn-ghost" type="button" id="btn-cancel">Annuler</button>
+      </div>
+    </div>
+    <p class="status" id="status" aria-live="polite"></p>
+  </form>
+</main>
+
+<script src="config.js"></script>
+<script src="app.js"></script>
+<script>
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  const URL_BASE = (cfg.supabaseUrl || '').replace(/\/+$/, '');
+  const CLE = cfg.supabaseCle || '';
+  const $ = (id)=> document.getElementById(id);
+  const CODE_KEY = 'oc-code-envoi';
+
+  try{ $('f-code').value = localStorage.getItem(CODE_KEY) || ''; }catch(e){}
+
+  function sync(){
+    $('c-titre').textContent = `${$('f-titre').value.length}/60`;
+    $('c-message').textContent = `${$('f-message').value.length}/180`;
+    $('p-titre').textContent = $('f-titre').value.trim() || 'Titre de l\'alerte';
+    $('p-message').textContent = $('f-message').value.trim() || 'Le message apparaîtra ici.';
+    const autre = $('f-lien').value === 'autre';
+    $('f-lien-autre').hidden = !autre;
+    $('lien-hint').hidden = !autre;
+  }
+  ['f-titre','f-message','f-lien'].forEach(id=> $(id).addEventListener('input', sync));
+  $('f-lien').addEventListener('change', sync);
+  sync();
+
+  function status(msg, kind){ $('status').textContent = msg; $('status').className = 'status' + (kind ? ' ' + kind : ''); }
+
+  function lien(){
+    if($('f-lien').value !== 'autre') return $('f-lien').value;
+    let v = $('f-lien-autre').value.trim();
+    try{
+      const u = new URL(v, location.href);
+      if(u.origin === location.origin) return './' + u.pathname.split('/').pop() + u.hash;
+    }catch(e){}
+    return './index.html';
+  }
+
+  function valider(){
+    if(!URL_BASE || !CLE){ status('Supabase n\'est pas configuré dans config.js.', 'err'); return false; }
+    if(!$('f-code').value.trim()){ status('Saisis le code d\'envoi.', 'err'); $('f-code').focus(); return false; }
+    if(!$('f-titre').value.trim()){ status('Le titre est obligatoire.', 'err'); $('f-titre').focus(); return false; }
+    return true;
+  }
+
+  async function envoyer(endpoint){
+    const boutons = ['btn-test','btn-tous','btn-confirm'].map($);
+    boutons.forEach(b=> b.disabled = true);
+    status('Envoi en cours…');
+    try{
+      const headers = { 'Content-Type': 'application/json', 'apikey': CLE };
+      if(CLE.startsWith('eyJ')) headers['Authorization'] = 'Bearer ' + CLE;
+      const r = await fetch(`${URL_BASE}/functions/v1/envoyer-notification`, {
+        method: 'POST', headers,
+        body: JSON.stringify({
+          code: $('f-code').value.trim(),
+          titre: $('f-titre').value.trim(),
+          message: $('f-message').value.trim(),
+          lien: lien(),
+          endpoint: endpoint || undefined
+        })
+      });
+      let res = {};
+      try{ res = await r.json(); }catch(e){}
+      if(!r.ok){
+        status(res.erreur || `L'envoi a échoué (erreur ${r.status}). Vérifie que la fonction est bien déployée dans Supabase.`, 'err');
+        return;
+      }
+      try{ localStorage.setItem(CODE_KEY, $('f-code').value.trim()); }catch(e){}
+      if(res.note){ status(res.note); return; }
+      let msg = `Alerte envoyée à ${res.envoyes} appareil${res.envoyes>1?'s':''}.`;
+      if(res.echecs) msg += ` ${res.echecs} échec${res.echecs>1?'s':''}.`;
+      if(res.supprimes) msg += ` ${res.supprimes} abonnement${res.supprimes>1?'s':''} expiré${res.supprimes>1?'s':''} retiré${res.supprimes>1?'s':''}.`;
+      status(msg, res.envoyes ? 'ok' : '');
+    }catch(e){
+      status('Impossible de joindre Supabase. Vérifie ta connexion et réessaie.', 'err');
+    }finally{
+      boutons.forEach(b=> b.disabled = false);
+      $('confirm').hidden = true;
+    }
+  }
+
+  $('btn-test').addEventListener('click', async ()=>{
+    if(!valider()) return;
+    try{
+      const reg = await navigator.serviceWorker.ready;
+      const sub = await reg.pushManager.getSubscription();
+      if(!sub){
+        status('Cet appareil n\'est pas abonné. Active d\'abord « Recevoir les alertes » sur l\'accueil.', 'err');
+        return;
+      }
+      envoyer(sub.endpoint);
+    }catch(e){
+      status('Les alertes ne sont pas disponibles dans ce navigateur.', 'err');
+    }
+  });
+  $('btn-tous').addEventListener('click', ()=>{ if(valider()){ $('confirm').hidden = false; status(''); } });
+  $('btn-cancel').addEventListener('click', ()=>{ $('confirm').hidden = true; });
+  $('btn-confirm').addEventListener('click', ()=> envoyer());
+})();
+</script>
+</body>
+</html>
