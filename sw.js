@@ -3,10 +3,10 @@
      est en ligne, la dernière version enregistrée quand on est hors ligne.
    - Polices et bibliothèque de carte : gardées en mémoire.
    - Base de données, photos et fonds de carte : jamais mis en cache ici. */
-const VERSION = 'oc-v14';
+const VERSION = 'oc-v15';
 const SHELL = [
   './', './index.html', './actus.html', './bons-plans.html', './galerie.html', './quiz.html', './jeux.html', './offline.html',
-  './site.css', './config.js', './storage.js', './app.js', './push.js', './actus-rendu.js', './compteur.js', './logo.png',
+  './site.css', './config.js', './storage.js', './app.js', './push.js', './actus-rendu.js', './compteur.js', './chat.js', './logo.png',
   './icons/icon-192.png', './manifest.webmanifest'
 ];
 const STATIC_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'unpkg.com'];

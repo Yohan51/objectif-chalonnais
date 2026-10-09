@@ -314,6 +314,7 @@
   .panel.alertes{grid-column:1/-1;display:grid;grid-template-columns:minmax(0,1.6fr) minmax(0,1fr);gap:8px 28px;align-items:center;}
   .panel.alertes p{margin-bottom:0;}
   .alertes-action{display:flex;flex-direction:column;align-items:flex-start;gap:8px;}
+  .discuter-actions{flex-direction:row;flex-wrap:wrap;}
   .news-legal{font-size:12.5px;color:var(--ink-soft);margin:0;}
   .news-status{font-weight:700;min-height:1.4em;margin:0;}
   .news-status.ok{color:#2E8B57;}
@@ -506,6 +507,16 @@
           <div class="alertes-action">
             <button class="btn btn-main" type="button" id="alertes-btn">Recevoir les alertes</button>
             <p class="news-status" id="alertes-status" aria-live="polite"></p>
+          </div>
+        </div>
+        <div class="panel alertes">
+          <div>
+            <h3>On discute ?</h3>
+            <p>Échangez avec les autres Chalonnais dans la discussion du site, ou écrivez directement à l'équipe : une question, une info, un événement à couvrir.</p>
+          </div>
+          <div class="alertes-action discuter-actions">
+            <a class="btn btn-main" href="#discussion" data-chat="salon">Rejoindre la discussion</a>
+            <a class="btn btn-ghost" href="#equipe" data-chat="equipe">Écrire à l'équipe</a>
           </div>
         </div>
       </div>
@@ -762,5 +773,7 @@
 </script>
 <script src="app.js"></script>
 <script src="push.js"></script>
+<script src="chat.js"></script>
+<script>document.querySelectorAll('[data-chat]').forEach(a=> a.addEventListener('click', e=>{ if(window.OCChat){ e.preventDefault(); window.OCChat.ouvrir(a.dataset.chat); } }));</script>
 </body>
 </html>

@@ -15,6 +15,7 @@
 | `galerie.html` | La galerie photo, alimentée par les dossiers déposés dans Supabase |
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
 | `stats.html`, `compteur.js`, `supabase/compteur.sql` | Compteur de visites anonyme et page des statistiques de l'équipe |
+| `chat.js`, `messages.html`, `supabase/chat.sql` | La bulle « Discuter » (discussion publique et messages à l'équipe) et la page de l'équipe pour répondre et modérer |
 | `mentions-legales.html` | Mentions légales et politique de confidentialité (lien en bas de chaque page) |
 | `jeux.html` | Les jeux concours : participation des abonnés et gagnants |
 | `tirage.html`, `qrcode.min.js` | Outil de l'équipe : créer les jeux, tirage au sort, certificats (non visible dans le menu) |
@@ -292,6 +293,29 @@ Réglages facultatifs dans `config.js`, après la ligne `contact` :
   compteurPublic: false,      // pour ne jamais afficher le total sur l'accueil
   compteurMinimum: 5000,      // pour l'afficher seulement à partir de 5 000 visites
 ```
+
+## 13. La discussion et les messages
+
+Une bulle **💬 Discuter** apparaît en bas à droite des pages du site, avec deux onglets :
+
+- **La discussion** : un salon public où les Chalonnais échangent. Tout le monde peut lire ; pour écrire, il faut avoir activé les alertes (c'est le filtre anti-spam) et choisir un pseudo. Les liens vers d'autres sites, les insultes et les pseudos qui imitent l'équipe sont refusés. Un message signalé 3 fois est masqué automatiquement. Les messages sont effacés au bout de 90 jours.
+- **Écrire à l'équipe** : un message privé à l'association. Le visiteur retrouve la conversation et votre réponse dans la bulle, à sa prochaine visite (une pastille rouge le prévient). S'il a laissé son e-mail, vous pouvez aussi lui répondre par mail.
+
+### Installation (une seule fois)
+
+*SQL Editor* → *New query* → colle tout le fichier `supabase/chat.sql` → *Run*. (Il faut avoir installé `securite.sql` et les alertes avant.)
+
+### Répondre et modérer
+
+`https://lobjectifchalonnais.fr/messages.html`, avec le code modérateur :
+- **Messages reçus** : les conversations non lues ont une pastille rouge. Cliquez, répondez, puis *Marquer comme traitée*.
+- **Modérer la discussion** : masquez ou rétablissez un message, ou **bannissez** son auteur (il ne pourra plus écrire et tous ses messages sont masqués).
+
+Pas de notification automatique pour l'instant : passez sur cette page une ou deux fois par jour (le nombre de messages non lus s'affiche dans le titre de l'onglet).
+
+La liste des mots refusés se complète dans Supabase : *Table Editor* → schéma `oc_private` → table `salon_mots` → *Insert row*.
+
+Pour retirer la bulle du site : ajoute `chat: false,` dans `config.js`, après la ligne `contact`.
 
 ## Bon à savoir
 

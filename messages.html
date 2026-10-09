@@ -1,0 +1,304 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Messages — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --tile:#E3EDF2;
+    --sky:#2E97C7; --err:#C0472F; --err-bg:#FBEAE6; --ok:#2E7D57; --ok-bg:#E5F4EC; --btn:#183140; --btn-ink:#F4F8FA;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C;
+      --sky:#6CC1EA; --err:#F08A73; --err-bg:#3D211B; --ok:#6FCF97; --ok-bg:#163A2A; --btn:#EAF4F9; --btn-ink:#0F2230; color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;}
+  a{color:var(--sky);}
+  .wrap{max-width:1040px;margin:0 auto;padding:24px 20px 64px;}
+  h1,h2{font-family:var(--font-display);line-height:1.1;margin:0;}
+  .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;}
+  .top nav{display:flex;gap:14px;flex-wrap:wrap;}
+  .top button{background:none;border:none;color:var(--sky);font:inherit;text-decoration:underline;cursor:pointer;padding:0;}
+  h1{font-size:clamp(30px,5vw,42px);font-weight:800;margin-top:24px;}
+  .onglets{display:flex;gap:8px;margin:18px 0;}
+  .onglets button{font:inherit;font-weight:800;font-size:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:8px 16px;cursor:pointer;}
+  .onglets button[aria-selected="true"]{background:var(--btn);border-color:var(--btn);color:var(--btn-ink);}
+  .nb{display:inline-block;min-width:20px;padding:0 6px;border-radius:999px;background:#E5484D;color:#fff;font-size:12px;margin-left:6px;}
+
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;margin:14px 0 10px;}
+  .btn{font:inherit;font-weight:800;border:none;border-radius:999px;padding:11px 20px;background:var(--btn);color:var(--btn-ink);cursor:pointer;}
+  .btn:disabled{opacity:.5;}
+  .btn-l{font:inherit;font-weight:700;font-size:13.5px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer;}
+  .btn-l.danger{color:var(--err);}
+  .err{color:var(--err);font-size:14px;}
+
+  .boite{display:grid;grid-template-columns:320px minmax(0,1fr);gap:16px;align-items:start;}
+  .liste{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;max-height:72vh;overflow-y:auto;}
+  .conv{display:block;width:100%;text-align:left;font:inherit;color:inherit;background:none;border:none;border-bottom:1px solid var(--line);padding:12px 14px;cursor:pointer;}
+  .conv:hover{background:var(--tile);}
+  .conv.actif{background:var(--tile);box-shadow:inset 3px 0 0 var(--sky);}
+  .conv .h{display:flex;justify-content:space-between;gap:8px;font-weight:800;}
+  .conv .h span{font-family:var(--font-mono);font-weight:500;font-size:11.5px;color:var(--muted);white-space:nowrap;}
+  .conv p{margin:3px 0 0;font-size:13.5px;color:var(--ink-soft);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  .conv.nonlu .h::before{content:"";width:9px;height:9px;border-radius:50%;background:#E5484D;flex-shrink:0;margin-top:7px;}
+  .conv.nonlu .h{justify-content:flex-start;}
+  .conv.nonlu .h span{margin-left:auto;}
+  .conv.fermee{opacity:.6;}
+  .vide{padding:28px 16px;text-align:center;color:var(--ink-soft);font-size:14px;}
+
+  .fil{background:var(--surface);border:1px solid var(--line);border-radius:16px;display:flex;flex-direction:column;min-height:420px;max-height:72vh;}
+  .fil-tete{padding:14px 16px;border-bottom:1px solid var(--line);display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;align-items:center;}
+  .fil-tete strong{font-size:17px;}
+  .fil-tete .qui{font-size:14px;color:var(--ink-soft);}
+  .fil-msgs{flex:1;overflow-y:auto;padding:14px;display:flex;flex-direction:column;gap:10px;background:var(--bg);}
+  .m{max-width:80%;align-self:flex-start;}
+  .m .q{font-size:12px;color:var(--muted);margin:0 4px 3px;}
+  .m .b{background:var(--surface);border:1px solid var(--line);border-radius:14px 14px 14px 4px;padding:9px 13px;white-space:pre-wrap;overflow-wrap:anywhere;}
+  .m.equipe{align-self:flex-end;}
+  .m.equipe .q{text-align:right;}
+  .m.equipe .b{background:var(--btn);color:var(--btn-ink);border-color:var(--btn);border-radius:14px 14px 4px 14px;}
+  .repondre{border-top:1px solid var(--line);padding:12px;display:flex;flex-direction:column;gap:8px;}
+  .repondre textarea{width:100%;font:inherit;min-height:80px;resize:vertical;border:1.5px solid var(--line);border-radius:12px;padding:10px 12px;background:var(--bg);color:var(--ink);}
+  .repondre .l{display:flex;gap:8px;align-items:center;flex-wrap:wrap;}
+  .repondre .l .mini{font-size:12.5px;color:var(--muted);flex:1;}
+
+  .salon{background:var(--surface);border:1px solid var(--line);border-radius:16px;overflow:hidden;}
+  .sm{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:6px 12px;padding:12px 16px;border-bottom:1px solid var(--line);}
+  .sm .q{font-size:13px;color:var(--muted);}
+  .sm .q b{color:var(--ink);}
+  .sm .t{grid-column:1;white-space:pre-wrap;overflow-wrap:anywhere;}
+  .sm .a{grid-row:1 / span 2;grid-column:2;display:flex;gap:6px;flex-wrap:wrap;justify-content:flex-end;align-items:start;}
+  .sm.masque .t{opacity:.5;text-decoration:line-through;}
+  .tag{font-family:var(--font-mono);font-size:11px;padding:2px 8px;border-radius:999px;margin-left:6px;}
+  .tag.r{background:var(--err-bg);color:var(--err);}
+  .tag.m{background:var(--tile);color:var(--ink-soft);}
+  #retour{display:none;}
+  .aide{font-size:14px;color:var(--ink-soft);margin:0 0 14px;}
+  @media (max-width:760px){
+    .boite{grid-template-columns:minmax(0,1fr);}
+    #retour{display:inline-block;}
+    .boite.ouverte .liste{display:none;}
+    .boite:not(.ouverte) .fil{display:none;}
+    .sm{grid-template-columns:minmax(0,1fr);}
+    .sm .a{grid-row:auto;grid-column:1;justify-content:flex-start;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="vue-login">
+    <h1>Messages</h1>
+    <p>Réservé à l'équipe. Entrez le code modérateur.</p>
+    <input type="password" id="l-code" placeholder="Code modérateur" autocomplete="current-password">
+    <p class="err" id="l-msg" hidden></p>
+    <button class="btn" id="l-btn" type="submit" style="width:100%">Ouvrir</button>
+  </form>
+
+  <main id="vue-app" hidden>
+    <div class="top">
+      <nav><a href="index.html">Le site</a><a href="rediger.html">Rédaction</a><a href="envoyer.html">Alertes</a><a href="tirage.html">Jeux</a><a href="stats.html">Stats</a></nav>
+      <button type="button" id="btn-quitter">Se déconnecter</button>
+    </div>
+    <h1>Messages et discussion</h1>
+    <div class="onglets" role="tablist">
+      <button type="button" role="tab" data-o="conv" aria-selected="true">Messages reçus<span class="nb" id="nb-conv" hidden></span></button>
+      <button type="button" role="tab" data-o="salon" aria-selected="false">Modérer la discussion<span class="nb" id="nb-salon" hidden></span></button>
+    </div>
+
+    <section id="o-conv">
+      <div class="boite" id="boite">
+        <div class="liste" id="liste"><div class="vide">Chargement…</div></div>
+        <div class="fil" id="fil">
+          <div class="vide" id="fil-vide">Choisissez une conversation à gauche.</div>
+          <div id="fil-contenu" hidden style="display:flex;flex-direction:column;flex:1;min-height:0;">
+            <div class="fil-tete">
+              <div><button type="button" class="btn-l" id="retour" style="margin-right:8px">←</button><strong id="f-nom"></strong> <span class="qui" id="f-email"></span></div>
+              <div style="display:flex;gap:6px;flex-wrap:wrap;">
+                <button type="button" class="btn-l" id="f-fermer">Marquer comme traitée</button>
+                <button type="button" class="btn-l danger" id="f-suppr">Supprimer</button>
+              </div>
+            </div>
+            <div class="fil-msgs" id="f-msgs"></div>
+            <form class="repondre" id="f-form">
+              <textarea id="f-texte" maxlength="1500" placeholder="Votre réponse, au nom de L'Objectif Châlonnais…"></textarea>
+              <div class="l"><span class="mini" id="f-info">La réponse s'affiche dans la bulle de discussion du visiteur, à sa prochaine visite.</span><button class="btn" type="submit" id="f-envoyer">Répondre</button></div>
+              <div class="err" id="f-err"></div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <section id="o-salon" hidden>
+      <p class="aide">Les 150 derniers messages de la discussion publique. Un message signalé 3 fois est masqué automatiquement : vous pouvez le rétablir. « Bannir » empêche son auteur d'écrire à nouveau et masque tous ses messages.</p>
+      <div class="salon" id="salon"><div class="vide">Chargement…</div></div>
+    </section>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const CODE_KEY = 'oc-redaction-code';
+  let code = null, convs = [], courante = null, onglet = 'conv';
+  const el = (tag, cls, txt)=>{ const e = document.createElement(tag); if(cls) e.className = cls; if(txt != null) e.textContent = txt; return e; };
+  function quand(iso){
+    const d = new Date(iso), m = new Date();
+    const h = d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+    return d.toDateString() === m.toDateString() ? h : d.toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) + ' ' + h;
+  }
+
+  async function connecter(c){
+    const r = await A.rpc('oc_conv_liste', { p_code: c });
+    code = c;
+    try{ sessionStorage.setItem(CODE_KEY, c); localStorage.setItem('oc-ne-pas-compter', '1'); }catch(e){}
+    $('vue-login').hidden = true; $('vue-app').hidden = false;
+    afficherListe(r);
+    setInterval(()=>{ if(!document.hidden) rafraichir(); }, 30000);
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{ try{ sessionStorage.removeItem(CODE_KEY); }catch(e){} location.reload(); };
+  (async ()=>{
+    let c = null; try{ c = sessionStorage.getItem(CODE_KEY); }catch(e){}
+    if(c && A.configure){ try{ await connecter(c); }catch(e){} }
+    if(!code) $('l-code').focus();
+  })();
+
+  document.querySelectorAll('[role="tab"]').forEach(b=> b.onclick = ()=>{
+    onglet = b.dataset.o;
+    document.querySelectorAll('[role="tab"]').forEach(x=> x.setAttribute('aria-selected', x === b));
+    $('o-conv').hidden = onglet !== 'conv'; $('o-salon').hidden = onglet !== 'salon';
+    if(onglet === 'salon') chargerSalon();
+  });
+
+  async function rafraichir(){
+    try{ afficherListe(await A.rpc('oc_conv_liste', { p_code: code })); }catch(e){}
+    if(courante) ouvrirConv(courante, true);
+    if(onglet === 'salon') chargerSalon();
+  }
+
+  // ---------- Messages reçus ----------
+  function afficherListe(r){
+    convs = r.conversations || [];
+    const nonlus = convs.filter(c=> c.non_lu && !c.fermee).length;
+    $('nb-conv').hidden = !nonlus; $('nb-conv').textContent = nonlus;
+    $('nb-salon').hidden = !r.salon_signales; $('nb-salon').textContent = r.salon_signales;
+    document.title = (nonlus ? `(${nonlus}) ` : '') + 'Messages — L\'Objectif Châlonnais';
+    const l = $('liste'); l.innerHTML = '';
+    if(!convs.length){ l.innerHTML = '<div class="vide">Aucun message pour le moment.</div>'; return; }
+    convs.forEach(c=>{
+      const b = el('button', 'conv' + (c.non_lu && !c.fermee ? ' nonlu' : '') + (c.fermee ? ' fermee' : '') + (courante === c.id ? ' actif' : ''));
+      b.type = 'button';
+      const h = el('div', 'h');
+      h.append(document.createTextNode(c.nom || 'Visiteur anonyme'), el('span', '', quand(c.maj_le)));
+      b.append(h, el('p', '', c.dernier || ''));
+      b.onclick = ()=> ouvrirConv(c.id);
+      l.append(b);
+    });
+  }
+  async function ouvrirConv(id, silencieux){
+    courante = id;
+    const c = convs.find(x=> x.id === id); if(!c) return;
+    $('boite').classList.add('ouverte');
+    $('fil-vide').hidden = true; $('fil-contenu').hidden = false;
+    $('f-nom').textContent = c.nom || 'Visiteur anonyme';
+    const mail = $('f-email'); mail.innerHTML = '';
+    if(c.email){ const a = el('a', '', c.email); a.href = 'mailto:' + c.email + '?subject=' + encodeURIComponent('Votre message à L\'Objectif Châlonnais'); mail.append(a); }
+    $('f-fermer').textContent = c.fermee ? 'Rouvrir' : 'Marquer comme traitée';
+    try{
+      const r = await A.rpc('oc_conv_messages', { p_code: code, p_id: id });
+      const box = $('f-msgs'); const bas = box.scrollHeight - box.scrollTop - box.clientHeight < 60;
+      box.innerHTML = '';
+      (r.messages || []).forEach(m=>{
+        const d = el('div', 'm' + (m.auteur === 'equipe' ? ' equipe' : ''));
+        d.append(el('div', 'q', (m.auteur === 'equipe' ? 'L\'Objectif · ' : '') + quand(m.le)), el('div', 'b', m.texte));
+        box.append(d);
+      });
+      if(!silencieux || bas) box.scrollTop = box.scrollHeight;
+      if(!silencieux){ c.non_lu = false; afficherListe({ conversations: convs, salon_signales: +($('nb-salon').textContent || 0) }); $('f-texte').focus(); }
+    }catch(e){ $('f-err').textContent = e.message; }
+  }
+  $('retour').onclick = ()=>{ $('boite').classList.remove('ouverte'); courante = null; };
+  $('f-form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const t = $('f-texte').value.trim(); if(!t || !courante) return;
+    $('f-envoyer').disabled = true; $('f-err').textContent = '';
+    try{
+      await A.rpc('oc_conv_repondre', { p_code: code, p_id: courante, p_texte: t });
+      $('f-texte').value = '';
+      await rafraichir();
+    }catch(err){ $('f-err').textContent = err.message; }
+    finally{ $('f-envoyer').disabled = false; }
+  });
+  $('f-texte').addEventListener('keydown', (e)=>{ if(e.key === 'Enter' && (e.metaKey || e.ctrlKey)) $('f-form').requestSubmit(); });
+  $('f-fermer').onclick = async ()=>{
+    const c = convs.find(x=> x.id === courante); if(!c) return;
+    try{ await A.rpc('oc_conv_fermer', { p_code: code, p_id: c.id, p_fermee: !c.fermee }); await rafraichir(); }catch(e){ alert(e.message); }
+  };
+  $('f-suppr').onclick = async ()=>{
+    if(!courante || !confirm('Supprimer définitivement cette conversation ?')) return;
+    try{
+      await A.rpc('oc_conv_supprimer', { p_code: code, p_id: courante });
+      courante = null; $('fil-contenu').hidden = true; $('fil-vide').hidden = false; $('boite').classList.remove('ouverte');
+      await rafraichir();
+    }catch(e){ alert(e.message); }
+  };
+
+  // ---------- Modération de la discussion ----------
+  async function chargerSalon(){
+    const box = $('salon');
+    try{
+      const r = await A.rpc('oc_salon_moderation', { p_code: code });
+      box.innerHTML = '';
+      const msgs = r.messages || [];
+      if(!msgs.length){ box.innerHTML = '<div class="vide">Aucun message dans la discussion.</div>'; return; }
+      msgs.sort((a, b)=> (b.signalements > 0) - (a.signalements > 0) || b.id - a.id);
+      msgs.forEach(m=>{
+        const d = el('div', 'sm' + (m.masque ? ' masque' : ''));
+        const q = el('div', 'q');
+        q.append(el('b', '', m.pseudo), document.createTextNode(' · ' + quand(m.le)));
+        if(m.signalements) q.append(el('span', 'tag r', `${m.signalements} signalement${m.signalements > 1 ? 's' : ''}`));
+        if(m.masque) q.append(el('span', 'tag m', 'masqué'));
+        if(m.banni) q.append(el('span', 'tag r', 'auteur banni'));
+        const a = el('div', 'a');
+        const bm = el('button', 'btn-l', m.masque ? 'Rétablir' : 'Masquer'); bm.type = 'button';
+        bm.onclick = async ()=>{ try{ await A.rpc('oc_salon_masquer', { p_code: code, p_id: m.id, p_masque: !m.masque }); chargerSalon(); }catch(e){ alert(e.message); } };
+        const bb = el('button', 'btn-l danger', m.banni ? 'Débannir' : 'Bannir'); bb.type = 'button';
+        bb.onclick = async ()=>{
+          if(!m.banni && !confirm(`Bannir « ${m.pseudo} » ? Il ne pourra plus écrire et tous ses messages seront masqués.`)) return;
+          try{ await A.rpc('oc_salon_bannir', { p_code: code, p_id: m.id, p_bannir: !m.banni }); chargerSalon(); }catch(e){ alert(e.message); }
+        };
+        a.append(bm, bb);
+        d.append(q, a, el('div', 't', m.texte));
+        box.append(d);
+      });
+    }catch(e){ box.innerHTML = ''; box.append(el('div', 'vide', e.message)); }
+  }
+})();
+</script>
+</body>
+</html>
