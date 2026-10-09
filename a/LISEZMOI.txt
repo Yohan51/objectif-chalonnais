@@ -1,0 +1,2 @@
+Dossier fabriqué automatiquement par le robot « Aperçus des actus » (voir .github/workflows/apercus.yml).
+Ne pas modifier à la main : il est regénéré toutes les 15 minutes.
