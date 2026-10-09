@@ -139,26 +139,54 @@
   .finder dt{text-transform:uppercase;letter-spacing:.08em;font-size:11px;}
   .finder dd{margin:0;color:var(--ink);}
 
-  /* ---------- Photo à la une (dernier album) ---------- */
-  .une{margin:0;display:block;text-decoration:none;color:inherit;}
-  .une-cadre{
-    border-radius:var(--radius);overflow:hidden;background:var(--line);
-    aspect-ratio:4/5;max-height:560px;width:100%;
+  /* ---------- Grande photo en tête de page ---------- */
+  .hero{position:relative;isolation:isolate;}
+  .hero-fond{display:none;}
+  .hero.avec-photo{
+    display:flex;align-items:flex-end;
+    min-height:min(82vh, 760px);padding-block:120px 64px;
+    color:#fff;
   }
-  .une-cadre img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease;}
-  .une:hover .une-cadre img{transform:scale(1.03);}
-  .une-legende{
-    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
-    margin-top:12px;font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);
+  .hero.avec-photo .hero-fond{display:block;position:absolute;inset:0;z-index:-1;background:#0F2230;overflow:hidden;}
+  .hero-fond img{width:100%;height:100%;object-fit:cover;display:block;animation:hero-zoom 18s ease-out both;}
+  .hero-fond::after{
+    content:"";position:absolute;inset:0;
+    background:
+      linear-gradient(90deg, rgba(10,24,34,.82) 0%, rgba(10,24,34,.55) 45%, rgba(10,24,34,.08) 80%),
+      linear-gradient(0deg, rgba(10,24,34,.55) 0%, rgba(10,24,34,0) 40%);
   }
-  .une-legende b{
-    font-family:var(--font-body);font-size:15px;font-weight:800;color:var(--ink);
-    display:block;letter-spacing:0;text-transform:none;margin-top:2px;
+  .hero.avec-photo + .wrap{margin-top:28px;}
+  @keyframes hero-zoom{from{transform:scale(1.06);}to{transform:scale(1);}}
+  .hero.avec-photo .hero-grid{grid-template-columns:minmax(0,1fr);width:100%;}
+  .hero.avec-photo .hero-grid > div:first-child{max-width:640px;}
+  .hero.avec-photo .finder{display:none;}
+  .hero.avec-photo .eyebrow{color:#9FD8F5;}
+  .hero.avec-photo h1{color:#fff;text-shadow:0 2px 24px rgba(0,0,0,.25);}
+  .hero.avec-photo h1 em{color:#9FD8F5;}
+  .hero.avec-photo p.lead{color:rgba(255,255,255,.88);}
+  .hero.avec-photo .btn-main{background:#fff;color:#0F2230;}
+  .hero.avec-photo .btn-ghost{color:#fff;border-color:rgba(255,255,255,.55);background:rgba(10,24,34,.18);backdrop-filter:blur(4px);}
+  .hero.avec-photo .btn-ghost:hover{border-color:#fff;}
+  .stat-ligne{margin:28px 0 0;font-size:14.5px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;color:rgba(255,255,255,.82);}
+  .stat-ligne strong{font-family:var(--font-display);font-size:28px;font-weight:800;color:#fff;line-height:1;}
+  .hero-credit{
+    position:absolute;right:20px;bottom:18px;z-index:1;
+    font-family:var(--font-mono);font-size:11.5px;letter-spacing:.04em;
+    color:rgba(255,255,255,.85);text-decoration:none;
+    background:rgba(10,24,34,.45);backdrop-filter:blur(4px);
+    padding:6px 12px;border-radius:999px;max-width:calc(100% - 40px);
+    white-space:nowrap;overflow:hidden;text-overflow:ellipsis;
   }
-  .une-legende .lbl{text-transform:uppercase;letter-spacing:.08em;}
-  .une-legende .go{color:var(--sky-deep);font-weight:500;white-space:nowrap;}
-  .stat-ligne{margin:26px 0 0;font-size:14.5px;color:var(--ink-soft);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
-  .stat-ligne strong{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--ink);line-height:1;}
+  .hero-credit:hover{color:#fff;background:rgba(10,24,34,.7);}
+  @media (max-width:760px){
+    .hero.avec-photo{min-height:86svh;padding-block:96px 76px;}
+    .hero-fond::after{
+      background:linear-gradient(0deg, rgba(10,24,34,.9) 0%, rgba(10,24,34,.62) 50%, rgba(10,24,34,.35) 100%);
+    }
+    .stat-ligne strong{font-size:24px;}
+    .hero-credit{left:20px;right:auto;bottom:22px;}
+  }
+  @media (prefers-reduced-motion: reduce){ .hero-fond img{animation:none;} }
 
   /* ---------- Derniers albums ---------- */
   .albums-bande{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
@@ -175,10 +203,6 @@
   .alb h3{font-size:19px;font-weight:800;}
   .alb .d{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin-top:-6px;}
   @media (max-width:760px){
-    .une{order:-1;}
-    .une-cadre{aspect-ratio:4/3;}
-    .stat-ligne{margin-top:20px;}
-    .stat-ligne strong{font-size:24px;}
     .albums-bande{
       display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;
       margin-inline:-20px;padding-inline:20px;scroll-padding-inline:20px;scrollbar-width:none;
@@ -187,7 +211,7 @@
     .alb{flex:0 0 72%;scroll-snap-align:start;}
     .albums-bande::after{content:"";flex:0 0 6px;}
   }
-  @media (prefers-reduced-motion: reduce){ .une:hover .une-cadre img,.alb:hover .alb-cover img{transform:none;} }
+  @media (prefers-reduced-motion: reduce){ .alb:hover .alb-cover img{transform:none;} }
 
   /* ---------- Bandeau d'information ---------- */
   .notice{
@@ -345,7 +369,9 @@
 </nav>
 
 <main>
-  <section class="hero">
+  <section class="hero" id="hero">
+    <div class="hero-fond" aria-hidden="true"><img id="hero-img" alt="" decoding="async" fetchpriority="high"></div>
+    <a class="hero-credit" id="hero-credit" href="galerie.html" hidden></a>
     <div class="wrap hero-grid">
       <div>
         <p class="eyebrow">Média associatif · Châlons-en-Champagne</p>
@@ -357,13 +383,6 @@
         </div>
         <p class="stat-ligne" id="stat-ligne" hidden><strong>164 000</strong> personnes nous suivaient sur Facebook. Merci d'être là, ici aussi.</p>
       </div>
-      <a class="une vf" id="une" href="galerie.html" hidden>
-        <div class="une-cadre"><img id="une-img" alt="" fetchpriority="high" decoding="async"></div>
-        <div class="une-legende">
-          <span><span class="lbl">Dernier album</span><b id="une-titre"></b><span id="une-date"></span></span>
-          <span class="go">Voir l'album →</span>
-        </div>
-      </a>
       <div class="finder vf" id="finder" aria-label="Notre communauté">
         <div>Notre communauté</div>
         <div class="big">164 000</div>
@@ -625,7 +644,7 @@
   const BUCKET = cfg.galerieBucket || 'galerie';
   const IMG = /\.(jpe?g|png|webp|avif)$/i;
   const NB = 6, NB_LUS = 10;
-  const CACHE = 'oc-une';
+  const CACHE = 'oc-une-v2';
   const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   const headers = { apikey: CLE, 'Content-Type': 'application/json' };
   if(CLE.startsWith('eyJ')) headers.Authorization = 'Bearer ' + CLE;
@@ -645,21 +664,52 @@
   }
   const isFolder = (o)=> o.id === null || (!o.metadata && !IMG.test(o.name));
 
-  function afficherUne(u){
-    const img = document.getElementById('une-img');
-    img.onload = ()=>{
-      document.getElementById('une').hidden = false;
-      document.getElementById('finder').hidden = true;
+  // ---------- Grande photo en tête de page ----------
+  // 1) la photo choisie : fichier photos/une.jpg du site (ou config.js → photoUne)
+  // 2) sinon, la couverture de l'album le plus récent de la galerie
+  const PHOTO_FIXE = cfg.photoUne || 'photos/une.jpg';
+  const hero = document.getElementById('hero');
+  const heroImg = document.getElementById('hero-img');
+  const credit = document.getElementById('hero-credit');
+  let fixeOk = null;               // null = en cours de vérification
+  let candidatAlbum = null;
+
+  function appliquer(u){
+    if(heroImg.dataset.src === u.src) return;
+    heroImg.dataset.src = u.src;
+    heroImg.onload = ()=>{
+      hero.classList.add('avec-photo');
       document.getElementById('stat-ligne').hidden = false;
     };
-    img.alt = u.titre;
-    img.src = u.src;
-    document.getElementById('une').href = u.href;
-    document.getElementById('une-titre').textContent = u.titre;
-    document.getElementById('une-date').textContent = u.date;
+    heroImg.src = u.src;
+    if(u.legende){
+      credit.textContent = '📷 ' + u.legende + (u.href ? ' →' : '');
+      credit.href = u.href || '#';
+      credit.hidden = false;
+      if(!u.href) credit.removeAttribute('href');
+    }else credit.hidden = true;
   }
-  // Affichage immédiat de la dernière photo connue, en attendant la mise à jour
-  try{ const c = JSON.parse(localStorage.getItem(CACHE) || 'null'); if(c && c.src) afficherUne(c); }catch(e){}
+  function albumEnUne(u){
+    candidatAlbum = u;
+    if(fixeOk === false) appliquer(u);
+  }
+
+  // Dernière photo connue : affichage immédiat pour éviter le « saut » de la page
+  try{ const c = JSON.parse(localStorage.getItem(CACHE) || 'null'); if(c && c.src) appliquer(c); }catch(e){}
+
+  // La photo choisie existe-t-elle ?
+  const test = new Image();
+  test.onload = ()=>{
+    fixeOk = true;
+    const u = { src: PHOTO_FIXE, legende: cfg.photoUneLegende || '', href: cfg.photoUneLien || '' };
+    appliquer(u);
+    try{ localStorage.setItem(CACHE, JSON.stringify(u)); }catch(e){}
+  };
+  test.onerror = ()=>{
+    fixeOk = false;
+    if(candidatAlbum){ appliquer(candidatAlbum); try{ localStorage.setItem(CACHE, JSON.stringify(candidatAlbum)); }catch(e){} }
+  };
+  test.src = PHOTO_FIXE;
 
   if(!URL_BASE || !CLE) return;
   (async ()=>{
@@ -678,14 +728,11 @@
       // rangées complètes de 3 sur ordinateur : 6, sinon 3, sinon ce qu'il y a
       pleins = pleins.slice(0, pleins.length >= NB ? NB : (pleins.length >= 3 ? 3 : pleins.length));
 
-      // À la une : la couverture (1re photo) de l'album le plus récent
+      // Couverture de l'album le plus récent : photo de tête si aucune photo n'a été choisie
       const a0 = pleins[0], p0 = parseAlbum(a0.name);
-      const une = { src: publicUrl(a0.name + '/' + a0.photos[0].name), titre: p0.titre, date: p0.date, href: 'galerie.html#' + encodeURIComponent(a0.name) };
-      try{
-        const c = JSON.parse(localStorage.getItem(CACHE) || 'null');
-        if(!c || c.src !== une.src) afficherUne(une);
-        localStorage.setItem(CACHE, JSON.stringify(une));
-      }catch(e){ afficherUne(une); }
+      const une = { src: publicUrl(a0.name + '/' + a0.photos[0].name), legende: [p0.titre, p0.date].filter(Boolean).join(' · '), href: 'galerie.html#' + encodeURIComponent(a0.name) };
+      albumEnUne(une);
+      if(fixeOk === false){ try{ localStorage.setItem(CACHE, JSON.stringify(une)); }catch(e){} }
 
       // Bande des derniers albums
       const bande = document.getElementById('albums-bande');

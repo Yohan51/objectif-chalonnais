@@ -1,0 +1,5 @@
+Dossier des photos du site.
+
+une.jpg : la grande photo en tête de l'accueil (2400 px de large environ, moins de 500 Ko).
+Remplace-la par une autre portant exactement le même nom pour changer la photo.
+Si le fichier est absent, l'accueil affiche la couverture du dernier album de la galerie.

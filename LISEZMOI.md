@@ -102,7 +102,15 @@ Seul toi, depuis le tableau de bord Supabase, peux ajouter ou supprimer des phot
 
 Les photos apparaissent sur le site immédiatement, dans l'ordre alphabétique de leur nom de fichier. La première sert de couverture à l'album.
 
-**Sur l'accueil** : la couverture de l'album le plus récent s'affiche en grand en haut de la page, et les 6 derniers albums juste en dessous. Pour choisir la photo de couverture, renomme-la pour qu'elle passe en premier, par exemple `00-couverture.jpg`. Choisis une belle photo en largeur ou carrée, sans texte incrusté : sur téléphone, elle est recadrée au format 4/3.
+**Sur l'accueil** : les 6 derniers albums s'affichent sous la grande photo de tête.
+
+### La grande photo de l'accueil
+
+Une grande photo occupe toute la largeur du haut de l'accueil, avec le titre par-dessus.
+
+- **Pour choisir ta photo** : sur GitHub, ouvre le dossier `photos`, puis *Add file → Upload files* et dépose ta photo nommée exactement `une.jpg`. Pour en changer, dépose une nouvelle photo du même nom : elle remplace l'ancienne.
+- **Format conseillé** : en largeur, environ 2 400 pixels de large, moins de 500 Ko. Le côté gauche est assombri pour que le texte reste lisible ; un sujet placé à droite ou au centre ressort le mieux. Sur téléphone, la photo est recadrée en hauteur : garde le sujet principal au centre.
+- **Sans photo choisie**, l'accueil affiche la couverture de l'album le plus récent de la galerie, avec un lien vers l'album en bas à droite. Pour choisir cette couverture, renomme la photo voulue pour qu'elle passe en premier, par exemple `00-couverture.jpg`.
 
 ### Préparer les photos
 
