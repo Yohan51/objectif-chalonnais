@@ -1589,9 +1589,8 @@
     autre:     { label: 'Autre / Périphérie',      lat: 48.9564, lng: 4.3667 }
   };
 
-  // SHA-256 hash of the admin password. Default password: ObjectifChalonnais2026
-  // Ask Claude to generate a new hash any time you want to change this code.
-  const ADMIN_PASSWORD_HASH = 'b75e73a3d6c4dc1516f6067bdac98eb64c232f1190441592b496781ed6d2c1f1';
+  // Le code modérateur est vérifié par la base Supabase (voir supabase/securite.sql),
+  // il n'est plus écrit dans cette page.
   let isAdmin = false;
   let allReports = [];
   let spotlightAuthor = null;
@@ -1760,17 +1759,7 @@
     return changed;
   }
 
-  async function loadPins(){
-    try{
-      const res = await window.storage.get(STORAGE_KEY, true);
-      allPins = res ? JSON.parse(res.value) : SEED;
-      if(!res){
-        // first ever visit: seed the shared board
-        try{ await window.storage.set(STORAGE_KEY, JSON.stringify(SEED), true); }catch(e){}
-      }
-    }catch(e){
-      allPins = SEED;
-    }
+  function normaliserPins(){
     // guarantee shape for pins saved before ratings/comments existed
     allPins.forEach(p=>{
       if(!Array.isArray(p.ratings)) p.ratings = [];
@@ -1788,17 +1777,43 @@
       if(!p.quartier || !QUARTIERS[p.quartier]) p.quartier = nearestQuartier(p.lat, p.lng);
       p.comments.forEach(cm=>{ if(typeof cm.fb !== 'string') cm.fb = ''; });
     });
+  }
+
+  async function loadPins(){
+    try{
+      const res = await window.storage.get(STORAGE_KEY, true);
+      allPins = res ? JSON.parse(res.value) : SEED;
+      if(!res){
+        // first ever visit: seed the shared board
+        try{ await window.storage.set(STORAGE_KEY, JSON.stringify(SEED), true); }catch(e){}
+      }
+    }catch(e){
+      allPins = SEED;
+    }
+    normaliserPins();
     const archived = archiveExpiredTimedPins();
     if(archived) await savePins();
     render();
+  }
+
+  // Affiche l'explication donnée par la base (ex. limite de contributions)
+  function signalerRefus(){
+    const m = window.OC_DERNIERE_ERREUR;
+    if(m) setTimeout(()=> showToast(m), 0);
   }
 
   async function savePins(){
     try{
       const result = await window.storage.set(STORAGE_KEY, JSON.stringify(allPins), true);
       if(!result) throw new Error('save failed');
+      if(window.OC_STOCKAGE_PARTAGE && typeof result.value === 'string'){
+        // la base renvoie la version à jour, avec les ajouts des autres visiteurs
+        allPins = JSON.parse(result.value);
+        normaliserPins();
+      }
       return true;
     }catch(e){
+      signalerRefus();
       return false;
     }
   }
@@ -1824,6 +1839,7 @@
       const result = await window.storage.set(PHOTOS_KEY_PREFIX + pinId, JSON.stringify(photos), true);
       return !!result;
     }catch(e){
+      signalerRefus();
       return false;
     }
   }
@@ -1866,8 +1882,10 @@
     try{
       const result = await window.storage.set(REPORTS_KEY, JSON.stringify(allReports), true);
       if(!result) throw new Error('save failed');
+      if(window.OC_STOCKAGE_PARTAGE && typeof result.value === 'string') allReports = JSON.parse(result.value);
       return true;
     }catch(e){
+      signalerRefus();
       return false;
     }
   }
@@ -1905,9 +1923,9 @@
   }
 
   function escapeHtml(s){
-    const d = document.createElement('div');
-    d.textContent = s || '';
-    return d.innerHTML;
+    return String(s || '')
+      .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;')
+      .replace(/"/g,'&quot;').replace(/'/g,'&#39;');
   }
 
   function avgRating(p){
@@ -2246,7 +2264,7 @@
   function paintCardThumb(pinId, dataUrl){
     const el = document.getElementById('thumb-' + pinId);
     if(!el || !dataUrl) return;
-    el.innerHTML = `<img src="${dataUrl}" alt="Photo du lieu">`;
+    el.innerHTML = `<img src="${escapeHtml(dataUrl)}" alt="Photo du lieu">`;
   }
 
   // ---------- ADMIN COVER PHOTO (any category, contributors cannot remove) ----------
@@ -2286,7 +2304,7 @@
       const cover = photos.find(ph=>ph.official);
       if(cover && detailPinId === p.id){
         bannerEl.innerHTML = `
-          <img src="${cover.dataUrl}" alt="${escapeHtml(p.name)}">
+          <img src="${escapeHtml(cover.dataUrl)}" alt="${escapeHtml(p.name)}">
           <div class="cover-caption">Photo ajoutée par ${escapeHtml(cover.author || "L'Objectif Chalonnais")}</div>
         `;
       }
@@ -2843,6 +2861,7 @@
     if(!p) return;
     const previous = p.isPartner;
     p.isPartner = !p.isPartner;
+    window.OC_OPERATIONS = { modifier_pins: [pinId] };
     const success = await savePins();
     if(success){
       renderDetail();
@@ -2916,6 +2935,7 @@
     const idx = allPins.findIndex(p=>p.id===pinId);
     if(idx === -1) return;
     const removed = allPins.splice(idx,1)[0];
+    window.OC_OPERATIONS = { supprimer_pins: [pinId] };
     const success = await savePins();
     if(success){
       // auto-resolve any reports tied to this pin
@@ -2937,6 +2957,7 @@
     const idx = (p.comments||[]).findIndex(c=>c.id===commentId);
     if(idx === -1) return;
     const removed = p.comments.splice(idx,1)[0];
+    window.OC_OPERATIONS = { supprimer_commentaires: [commentId] };
     const success = await savePins();
     if(success){
       allReports.forEach(r=>{ if(r.commentId===commentId) r.status='resolved'; });
@@ -3155,6 +3176,7 @@
     const idx = (p.attendees||[]).findIndex(a=>a.id===attendeeId);
     if(idx === -1){ attendanceThisSession.delete(pinId); renderAttendanceSection(p); return; }
     const removed = p.attendees.splice(idx,1)[0];
+    window.OC_OPERATIONS = { annuler_participations: [attendeeId] };
     const success = await savePins();
     if(success){
       attendanceThisSession.delete(pinId);
@@ -3266,8 +3288,22 @@
 
   document.getElementById('pw-submit').onclick = async ()=>{
     const entered = pwInput.value;
-    const hash = await sha256(entered);
-    if(hash === ADMIN_PASSWORD_HASH){
+    if(!entered){ pwStatus.textContent = 'Saisissez le code.'; return; }
+    pwStatus.textContent = 'Vérification…';
+    let valide = false;
+    try{
+      valide = await window.OC_verifierCode(entered);
+    }catch(e){
+      pwStatus.textContent = 'Vérification impossible pour le moment, réessayez.';
+      return;
+    }
+    if(valide === null){
+      pwStatus.textContent = 'La modération nécessite la base partagée (Supabase).';
+      return;
+    }
+    if(valide){
+      window.OC_CODE_MODERATEUR = entered;
+      pwInput.value = '';
       isAdmin = true;
       passwordOverlay.classList.remove('open');
       adminPill.style.display = 'inline-block';
@@ -3275,13 +3311,14 @@
       if(detailPinId) renderDetail();
       openModPanel();
     }else{
-      pwStatus.textContent = 'Code incorrect.';
+      pwStatus.textContent = 'Code incorrect. Après plusieurs essais ratés, l\'accès est bloqué 15 minutes.';
     }
   };
   pwInput.onkeydown = (e)=>{ if(e.key==='Enter') document.getElementById('pw-submit').click(); };
 
   document.getElementById('admin-logout').onclick = ()=>{
     isAdmin = false;
+    window.OC_CODE_MODERATEUR = null;
     adminPill.style.display = 'none';
     if(detailPinId) renderDetail();
     showToast('Mode modérateur désactivé');
@@ -3340,6 +3377,7 @@
     const previousStatus = p.status;
     p.status = 'published';
     p.keepPublished = true;
+    window.OC_OPERATIONS = { modifier_pins: [pinId] };
     const success = await savePins();
     if(success){
       render();
@@ -3358,6 +3396,7 @@
     if(!p) return;
     const previousStatus = p.status;
     p.status = 'published';
+    window.OC_OPERATIONS = { modifier_pins: [pinId] };
     const success = await savePins();
     if(success){
       render();
@@ -3375,6 +3414,7 @@
     const idx = allPins.findIndex(p=>p.id===pinId);
     if(idx === -1) return;
     const removed = allPins.splice(idx,1)[0];
+    window.OC_OPERATIONS = { supprimer_pins: [pinId] };
     const success = await savePins();
     if(success){
       render();

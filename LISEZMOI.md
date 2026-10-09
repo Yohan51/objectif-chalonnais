@@ -13,6 +13,7 @@
 | `site.css` | Barre de navigation commune |
 | `logo.png` | Logo de l'association |
 | `envoyer.html` | Page réservée pour envoyer une alerte (non visible dans le menu) |
+| `supabase/securite.sql` | Protection de la carte des bons plans, à exécuter dans Supabase |
 | `push.js`, `supabase/envoyer-notification.ts` | Alertes : abonnement des téléphones et fonction d'envoi à coller dans Supabase |
 | `manifest.webmanifest`, `sw.js`, `app.js`, `offline.html`, `icons/` | Mode application : installation sur téléphone et fonctionnement hors ligne (ne pas modifier) |
 
@@ -115,7 +116,7 @@ Attention : le mode application ne fonctionne qu'en ligne sur GitHub Pages (adre
 1. **Table des abonnés** : Supabase → *SQL Editor* → *New query* :
 
 ```sql
-create table push_subscriptions (
+create table if not exists public.push_subscriptions (
   endpoint text primary key,
   p256dh text not null,
   auth text not null,
@@ -123,6 +124,8 @@ create table push_subscriptions (
 );
 alter table push_subscriptions enable row level security;
 create policy "abonnement public" on push_subscriptions for insert with check (true);
+grant insert on push_subscriptions to anon, authenticated;
+notify pgrst, 'reload schema';
 ```
 
 2. **Secrets** : *Edge Functions* → *Secrets* → ajoute :
@@ -137,14 +140,55 @@ create policy "abonnement public" on push_subscriptions for insert with check (t
 ### Envoyer une alerte
 
 1. Ouvre `…/objectif-chalonnais/envoyer.html` (garde cette adresse en favori, elle n'est pas dans le menu).
-2. Tape ton code, un titre, un message, choisis la page à ouvrir.
+2. Tape ton code, un titre, un message, et choisis ce qui s'ouvre au toucher : une page du site, votre compte TikTok, Instagram ou YouTube (liens repris de `config.js`), ou une vidéo précise (colle son lien de partage).
 3. *M'envoyer un test* pour vérifier sur ton téléphone, puis *Envoyer à tous*.
 
 Les visiteurs s'abonnent avec le bouton « Recevoir les alertes » de l'accueil. Sur iPhone, ils doivent d'abord installer l'application.
 
+## 7. Sécurité de la carte des bons plans
+
+Les visiteurs peuvent **ajouter** (bons plans, notes, commentaires, photos, signalements) mais ni effacer ni modifier ce qui existe. Seul le code modérateur permet de supprimer, publier ou marquer un partenaire, et ce code est vérifié par Supabase, plus dans la page.
+
+### Installation (une seule fois, à refaire seulement si Claude te fournit une nouvelle version)
+
+1. *SQL Editor* → *New query* → colle tout le fichier `supabase/securite.sql` → *Run*.
+2. Choisis ton code modérateur (nouvelle requête) :
+
+```sql
+update oc_private.reglages
+set code_moderateur = extensions.crypt('TON-NOUVEAU-CODE', extensions.gen_salt('bf'))
+where id = 1;
+```
+
+Pour changer de code plus tard, relance simplement cette requête.
+
+### En cas de problème : revenir en arrière
+
+Chaque enregistrement est gardé (les 100 dernières versions des bons plans). Pour voir les versions :
+
+```sql
+select id, enregistre_le at time zone 'Europe/Paris' as quand, par_moderateur
+from oc_private.historique
+where cle = 'chalons-bons-plans'
+order by id desc limit 30;
+```
+
+Puis, pour restaurer une version (remplace 123 par son numéro) :
+
+```sql
+select oc_private.restaurer(123);
+```
+
+### Limites anti-abus
+
+- 40 enregistrements par appareil en 10 minutes (le modérateur n'est pas limité).
+- 2 nouveaux bons plans, 3 commentaires ou 3 notes au maximum par envoi.
+- Code modérateur : bloqué 15 minutes après 8 essais ratés.
+- Lettre et alertes : 10 inscriptions par heure et par appareil, adresses vérifiées.
+
 ## Bon à savoir
 
-- **Modération** : le code d'accès reste celui du guide d'origine. Pour le changer, demande un nouveau code chiffré à Claude et remplace `ADMIN_PASSWORD_HASH` dans `bons-plans.html`.
+- **Modération** : bouton *Modération* de la carte, avec le code choisi à la section 7.
 - **Ajouter un lieu depuis la carte** : un clic (ou un appui) sur la carte propose « Ajouter un bon plan ici », avec le quartier présélectionné.
-- **Sauvegardes** : pense à exporter de temps en temps la table `kv` depuis Supabase (*Table Editor → Export*).
-- **Sécurité** : comme dans la version d'origine, l'ensemble des bons plans est enregistré d'un bloc et la clé publique permet d'écrire dans la table. C'est suffisant pour démarrer ; si le site devient une cible de vandalisme, il faudra passer à des comptes contributeurs.
+- **Sauvegardes** : en plus de l'historique automatique, exporte de temps en temps la table `kv` (*Table Editor → Export*).
+- **Sauvegarde automatique** : voir la section 7 pour revenir à une version précédente.
