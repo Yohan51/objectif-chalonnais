@@ -64,7 +64,8 @@ for(const a of actus){
 
   // Photo
   let image = SITE + 'icons/partage.jpg', typeImage = 'image/jpeg';
-  const data = a.photo || a.miniature;
+  // La version réduite (640 px, < 100 Ko) passe partout : WhatsApp ignore les images trop lourdes
+  const data = a.miniature || a.photo;
   const m = data && data.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/]+=*)$/);
   if(m){
     const ext = m[1] === 'jpeg' ? 'jpg' : m[1];
