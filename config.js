@@ -16,6 +16,8 @@ window.OC_CONFIG = {
 
   // ---------- Contact ----------
   contact: 'lobjectifchalonnais@gmail.com',
+   telephone: '06 87 86 15 42',
+  rna: 'W511006024',
 
   // ---------- Soutenir l'association ----------
   // Lien vers la page HelloAsso (ou autre). Laisse '' pour masquer le bouton.
