@@ -87,6 +87,7 @@
     <a href="rediger.html">Rédaction</a>
     <a href="envoyer.html" aria-current="page">Envoyer une alerte</a>
     <a href="tirage.html">Jeux</a>
+    <a href="stats.html">Stats</a>
   </div>
 </nav>
 
@@ -251,7 +252,7 @@
         status(res.erreur || `L'envoi a échoué (erreur ${r.status}). Vérifie que la fonction est bien déployée dans Supabase.`, 'err');
         return;
       }
-      try{ localStorage.setItem(CODE_KEY, $('f-code').value.trim()); }catch(e){}
+      try{ localStorage.setItem(CODE_KEY, $('f-code').value.trim()); localStorage.setItem('oc-ne-pas-compter', '1'); }catch(e){}
       if(res.note){ status(res.note); return; }
       let msg = `Alerte envoyée à ${res.envoyes} appareil${res.envoyes>1?'s':''}.`;
       if(res.echecs) msg += ` ${res.echecs} échec${res.echecs>1?'s':''}.`;

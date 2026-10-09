@@ -150,6 +150,7 @@
     <a href="rediger.html" aria-current="page">Rédaction</a>
     <a href="envoyer.html">Alertes</a>
     <a href="tirage.html">Jeux</a>
+    <a href="stats.html">Stats</a>
   </div>
 </nav>
 
@@ -308,7 +309,7 @@
   async function connecter(c){
     const res = await A.rpc('oc_actus_redaction', { p_code: c });
     code = c; actus = res.actus || [];
-    store.set(CODE_KEY, c);
+    store.set(CODE_KEY, c); store.set('oc-ne-pas-compter', '1', localStorage);
     $('vue-login').hidden = true; $('vue-bureau').hidden = false;
     rendreListe();
     nouveau(true);

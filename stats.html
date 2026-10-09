@@ -1,0 +1,273 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Statistiques — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --grid:#E6EEF2;
+    --serie:#2E97C7; --serie-hover:#1F7FAD; --err:#C0472F;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --grid:#24414F;
+      --serie:#6CC1EA; --serie-hover:#9FD8F5; --err:#F08A73; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --grid:#24414F;
+    --serie:#6CC1EA; --serie-hover:#9FD8F5; --err:#F08A73; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;}
+  a{color:var(--serie);}
+  .wrap{max-width:880px;margin:0 auto;padding:24px 20px 64px;}
+  h1,h2{font-family:var(--font-display);line-height:1.1;margin:0;}
+  .top{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;font-size:14px;}
+  .top nav{display:flex;gap:14px;flex-wrap:wrap;}
+  .top button{background:none;border:none;color:var(--serie);font:inherit;text-decoration:underline;cursor:pointer;padding:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--serie);margin:28px 0 6px;}
+  h1{font-size:clamp(32px,5vw,44px);font-weight:800;}
+  .sous{color:var(--ink-soft);margin:8px 0 0;}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-top:20px;}
+  .carte h2{font-size:22px;font-weight:800;margin-bottom:4px;}
+  .carte .hint{color:var(--ink-soft);font-size:14px;margin:0 0 14px;}
+
+  /* connexion */
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{width:100%;font:inherit;font-size:16px;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);text-align:center;margin:14px 0 10px;}
+  .btn{font:inherit;font-weight:800;border:none;border-radius:999px;padding:12px 22px;background:var(--ink);color:var(--bg);cursor:pointer;width:100%;}
+  .err{color:var(--err);font-size:14px;}
+
+  /* chiffres clés */
+  .tuiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-top:20px;}
+  .tuile{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:16px;}
+  .tuile .l{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  .tuile .v{font-family:var(--font-display);font-size:34px;font-weight:800;line-height:1.1;margin-top:4px;font-variant-numeric:tabular-nums;}
+  .tuile .s{font-size:13px;color:var(--muted);}
+
+  /* graphique */
+  .graph{position:relative;}
+  .graph svg{display:block;width:100%;height:auto;overflow:visible;}
+  .graph .barre{fill:var(--serie);pointer-events:none;}
+  .graph .barre.actif{fill:var(--serie-hover);}
+  .graph .zone{cursor:pointer;}
+  .graph .grille{stroke:var(--grid);stroke-width:1;}
+  .graph .base{stroke:var(--line);stroke-width:1;}
+  .graph text{font-family:var(--font-mono);font-size:11px;fill:var(--muted);}
+  .bulle{
+    position:absolute;pointer-events:none;transform:translate(-50%, -100%);margin-top:-10px;
+    background:var(--ink);color:var(--bg);font-size:13px;line-height:1.35;padding:7px 10px;border-radius:8px;white-space:nowrap;
+  }
+  .bulle b{font-family:var(--font-mono);font-weight:500;font-size:11.5px;opacity:.8;display:block;}
+  .periode{display:flex;gap:6px;margin-bottom:12px;}
+  .periode button{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--bg);color:var(--ink);padding:6px 12px;border-radius:999px;cursor:pointer;}
+  .periode button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+
+  /* pages */
+  table{width:100%;border-collapse:collapse;font-size:15px;}
+  td,th{padding:9px 0;border-bottom:1px solid var(--line);text-align:left;}
+  th{font-family:var(--font-mono);font-size:11.5px;font-weight:500;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);}
+  td.n,th.n{text-align:right;font-variant-numeric:tabular-nums;}
+  td .jauge{display:block;height:6px;border-radius:0 3px 3px 0;background:var(--serie);margin-top:5px;min-width:2px;}
+  details{margin-top:12px;font-size:14px;}
+  details summary{cursor:pointer;color:var(--serie);font-weight:700;}
+  .note{font-size:13.5px;color:var(--ink-soft);margin-top:20px;}
+
+  @media (max-width:640px){
+    .tuiles{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .tuile .v{font-size:28px;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <form class="login" id="vue-login">
+    <h1>Statistiques</h1>
+    <p class="sous">Réservé à l'équipe. Entrez le code modérateur.</p>
+    <input type="password" id="l-code" placeholder="Code modérateur" autocomplete="current-password">
+    <p class="err" id="l-msg" hidden></p>
+    <button class="btn" id="l-btn" type="submit">Voir les statistiques</button>
+  </form>
+
+  <main id="vue-stats" hidden>
+    <div class="top">
+      <nav><a href="index.html">Le site</a><a href="rediger.html">Rédaction</a><a href="envoyer.html">Alertes</a><a href="tirage.html">Jeux</a></nav>
+      <button type="button" id="btn-quitter">Se déconnecter</button>
+    </div>
+    <p class="eyebrow">Fréquentation</p>
+    <h1>Statistiques du site</h1>
+    <p class="sous" id="depuis"></p>
+
+    <div class="tuiles">
+      <div class="tuile"><div class="l">Aujourd'hui</div><div class="v" id="t-jour">–</div><div class="s">visites</div></div>
+      <div class="tuile"><div class="l">7 derniers jours</div><div class="v" id="t-7">–</div><div class="s" id="t-7-evol">visites</div></div>
+      <div class="tuile"><div class="l">30 derniers jours</div><div class="v" id="t-30">–</div><div class="s">visites</div></div>
+      <div class="tuile"><div class="l">Depuis le début</div><div class="v" id="t-total">–</div><div class="s" id="t-vues">visites</div></div>
+    </div>
+
+    <section class="carte">
+      <h2>Visites par jour</h2>
+      <p class="hint">Une visite = une personne qui ouvre le site, quel que soit le nombre de pages qu'elle regarde.</p>
+      <div class="periode" role="group" aria-label="Période">
+        <button type="button" data-j="30" aria-pressed="true">30 jours</button>
+        <button type="button" data-j="60" aria-pressed="false">60 jours</button>
+      </div>
+      <div class="graph" id="graph"></div>
+      <details>
+        <summary>Voir les chiffres en tableau</summary>
+        <table id="tab-jours"><thead><tr><th>Jour</th><th class="n">Visites</th><th class="n">Pages vues</th></tr></thead><tbody></tbody></table>
+      </details>
+    </section>
+
+    <section class="carte">
+      <h2>Pages les plus vues</h2>
+      <p class="hint">Sur les 30 derniers jours.</p>
+      <table id="tab-pages"><thead><tr><th>Page</th><th class="n">Pages vues</th></tr></thead><tbody></tbody></table>
+    </section>
+
+    <p class="note">Mesure anonyme : ni cookie, ni adresse IP conservée. Les robots et les appareils de l'équipe connectés avec le code ne sont pas comptés. Les chiffres peuvent sous-estimer légèrement la réalité (bloqueurs de publicité, navigation hors ligne).</p>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const CODE_KEY = 'oc-redaction-code';
+  const PAGES = { 'accueil':'Accueil', 'actus':'Actus', 'jeux':'Jeux concours', 'bons-plans':'Bons plans', 'galerie':'Galerie', 'quiz':'Quiz', 'mentions-legales':'Mentions légales' };
+  const fmt = (n)=> Number(n || 0).toLocaleString('fr-FR');
+  const esc = (s)=> String(s).replace(/[&<>"]/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;' })[c]);
+  let donnees = null, periode = 30;
+
+  async function connecter(c){
+    const r = await A.rpc('oc_stats', { p_code: c });
+    try{ sessionStorage.setItem(CODE_KEY, c); localStorage.setItem('oc-ne-pas-compter', '1'); }catch(e){}
+    donnees = r;
+    $('vue-login').hidden = true; $('vue-stats').hidden = false;
+    rendre();
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{ try{ sessionStorage.removeItem(CODE_KEY); }catch(e){} location.reload(); };
+  (async ()=>{
+    let c = null; try{ c = sessionStorage.getItem(CODE_KEY); }catch(e){}
+    if(c && A.configure){ try{ await connecter(c); }catch(e){} }
+    if($('vue-stats').hidden) $('l-code').focus();
+  })();
+
+  document.querySelectorAll('.periode button').forEach(b=> b.onclick = ()=>{
+    periode = parseInt(b.dataset.j, 10);
+    document.querySelectorAll('.periode button').forEach(x=> x.setAttribute('aria-pressed', x === b));
+    rendreGraph();
+  });
+
+  function dateCourte(iso){ return new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'short' }); }
+  function dateLongue(iso){ return new Date(iso + 'T12:00:00').toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' }); }
+  const somme = (l)=> l.reduce((s, d)=> s + d.visites, 0);
+
+  function rendre(){
+    const j = donnees.jours || [];
+    const t = donnees.total || {};
+    const auj = j.length ? j[j.length - 1].visites : 0;
+    $('t-jour').textContent = fmt(auj);
+    $('t-jour').nextElementSibling.textContent = auj > 1 ? 'visites' : 'visite';
+    const s7 = somme(j.slice(-7)), s7avant = somme(j.slice(-14, -7));
+    $('t-7').textContent = fmt(s7);
+    if(s7avant > 0){
+      const ev = Math.round((s7 - s7avant) / s7avant * 100);
+      $('t-7-evol').textContent = `visites · ${ev >= 0 ? '+' : ''}${ev} % vs semaine d'avant`;
+    }
+    $('t-30').textContent = fmt(somme(j.slice(-30)));
+    $('t-total').textContent = fmt(t.visites);
+    $('t-vues').textContent = `visites · ${fmt(t.vues)} pages vues`;
+    $('depuis').textContent = t.depuis ? `Compteur en service depuis le ${new Date(t.depuis + 'T12:00:00').toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })}.` : 'Aucune visite comptée pour le moment.';
+
+    $('tab-jours').querySelector('tbody').innerHTML = j.slice().reverse().filter(d=> d.vues > 0)
+      .map(d=> `<tr><td>${esc(dateLongue(d.jour))}</td><td class="n">${fmt(d.visites)}</td><td class="n">${fmt(d.vues)}</td></tr>`).join('')
+      || '<tr><td colspan="3">Pas encore de données.</td></tr>';
+
+    const pages = donnees.pages || [];
+    const max = Math.max(1, ...pages.map(p=> p.vues));
+    $('tab-pages').querySelector('tbody').innerHTML = pages.map(p=>
+      `<tr><td>${esc(PAGES[p.page] || p.page)}<span class="jauge" style="width:${(p.vues / max * 100).toFixed(1)}%"></span></td><td class="n">${fmt(p.vues)}</td></tr>`
+    ).join('') || '<tr><td colspan="2">Pas encore de données.</td></tr>';
+    rendreGraph();
+  }
+
+  // Histogramme des visites par jour (une seule série, axe unique)
+  function rendreGraph(){
+    const jours = (donnees.jours || []).slice(-periode);
+    const W = 820, H = 240, mg = { h: 12, d: 8, b: 26, g: 34 };
+    const iw = W - mg.g - mg.d, ih = H - mg.h - mg.b;
+    const maxV = Math.max(...jours.map(d=> d.visites), 0);
+    // graduations « rondes »
+    const pasBrut = Math.max(1, maxV / 4);
+    const p10 = Math.pow(10, Math.floor(Math.log10(pasBrut)));
+    const pas = [1, 2, 5, 10].map(m=> m * p10).find(x=> x >= pasBrut);
+    const haut = Math.max(pas * 4, pas * Math.ceil(maxV / pas));
+    const y = (v)=> mg.h + ih - v / haut * ih;
+    const slot = iw / jours.length, larg = Math.max(2, Math.min(18, slot - 2));
+    let svg = `<svg viewBox="0 0 ${W} ${H}" role="img" aria-label="Visites par jour sur ${periode} jours">`;
+    for(let v = 0; v <= haut; v += pas){
+      svg += `<line class="${v === 0 ? 'base' : 'grille'}" x1="${mg.g}" x2="${W - mg.d}" y1="${y(v)}" y2="${y(v)}"/>`;
+      svg += `<text x="${mg.g - 8}" y="${y(v) + 4}" text-anchor="end">${fmt(v)}</text>`;
+    }
+    jours.forEach((d, i)=>{
+      const x = mg.g + i * slot + (slot - larg) / 2;
+      const h = Math.max(0, y(0) - y(d.visites));
+      const r = Math.min(4, larg / 2, h);
+      // barre arrondie en haut seulement, posée sur la ligne de base
+      const top = y(0) - h;
+      const chemin = h > 0
+        ? `M${x},${y(0)} V${top + r} Q${x},${top} ${x + r},${top} H${x + larg - r} Q${x + larg},${top} ${x + larg},${top + r} V${y(0)} Z`
+        : '';
+      svg += `<rect class="zone" x="${mg.g + i * slot}" y="${mg.h}" width="${slot}" height="${ih}" fill="transparent" data-i="${i}"/>`;
+      if(chemin) svg += `<path class="barre" d="${chemin}" data-i="${i}"/>`;
+      const etiquette = periode <= 30 ? (i % 7 === (jours.length - 1) % 7) : (i % 14 === (jours.length - 1) % 14);
+      if(etiquette) svg += `<text x="${mg.g + i * slot + slot / 2}" y="${H - 6}" text-anchor="middle">${esc(dateCourte(d.jour))}</text>`;
+    });
+    svg += '</svg><div class="bulle" hidden></div>';
+    const g = $('graph'); g.innerHTML = svg;
+    const bulle = g.querySelector('.bulle');
+    const svgEl = g.querySelector('svg');
+    g.querySelectorAll('.zone').forEach(z=>{
+      const i = +z.dataset.i, d = jours[i];
+      const montrer = ()=>{
+        g.querySelectorAll('.barre.actif').forEach(b=> b.classList.remove('actif'));
+        const b = g.querySelector(`.barre[data-i="${i}"]`); if(b) b.classList.add('actif');
+        const k = svgEl.getBoundingClientRect().width / W;
+        bulle.innerHTML = `<b>${esc(dateLongue(d.jour))}</b>${fmt(d.visites)} visite${d.visites > 1 ? 's' : ''} · ${fmt(d.vues)} page${d.vues > 1 ? 's' : ''}`;
+        const lg = svgEl.getBoundingClientRect().width;
+        bulle.style.left = Math.min(lg - 80, Math.max(80, (mg.g + i * slot + slot / 2) * k)) + 'px';
+        bulle.style.top = (y(d.visites) * k) + 'px';
+        bulle.hidden = false;
+      };
+      z.addEventListener('mouseenter', montrer);
+      z.addEventListener('click', montrer);
+    });
+    g.addEventListener('mouseleave', ()=>{ bulle.hidden = true; g.querySelectorAll('.barre.actif').forEach(b=> b.classList.remove('actif')); });
+  }
+})();
+</script>
+</body>
+</html>

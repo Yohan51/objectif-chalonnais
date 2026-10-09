@@ -167,6 +167,10 @@
   .hero.avec-photo .btn-main{background:#fff;color:#0F2230;}
   .hero.avec-photo .btn-ghost{color:#fff;border-color:rgba(255,255,255,.55);background:rgba(10,24,34,.18);backdrop-filter:blur(4px);}
   .hero.avec-photo .btn-ghost:hover{border-color:#fff;}
+  .stat-ligne:not([hidden]) + .compteur{margin-top:10px;}
+  .hero:not(.avec-photo) .stat-ligne{color:var(--ink-soft);}
+  .hero:not(.avec-photo) .stat-ligne strong{color:var(--ink);}
+  .stat-ligne strong{font-variant-numeric:tabular-nums;}
   .stat-ligne{margin:28px 0 0;font-size:14.5px;display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;color:rgba(255,255,255,.82);}
   .stat-ligne strong{font-family:var(--font-display);font-size:28px;font-weight:800;color:#fff;line-height:1;}
   .hero-credit{
@@ -382,6 +386,7 @@
           <a class="btn btn-ghost" href="galerie.html">Voir la galerie</a>
         </div>
         <p class="stat-ligne" id="stat-ligne" hidden><strong>164 000</strong> personnes nous suivaient sur Facebook. Merci d'être là, ici aussi.</p>
+        <p class="stat-ligne compteur" id="compteur" hidden><strong data-nb>0</strong><span>visites sur le site depuis le <span data-depuis></span></span></p>
       </div>
       <div class="finder vf" id="finder" aria-label="Notre communauté">
         <div>Notre communauté</div>
@@ -541,6 +546,7 @@
 </footer>
 
 <script src="config.js"></script>
+<script src="compteur.js" defer></script>
 <script src="storage.js"></script>
 <script>
 (function(){

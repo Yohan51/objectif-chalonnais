@@ -14,6 +14,7 @@
 | `bons-plans.html` | Le guide des bons plans, avec la carte OpenStreetMap |
 | `galerie.html` | La galerie photo, alimentée par les dossiers déposés dans Supabase |
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
+| `stats.html`, `compteur.js`, `supabase/compteur.sql` | Compteur de visites anonyme et page des statistiques de l'équipe |
 | `mentions-legales.html` | Mentions légales et politique de confidentialité (lien en bas de chaque page) |
 | `jeux.html` | Les jeux concours : participation des abonnés et gagnants |
 | `tirage.html`, `qrcode.min.js` | Outil de l'équipe : créer les jeux, tirage au sort, certificats (non visible dans le menu) |
@@ -271,6 +272,26 @@ La page `mentions-legales.html` reprend l'éditeur, le directeur de publication,
 ```
 
 Pense à mettre à jour la date en bas de la page si tu changes la façon dont le site utilise les données (nouveau formulaire, nouveau service…).
+
+## 12. Compteur de visites
+
+### Installation (une seule fois)
+
+*SQL Editor* → *New query* → colle tout le fichier `supabase/compteur.sql` → *Run*.
+
+### Ce qu'il fait
+
+- Chaque page vue du site est comptée, jour par jour, sans cookie ni donnée personnelle. Une « visite », c'est une personne qui ouvre le site, quel que soit le nombre de pages qu'elle regarde.
+- **Statistiques détaillées** : `https://lobjectifchalonnais.fr/stats.html` avec le code modérateur (visites du jour, de la semaine, du mois, graphique, pages les plus vues).
+- **Sur l'accueil**, le total s'affiche sous les boutons (« 12 345 visites sur le site depuis le… ») dès qu'il dépasse 1 000, pour ne pas afficher un petit chiffre au lancement.
+- Les téléphones et ordinateurs de l'équipe ne sont pas comptés dès qu'on s'y est connecté une fois avec le code (rédaction, alertes, jeux ou statistiques).
+
+Réglages facultatifs dans `config.js`, après la ligne `contact` :
+
+```
+  compteurPublic: false,      // pour ne jamais afficher le total sur l'accueil
+  compteurMinimum: 5000,      // pour l'afficher seulement à partir de 5 000 visites
+```
 
 ## Bon à savoir
 
