@@ -84,6 +84,7 @@
   <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
   <div class="oc-nav-links">
     <a href="index.html">Accueil</a>
+    <a href="rediger.html">Rédaction</a>
     <a href="envoyer.html" aria-current="page">Envoyer une alerte</a>
   </div>
 </nav>
@@ -115,6 +116,7 @@
         <option value="./galerie.html">La galerie</option>
         <option value="./bons-plans.html">Les bons plans</option>
         <option value="./quiz.html">Le quiz</option>
+        <option value="./actus.html">Les actus</option>
         <option value="autre">Une autre page du site…</option>
         <optgroup label="Nos réseaux" id="opt-reseaux"></optgroup>
         <option value="externe">Une vidéo ou publication précise…</option>
@@ -181,6 +183,18 @@
     $('f-lien-externe').hidden = !externe;
     $('externe-hint').hidden = !externe;
   }
+  // Préremplissage (lien « Annoncer par une alerte » de la rédaction)
+  try{
+    const q = new URLSearchParams(location.search);
+    if(q.get('titre')) $('f-titre').value = q.get('titre').slice(0, 60);
+    if(q.get('message')) $('f-message').value = q.get('message').slice(0, 180);
+    const l = q.get('lien');
+    if(l && /^\.\/[a-z0-9-]+\.html(#.*)?$/i.test(l)){
+      const opt = [...$('f-lien').options].find(o=> o.value === l);
+      if(opt) $('f-lien').value = l;
+      else { $('f-lien').value = 'autre'; $('f-lien-autre').value = l.slice(2); }
+    }
+  }catch(e){}
   ['f-titre','f-message','f-lien'].forEach(id=> $(id).addEventListener('input', sync));
   $('f-lien').addEventListener('change', sync);
   sync();

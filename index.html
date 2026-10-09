@@ -168,6 +168,20 @@
   .section-head{margin-bottom:28px;}
   .section-head h2{font-size:clamp(30px,4vw,40px);font-weight:800;}
 
+  /* ---------- Dernières actus ---------- */
+  .actus-head{display:flex;justify-content:space-between;align-items:end;gap:16px;flex-wrap:wrap;}
+  .actus-grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;}
+  .actu{display:flex;flex-direction:column;gap:8px;text-decoration:none;color:var(--ink);}
+  .actu .vign{aspect-ratio:3/2;max-width:100%;border-radius:12px;overflow:hidden;background:var(--line);}
+  .actu .vign img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease;}
+  .actu:hover .vign img{transform:scale(1.03);}
+  .actu .vign.vide{display:flex;align-items:center;justify-content:center;}
+  .actu .vign.vide img{width:56px;height:56px;opacity:.5;}
+  .actu .quand{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);text-transform:uppercase;letter-spacing:.06em;}
+  .actu h3{font-size:21px;font-weight:700;line-height:1.2;}
+  .actu:focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  @media (max-width:900px){ .actus-grille{grid-template-columns:minmax(0,1fr);} .actu{display:grid;grid-template-columns:130px minmax(0,1fr);gap:4px 14px;align-items:start;} .actu .vign{grid-row:span 2;} }
+
   /* ---------- Nous suivre ---------- */
   .follow{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:24px;align-items:start;}
   .panel{
@@ -250,10 +264,10 @@
   <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
   <div class="oc-nav-links">
     <a href="index.html" aria-current="page">Accueil</a>
+    <a href="actus.html">Actus</a>
     <a href="bons-plans.html">Bons plans</a>
     <a href="galerie.html">Galerie</a>
     <a href="quiz.html">Quiz</a>
-    <a href="index.html#nous-suivre">Nous suivre</a>
   </div>
 </nav>
 
@@ -288,6 +302,19 @@
       <a href="#nous-suivre">Nous suivre →</a>
     </div>
   </div>
+
+  <section id="dernieres-actus" hidden>
+    <div class="wrap">
+      <div class="section-head actus-head">
+        <div>
+          <p class="eyebrow">Actualités</p>
+          <h2>Les dernières actus</h2>
+        </div>
+        <a class="btn btn-ghost" href="actus.html">Toutes les actus →</a>
+      </div>
+      <div class="actus-grille" id="actus-grille"></div>
+    </div>
+  </section>
 
   <section>
     <div class="wrap">
@@ -387,6 +414,7 @@
 <footer>
   <div class="wrap">
     <span>© L'Objectif Châlonnais · Association loi 1901</span>
+    <a href="#nous-suivre">Nous suivre</a>
     <a href="#" id="install-link">Installer l'application</a>
     <span>Fait avec passion à Châlons-en-Champagne</span>
   </div>
@@ -467,6 +495,24 @@
       submit.disabled = false;
     }
   });
+})();
+</script>
+<script src="actus-rendu.js"></script>
+<script>
+(async function(){
+  const A = window.OCActus;
+  if(!A || !A.configure) return;
+  try{
+    const rows = await A.liste({ limite: 3 });
+    if(!rows.length) return;
+    document.getElementById('actus-grille').innerHTML = rows.map(a=> `
+      <a class="actu" href="actus.html#${encodeURIComponent(a.slug)}">
+        ${a.miniature ? `<div class="vign"><img src="${A.esc(a.miniature)}" alt="" loading="lazy"></div>` : `<div class="vign vide"><img src="icons/icon-192.png" alt=""></div>`}
+        <span class="quand">${A.esc(A.RUBRIQUES[a.categorie] || '')} · ${A.dateLongue(a.publie_le)}</span>
+        <h3>${A.esc(a.titre)}</h3>
+      </a>`).join('');
+    document.getElementById('dernieres-actus').hidden = false;
+  }catch(e){}
 })();
 </script>
 <script src="app.js"></script>

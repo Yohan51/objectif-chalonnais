@@ -1,0 +1,364 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Actualités — L'Objectif Châlonnais</title>
+<meta name="description" content="L'actualité de Châlons-en-Champagne par L'Objectif Châlonnais : vie locale, sport, culture, événements.">
+<meta property="og:title" content="Actualités — L'Objectif Châlonnais">
+<meta property="og:description" content="L'actualité de Châlons-en-Champagne, par ceux qui y vivent.">
+<meta property="og:image" content="logo.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="L'Objectif">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  /* Une du journal : article principal en grand, puis grille de cartes ; article en colonne de lecture */
+  :root{
+    --bg:#F4F8FA;
+    --surface:#FFFFFF;
+    --ink:#183140;
+    --ink-soft:#4B6372;
+    --line:#D7E3EA;
+    --sky:#9FD8F5;
+    --sky-deep:#2E97C7;
+    --tile:#E3EDF2;
+    --font-display:'Baloo 2', 'Nunito', system-ui, sans-serif;
+    --font-body:'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --font-read:'Source Serif 4', Georgia, 'Times New Roman', serif;
+    --font-mono:'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0;
+      --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0;
+    --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;}
+  a{color:var(--sky-deep);}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:20px;}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.12;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .meta{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);display:flex;gap:10px;flex-wrap:wrap;}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+
+  /* ---------- Liste ---------- */
+  .page-head{padding-block:44px 20px;display:flex;flex-wrap:wrap;gap:16px;align-items:end;justify-content:space-between;}
+  .page-head h1{font-size:clamp(34px,5vw,52px);font-weight:800;margin-top:8px;}
+  .chips{display:flex;gap:8px;flex-wrap:wrap;padding-bottom:28px;}
+  .chip{
+    font:inherit;font-weight:700;font-size:14px;cursor:pointer;
+    padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--surface);color:var(--ink);
+  }
+  .chip:hover{border-color:var(--sky-deep);}
+  .chip[aria-pressed="true"]{background:var(--ink);border-color:var(--ink);color:var(--bg);}
+
+  .une{
+    display:grid;grid-template-columns:minmax(0,1.35fr) minmax(0,1fr);gap:32px;align-items:center;
+    text-decoration:none;color:var(--ink);margin-bottom:44px;
+  }
+  .une .vignette{aspect-ratio:16/10;}
+  .une h2{font-size:clamp(28px,3.6vw,42px);font-weight:800;margin:10px 0 12px;}
+  .une p{margin:0 0 14px;color:var(--ink-soft);font-size:17px;max-width:52ch;}
+  .vignette{
+    position:relative;border-radius:12px;overflow:hidden;background:var(--tile);max-width:100%;
+    aspect-ratio:3/2;
+  }
+  .vignette img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .35s ease;}
+  .vignette .vide{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;}
+  .vignette .vide img{width:64px;height:64px;opacity:.55;border-radius:16px;transition:none;}
+  a:hover .vignette img{transform:scale(1.03);}
+  a:hover .vignette .vide img{transform:none;}
+  .tag{
+    display:inline-block;font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--sky-deep);
+  }
+  .grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:32px 24px;}
+  .carte{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink);}
+  .carte h3{font-size:21px;font-weight:700;}
+  .carte p{margin:0;color:var(--ink-soft);font-size:15px;display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .plus{display:flex;justify-content:center;padding-block:40px 64px;}
+  .btn{
+    display:inline-flex;align-items:center;gap:8px;font:inherit;font-weight:800;font-size:15px;
+    padding:12px 22px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);
+    cursor:pointer;text-decoration:none;
+  }
+  .btn:hover{border-color:var(--sky-deep);}
+  .btn-main{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .etat{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:32px;margin-bottom:64px;max-width:640px;
+  }
+  .etat h2{font-size:26px;font-weight:800;margin-bottom:8px;}
+  .etat p{margin:0;color:var(--ink-soft);}
+  .squelette{background:var(--tile);border-radius:12px;}
+
+  /* ---------- Article ---------- */
+  .article{max-width:760px;margin:0 auto;padding-inline:20px;padding-block:28px 40px;}
+  .retour{font-weight:800;font-size:14px;text-decoration:none;color:var(--ink);display:inline-flex;gap:6px;margin-bottom:24px;}
+  .retour:hover{color:var(--sky-deep);}
+  .article h1{font-size:clamp(32px,5vw,48px);font-weight:800;margin:12px 0 14px;}
+  .chapo{font-size:20px;line-height:1.5;color:var(--ink-soft);margin:0 0 20px;font-weight:600;}
+  .figure{margin:28px 0;}
+  .figure img{width:100%;height:auto;border-radius:12px;display:block;background:var(--tile);}
+  .figure figcaption{font-size:13.5px;color:var(--ink-soft);margin-top:8px;}
+  .corps{font-family:var(--font-read);font-size:19px;line-height:1.7;}
+  .corps p{margin:0 0 1.1em;}
+  .corps h2{font-family:var(--font-display);font-size:26px;font-weight:800;margin:1.6em 0 .5em;}
+  .corps ul{margin:0 0 1.1em;padding-left:1.2em;}
+  .corps li{margin-bottom:.35em;}
+  .corps a{overflow-wrap:anywhere;}
+  .video{position:relative;aspect-ratio:16/9;max-width:100%;border-radius:12px;overflow:hidden;background:#000;margin:28px 0;}
+  .video iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .partage{
+    display:flex;flex-wrap:wrap;gap:10px;align-items:center;
+    border-top:1px solid var(--line);border-bottom:1px solid var(--line);padding-block:16px;margin:36px 0;
+  }
+  .partage span{font-weight:800;margin-right:6px;}
+  .autres{border-top:1px solid var(--line);padding-block:40px 64px;}
+  .autres h2{font-size:28px;font-weight:800;margin-bottom:24px;}
+
+  @media (max-width:900px){
+    .grille{grid-template-columns:repeat(2,minmax(0,1fr));}
+    .une{grid-template-columns:minmax(0,1fr);gap:18px;}
+  }
+  @media (max-width:560px){
+    .grille{grid-template-columns:minmax(0,1fr);gap:28px;}
+    .page-head{padding-block:32px 16px;}
+    .corps{font-size:18px;}
+    .chapo{font-size:18px;}
+  }
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="actus.html" aria-current="page">Actus</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+  </div>
+</nav>
+
+<main>
+  <!-- Liste des actus -->
+  <section id="vue-liste">
+    <div class="wrap">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">L'Objectif Châlonnais</p>
+          <h1>Actualités</h1>
+        </div>
+      </div>
+      <div class="chips" id="chips" role="group" aria-label="Filtrer par rubrique"></div>
+      <div id="liste">
+        <div class="une"><div class="squelette" style="aspect-ratio:16/10"></div><div><div class="squelette" style="height:120px"></div></div></div>
+      </div>
+      <div class="etat" id="liste-etat" hidden></div>
+      <div class="plus"><button class="btn" type="button" id="btn-plus" hidden>Plus d'actus</button></div>
+    </div>
+  </section>
+
+  <!-- Un article -->
+  <article id="vue-article" hidden>
+    <div class="article">
+      <a class="retour" href="actus.html">← Toutes les actus</a>
+      <div id="article"></div>
+    </div>
+    <div class="wrap autres" id="autres" hidden>
+      <h2>À lire aussi</h2>
+      <div class="grille" id="autres-grille"></div>
+    </div>
+  </article>
+</main>
+
+<script src="config.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const PAGE = 12;
+  let rubrique = '', decalage = 0;
+
+  function vignette(src, alt){
+    return src
+      ? `<div class="vignette"><img src="${A.esc(src)}" alt="${A.esc(alt)}" loading="lazy" decoding="async"></div>`
+      : `<div class="vignette"><div class="vide"><img src="icons/icon-192.png" alt=""></div></div>`;
+  }
+  function meta(a){
+    return `<div class="meta"><span class="tag">${A.esc(A.RUBRIQUES[a.categorie] || 'Actualité')}</span><span>${A.dateLongue(a.publie_le)}</span></div>`;
+  }
+  function carte(a){
+    return `<a class="carte" href="#${encodeURIComponent(a.slug)}">
+      ${vignette(a.miniature, a.titre)}
+      ${meta(a)}
+      <h3>${A.esc(a.titre)}</h3>
+      ${a.chapo ? `<p>${A.esc(a.chapo)}</p>` : ''}
+    </a>`;
+  }
+  function une(a){
+    return `<a class="une" href="#${encodeURIComponent(a.slug)}">
+      ${vignette(a.miniature, a.titre)}
+      <div>
+        ${meta(a)}
+        <h2>${A.esc(a.titre)}</h2>
+        ${a.chapo ? `<p>${A.esc(a.chapo)}</p>` : ''}
+        <span class="btn btn-main">Lire l'article →</span>
+      </div>
+    </a>`;
+  }
+  function etat(el, titre, texte){
+    el.innerHTML = `<h2></h2><p></p>`;
+    el.querySelector('h2').textContent = titre;
+    el.querySelector('p').textContent = texte;
+    el.hidden = false;
+  }
+
+  // ---------- Rubriques ----------
+  const chips = $('chips');
+  [['', 'Toutes'], ...Object.entries(A.RUBRIQUES)].forEach(([cle, nom])=>{
+    const b = document.createElement('button');
+    b.type = 'button'; b.className = 'chip'; b.textContent = nom;
+    b.setAttribute('aria-pressed', cle === rubrique ? 'true' : 'false');
+    b.onclick = ()=>{
+      rubrique = cle;
+      chips.querySelectorAll('.chip').forEach(c=> c.setAttribute('aria-pressed', c === b ? 'true' : 'false'));
+      chargerListe(true);
+    };
+    chips.appendChild(b);
+  });
+
+  // ---------- Liste ----------
+  async function chargerListe(reinit){
+    const liste = $('liste');
+    $('liste-etat').hidden = true;
+    if(reinit){ decalage = 0; liste.innerHTML = ''; }
+    if(!A.configure){
+      etat($('liste-etat'), 'Les actus arrivent bientôt', 'Les premiers articles sont en préparation.');
+      return;
+    }
+    $('btn-plus').disabled = true;
+    try{
+      const rows = await A.liste({ categorie: rubrique, limite: PAGE + 1, decalage });
+      const encore = rows.length > PAGE;
+      const items = rows.slice(0, PAGE);
+      if(decalage === 0){
+        if(!items.length){
+          etat($('liste-etat'), rubrique ? 'Rien dans cette rubrique pour l\'instant' : 'Les actus arrivent bientôt',
+               rubrique ? 'Essayez une autre rubrique.' : 'Les premiers articles sont en préparation.');
+        }else{
+          const [premier, ...reste] = items;
+          liste.innerHTML = une(premier) + (reste.length ? `<div class="grille">${reste.map(carte).join('')}</div>` : '');
+        }
+      }else{
+        let grille = liste.querySelector('.grille');
+        if(!grille){ grille = document.createElement('div'); grille.className = 'grille'; liste.appendChild(grille); }
+        grille.insertAdjacentHTML('beforeend', items.map(carte).join(''));
+      }
+      decalage += items.length;
+      $('btn-plus').hidden = !encore;
+    }catch(e){
+      if(decalage === 0) liste.innerHTML = '';
+      etat($('liste-etat'), 'Impossible d\'afficher les actus', 'La connexion a échoué. Rechargez la page dans quelques instants.');
+    }finally{
+      $('btn-plus').disabled = false;
+    }
+  }
+  $('btn-plus').onclick = ()=> chargerListe(false);
+
+  // ---------- Article ----------
+  async function afficherArticle(slug){
+    $('vue-liste').hidden = true;
+    $('vue-article').hidden = false;
+    $('autres').hidden = true;
+    const zone = $('article');
+    zone.innerHTML = `<div class="squelette" style="height:40px;width:60%;margin-bottom:16px"></div><div class="squelette" style="aspect-ratio:16/9"></div>`;
+    window.scrollTo(0, 0);
+    let a = null;
+    try{ a = A.configure ? await A.article(slug) : null; }catch(e){}
+    if(!a){
+      zone.innerHTML = `<div class="etat"><h2>Article introuvable</h2><p>Il a peut-être été retiré. Retrouvez toutes les actus sur la page d'accueil de la rubrique.</p></div>`;
+      document.title = 'Article introuvable — L\'Objectif Châlonnais';
+      return;
+    }
+    document.title = `${a.titre} — L'Objectif Châlonnais`;
+    const yt = A.youtubeId(a.lien);
+    zone.innerHTML = `
+      ${meta(a)}
+      <h1>${A.esc(a.titre)}</h1>
+      ${a.chapo ? `<p class="chapo">${A.esc(a.chapo)}</p>` : ''}
+      ${a.auteur ? `<div class="meta"><span>Par ${A.esc(a.auteur)}</span></div>` : ''}
+      ${a.photo ? `<figure class="figure"><img src="${A.esc(a.photo)}" alt="${A.esc(a.legende || a.titre)}">${a.legende ? `<figcaption>${A.esc(a.legende)}</figcaption>` : ''}</figure>` : ''}
+      <div class="corps">${A.rendreContenu(a.contenu)}</div>
+      ${yt ? `<div class="video"><iframe src="https://www.youtube-nocookie.com/embed/${yt}" title="${A.esc(a.titre)}" loading="lazy" allow="accelerometer; encrypted-media; gyroscope; picture-in-picture; fullscreen" allowfullscreen></iframe></div>` : ''}
+      ${a.lien && !yt ? `<p><a class="btn btn-main" href="${A.esc(a.lien)}" target="_blank" rel="noopener">${A.esc(A.libelleLien(a.lien, a.lien_libelle))} →</a></p>` : ''}
+      <div class="partage">
+        <span>Partager</span>
+        <button class="btn" type="button" id="btn-partager">Partager l'article</button>
+        <button class="btn" type="button" id="btn-copier">Copier le lien</button>
+      </div>`;
+    const url = location.href.split('#')[0] + '#' + encodeURIComponent(a.slug);
+    const btnP = $('btn-partager');
+    if(navigator.share){
+      btnP.onclick = ()=> navigator.share({ title: a.titre, text: a.chapo || a.titre, url }).catch(()=>{});
+    }else{
+      btnP.hidden = true;
+    }
+    $('btn-copier').onclick = async (e)=>{
+      try{ await navigator.clipboard.writeText(url); e.target.textContent = '✓ Lien copié'; }
+      catch(err){ e.target.textContent = 'Copiez l\'adresse de la page'; }
+      setTimeout(()=> e.target.textContent = 'Copier le lien', 2200);
+    };
+    // À lire aussi
+    try{
+      const autres = (await A.liste({ limite: 4 })).filter(x=> x.slug !== a.slug).slice(0, 3);
+      if(autres.length){
+        $('autres-grille').innerHTML = autres.map(carte).join('');
+        $('autres').hidden = false;
+      }
+    }catch(e){}
+  }
+
+  // ---------- Navigation (#adresse-de-l-article) ----------
+  let listeChargee = false;
+  function route(){
+    const h = location.hash.slice(1);
+    if(h){
+      let slug = h; try{ slug = decodeURIComponent(h); }catch(e){}
+      afficherArticle(slug);
+    }else{
+      $('vue-article').hidden = true;
+      $('vue-liste').hidden = false;
+      document.title = 'Actualités — L\'Objectif Châlonnais';
+      if(!listeChargee){ listeChargee = true; chargerListe(true); }
+    }
+  }
+  window.addEventListener('hashchange', route);
+  route();
+})();
+</script>
+<script src="app.js"></script>
+<script src="push.js"></script>
+</body>
+</html>

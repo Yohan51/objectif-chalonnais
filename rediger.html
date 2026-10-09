@@ -1,0 +1,635 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Rédaction — L'Objectif Châlonnais</title>
+<meta name="robots" content="noindex, nofollow">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=Source+Serif+4:opsz,wght@8..60,400;8..60,600&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  /* Bureau de rédaction : liste des articles à gauche, formulaire à droite, aperçu sous le formulaire */
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7; --tile:#E3EDF2;
+    --ok:#2E7D57; --ok-bg:#E5F4EC; --err:#C0472F; --err-bg:#FBEAE6; --warn:#8A5A0B; --warn-bg:#FFF4DC;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-read:'Source Serif 4',Georgia,serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+      --ok:#6FCF97; --ok-bg:#163A2A; --err:#F08A73; --err-bg:#3D211B; --warn:#F5D08A; --warn-bg:#3A2E12; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+    --ok:#6FCF97; --ok-bg:#163A2A; --err:#F08A73; --err-bg:#3D211B; --warn:#F5D08A; --warn-bg:#3A2E12; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;}
+  a{color:var(--sky-deep);}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.12;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0 0 6px;}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+  .wrap{max-width:1240px;margin:0 auto;padding-inline:20px;padding-block:28px 64px;}
+
+  .card{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;}
+  label, .label{font-weight:800;font-size:14px;display:flex;justify-content:space-between;align-items:baseline;gap:8px;margin-bottom:6px;}
+  label small, .label small{font-family:var(--font-mono);font-weight:500;font-size:12px;color:var(--ink-soft);}
+  input[type=text], input[type=url], input[type=password], input[type=datetime-local], textarea, select{
+    width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--bg);
+    border:1.5px solid var(--line);border-radius:10px;padding:10px 13px;
+  }
+  textarea{resize:vertical;}
+  input:focus, textarea:focus, select:focus{outline:none;border-color:var(--sky-deep);}
+  .hint{font-size:13px;color:var(--ink-soft);margin:6px 0 0;}
+  .field{display:flex;flex-direction:column;}
+  .row{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:16px;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:6px;font:inherit;font-weight:800;font-size:15px;
+    padding:11px 18px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);
+    cursor:pointer;text-decoration:none;
+  }
+  .btn:hover{border-color:var(--sky-deep);}
+  .btn-main{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .btn-main:hover{background:var(--sky-deep);border-color:var(--sky-deep);}
+  .btn-danger{color:var(--err);border-color:var(--err-bg);}
+  .btn:disabled{opacity:.55;cursor:wait;}
+  .btn-sm{padding:6px 12px;font-size:13px;}
+  .msg{border-radius:12px;padding:12px 14px;font-weight:700;margin:0;}
+  .msg.ok{background:var(--ok-bg);color:var(--ok);}
+  .msg.err{background:var(--err-bg);color:var(--err);}
+  .msg.warn{background:var(--warn-bg);color:var(--warn);}
+
+  /* Connexion */
+  .login{max-width:420px;margin:48px auto;display:flex;flex-direction:column;gap:16px;}
+  .login h1{font-size:34px;font-weight:800;}
+
+  /* Bureau */
+  .bureau{display:grid;grid-template-columns:320px minmax(0,1fr);gap:24px;align-items:start;}
+  .colonne{display:flex;flex-direction:column;gap:12px;position:sticky;top:calc(12px + env(safe-area-inset-top,0px));}
+  .liste{display:flex;flex-direction:column;gap:2px;max-height:70vh;overflow-y:auto;}
+  .item{
+    display:grid;grid-template-columns:52px minmax(0,1fr);gap:10px;align-items:center;text-align:left;
+    font:inherit;color:var(--ink);background:transparent;border:none;border-radius:10px;padding:8px;cursor:pointer;
+  }
+  .item:hover{background:var(--bg);}
+  .item[aria-current="true"]{background:var(--tile);}
+  .item .mini{width:52px;height:40px;border-radius:6px;background:var(--tile);object-fit:cover;display:block;}
+  .item strong{display:block;font-size:14.5px;line-height:1.3;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;}
+  .pill{display:inline-block;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;padding:1px 8px;border-radius:999px;margin-top:3px;}
+  .pill.publie{background:var(--ok-bg);color:var(--ok);}
+  .pill.brouillon{background:var(--tile);color:var(--ink-soft);}
+  .pill.programme{background:var(--warn-bg);color:var(--warn);}
+  .vide-liste{color:var(--ink-soft);font-size:14px;padding:8px;}
+
+  form{display:flex;flex-direction:column;gap:18px;}
+  .titre-form{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;}
+  .titre-form h2{font-size:26px;font-weight:800;}
+  #f-titre{font-family:var(--font-display);font-size:22px;font-weight:700;}
+  .photo-zone{display:grid;grid-template-columns:180px minmax(0,1fr);gap:16px;align-items:start;}
+  .photo-apercu{aspect-ratio:3/2;width:100%;border-radius:10px;background:var(--tile);overflow:hidden;display:flex;align-items:center;justify-content:center;color:var(--ink-soft);font-size:13px;text-align:center;padding:8px;}
+  .photo-apercu img{width:100%;height:100%;object-fit:cover;display:block;}
+  .photo-actions{display:flex;flex-direction:column;gap:10px;}
+  .file-btn{position:relative;overflow:hidden;align-self:flex-start;}
+  #btn-retirer-photo{align-self:flex-start;}
+  .file-btn input{position:absolute;inset:0;opacity:0;cursor:pointer;}
+  .outils{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:8px;}
+  #f-contenu{min-height:320px;font-family:var(--font-read);font-size:17px;line-height:1.6;}
+  .publication{display:flex;flex-direction:column;gap:8px;}
+  .choix{display:flex;justify-content:flex-start;gap:10px;align-items:center;font-weight:700;cursor:pointer;margin:0;}
+  .choix input{width:18px;height:18px;accent-color:var(--ink);}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .actions .spacer{flex:1;}
+  .confirm{background:var(--err-bg);color:var(--err);border-radius:12px;padding:14px;display:flex;flex-direction:column;gap:10px;}
+  .confirm p{margin:0;font-weight:700;}
+  .resultat{display:flex;flex-direction:column;gap:10px;}
+  .resultat .liens{display:flex;gap:10px;flex-wrap:wrap;}
+
+  /* Aperçu, mêmes styles que la page Actus */
+  .apercu{border-top:1px dashed var(--line);padding-top:22px;}
+  .apercu .tag{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.08em;text-transform:uppercase;color:var(--sky-deep);}
+  .apercu h1{font-size:clamp(28px,4vw,40px);font-weight:800;margin:10px 0 12px;}
+  .apercu .chapo{font-size:19px;color:var(--ink-soft);font-weight:600;margin:0 0 18px;}
+  .apercu figure{margin:20px 0;}
+  .apercu figure img{width:100%;border-radius:12px;display:block;}
+  .apercu figcaption{font-size:13px;color:var(--ink-soft);margin-top:6px;}
+  .corps{font-family:var(--font-read);font-size:18px;line-height:1.7;max-width:70ch;}
+  .corps p{margin:0 0 1em;}
+  .corps h2{font-family:var(--font-display);font-size:24px;font-weight:800;margin:1.4em 0 .5em;}
+  .corps ul{margin:0 0 1em;padding-left:1.2em;}
+
+  @media (max-width:900px){
+    .bureau{grid-template-columns:minmax(0,1fr);}
+    .colonne{position:static;}
+    .liste{max-height:260px;}
+  }
+  @media (max-width:560px){
+    .row{grid-template-columns:minmax(0,1fr);}
+    .photo-zone{grid-template-columns:minmax(0,1fr);}
+    .card{padding:16px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="actus.html">Voir les actus</a>
+    <a href="rediger.html" aria-current="page">Rédaction</a>
+    <a href="envoyer.html">Alertes</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <!-- Connexion -->
+  <section class="login card" id="vue-login">
+    <div>
+      <p class="eyebrow">Réservé à l'équipe</p>
+      <h1>Rédaction des actus</h1>
+    </div>
+    <form id="form-login" novalidate>
+      <div class="field">
+        <label for="l-code">Code modérateur</label>
+        <input id="l-code" type="password" autocomplete="current-password" placeholder="Le code de la carte des bons plans">
+      </div>
+      <button class="btn btn-main" type="submit" id="l-btn">Entrer</button>
+      <p class="msg err" id="l-msg" hidden></p>
+    </form>
+  </section>
+
+  <!-- Bureau de rédaction -->
+  <section class="bureau" id="vue-bureau" hidden>
+    <aside class="colonne">
+      <button class="btn btn-main" type="button" id="btn-nouveau">＋ Nouvel article</button>
+      <div class="card" style="padding:10px;">
+        <div class="liste" id="liste"></div>
+      </div>
+      <button class="btn btn-sm" type="button" id="btn-quitter">Se déconnecter</button>
+    </aside>
+
+    <div class="card">
+      <form id="form" novalidate>
+        <div class="titre-form">
+          <h2 id="form-titre">Nouvel article</h2>
+          <span class="pill brouillon" id="form-etat">Pas encore enregistré</span>
+        </div>
+        <p class="msg warn" id="recup" hidden>Brouillon récupéré : ce que vous aviez commencé à écrire sur cet appareil a été remis en place.</p>
+
+        <div class="field">
+          <label for="f-titre">Titre <small id="c-titre">0/120</small></label>
+          <input id="f-titre" type="text" maxlength="120" placeholder="La Foire de Châlons bat son record de visiteurs">
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="f-categorie">Rubrique</label>
+            <select id="f-categorie"></select>
+          </div>
+          <div class="field">
+            <label for="f-auteur">Signé par <small>facultatif</small></label>
+            <input id="f-auteur" type="text" maxlength="60" placeholder="Yohan">
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-chapo">Chapô <small id="c-chapo">0/300</small></label>
+          <textarea id="f-chapo" rows="3" maxlength="300" placeholder="Une ou deux phrases qui résument l'article. Elles s'affichent dans la liste des actus et dans les partages."></textarea>
+        </div>
+
+        <div class="field">
+          <span class="label">Photo principale <small>redimensionnée automatiquement</small></span>
+          <div class="photo-zone">
+            <div class="photo-apercu" id="photo-apercu">Aucune photo</div>
+            <div class="photo-actions">
+              <span class="btn file-btn">Choisir une photo<input id="f-photo" type="file" accept="image/*" aria-label="Choisir une photo"></span>
+              <button class="btn btn-sm" type="button" id="btn-retirer-photo" hidden>Retirer la photo</button>
+              <div class="field">
+                <label for="f-legende">Légende <small>facultatif</small></label>
+                <input id="f-legende" type="text" maxlength="150" placeholder="La grande roue, samedi soir © L'Objectif Châlonnais">
+              </div>
+              <p class="hint" id="photo-info"></p>
+            </div>
+          </div>
+        </div>
+
+        <div class="field">
+          <label for="f-contenu">Texte de l'article <small id="c-contenu">0 mot</small></label>
+          <div class="outils">
+            <button class="btn btn-sm" type="button" data-outil="intertitre">Intertitre</button>
+            <button class="btn btn-sm" type="button" data-outil="gras"><strong>Gras</strong></button>
+            <button class="btn btn-sm" type="button" data-outil="liste">Liste à puces</button>
+          </div>
+          <textarea id="f-contenu" maxlength="20000" placeholder="Écrivez ici. Laissez une ligne vide entre deux paragraphes.&#10;&#10;## Un intertitre commence par deux dièses&#10;&#10;Les liens https://… deviennent cliquables automatiquement."></textarea>
+          <p class="hint">Une ligne vide sépare les paragraphes. <code>## </code> en début de ligne fait un intertitre, <code>- </code> une liste, <code>**texte**</code> met en gras.</p>
+        </div>
+
+        <div class="row">
+          <div class="field">
+            <label for="f-lien">Vidéo ou lien <small>facultatif</small></label>
+            <input id="f-lien" type="url" inputmode="url" placeholder="https://www.youtube.com/watch?v=…">
+            <p class="hint">Une vidéo YouTube s'affiche dans l'article. TikTok, Instagram ou autre site : un bouton vers le lien.</p>
+          </div>
+          <div class="field">
+            <label for="f-lien-libelle">Texte du bouton <small>facultatif</small></label>
+            <input id="f-lien-libelle" type="text" maxlength="60" placeholder="Voir la vidéo sur TikTok">
+          </div>
+        </div>
+
+        <fieldset class="publication card" style="background:var(--bg);">
+          <legend class="label" style="padding:0 6px;">Publication</legend>
+          <label class="choix"><input type="radio" name="pub" value="brouillon" id="p-brouillon" checked> Brouillon (invisible pour le public)</label>
+          <label class="choix"><input type="radio" name="pub" value="maintenant" id="p-maintenant"> Publier maintenant</label>
+          <label class="choix"><input type="radio" name="pub" value="programmer" id="p-programmer"> Programmer la publication</label>
+          <input id="f-date" type="datetime-local" hidden aria-label="Date et heure de publication">
+        </fieldset>
+
+        <div class="actions">
+          <button class="btn btn-main" type="submit" id="btn-enregistrer">Enregistrer</button>
+          <button class="btn" type="button" id="btn-apercu">Aperçu</button>
+          <span class="spacer"></span>
+          <button class="btn btn-danger btn-sm" type="button" id="btn-supprimer" hidden>Supprimer l'article</button>
+        </div>
+        <div class="confirm" id="confirm" hidden>
+          <p>Supprimer définitivement cet article ? Cette action ne peut pas être annulée.</p>
+          <div class="actions">
+            <button class="btn btn-sm" type="button" id="btn-confirmer" style="color:var(--err);">Oui, supprimer</button>
+            <button class="btn btn-sm" type="button" id="btn-annuler">Annuler</button>
+          </div>
+        </div>
+        <div class="resultat" id="resultat" hidden>
+          <p class="msg" id="r-msg"></p>
+          <div class="liens" id="r-liens"></div>
+        </div>
+      </form>
+
+      <div class="apercu" id="apercu" hidden></div>
+    </div>
+  </section>
+</main>
+
+<script src="config.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const CODE_KEY = 'oc-redaction-code';
+  const BROUILLON_KEY = 'oc-redaction-brouillon';
+  let code = null;
+  let actus = [];
+  let courant = null;          // article en cours (null = nouveau)
+  let photo = { etat: 'aucune', grande: '', mini: '' }; // aucune | gardee | nouvelle
+
+  const store = {
+    get(k, s=sessionStorage){ try{ return s.getItem(k); }catch(e){ return null; } },
+    set(k, v, s=sessionStorage){ try{ s.setItem(k, v); }catch(e){} },
+    del(k, s=sessionStorage){ try{ s.removeItem(k); }catch(e){} }
+  };
+
+  // ---------- Rubriques ----------
+  Object.entries(A.RUBRIQUES).forEach(([k, v])=>{
+    const o = document.createElement('option'); o.value = k; o.textContent = v; $('f-categorie').appendChild(o);
+  });
+
+  // ---------- Connexion ----------
+  async function connecter(c){
+    const res = await A.rpc('oc_actus_redaction', { p_code: c });
+    code = c; actus = res.actus || [];
+    store.set(CODE_KEY, c);
+    $('vue-login').hidden = true; $('vue-bureau').hidden = false;
+    rendreListe();
+    nouveau(true);
+  }
+  $('form-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value;
+    $('l-msg').hidden = true;
+    if(!c){ $('l-msg').textContent = 'Saisissez le code.'; $('l-msg').hidden = false; return; }
+    if(!A.configure){ $('l-msg').textContent = 'Supabase n\'est pas configuré dans config.js.'; $('l-msg').hidden = false; return; }
+    $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{
+    code = null; store.del(CODE_KEY);
+    $('vue-bureau').hidden = true; $('vue-login').hidden = false;
+  };
+
+  // ---------- Liste ----------
+  function etatDe(a){
+    if(!a.publie) return ['brouillon', 'Brouillon'];
+    if(a.publie_le && new Date(a.publie_le) > new Date()) return ['programme', 'Programmé · ' + A.dateLongue(a.publie_le)];
+    return ['publie', 'Publié · ' + A.dateLongue(a.publie_le)];
+  }
+  function rendreListe(){
+    const el = $('liste');
+    if(!actus.length){ el.innerHTML = '<p class="vide-liste">Aucun article pour l\'instant. Le premier vous attend !</p>'; return; }
+    el.innerHTML = '';
+    actus.forEach(a=>{
+      const [cls, lib] = etatDe(a);
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'item';
+      b.setAttribute('aria-current', courant && courant.id === a.id ? 'true' : 'false');
+      b.innerHTML = `${a.miniature ? `<img class="mini" src="${A.esc(a.miniature)}" alt="">` : '<span class="mini"></span>'}
+        <span><strong>${A.esc(a.titre)}</strong><span class="pill ${cls}">${A.esc(lib)}</span></span>`;
+      b.onclick = ()=> ouvrir(a.id);
+      el.appendChild(b);
+    });
+  }
+  async function rafraichirListe(){
+    try{ const res = await A.rpc('oc_actus_redaction', { p_code: code }); actus = res.actus || []; }catch(e){}
+    rendreListe();
+  }
+
+  // ---------- Formulaire ----------
+  function majCompteurs(){
+    $('c-titre').textContent = `${$('f-titre').value.length}/120`;
+    $('c-chapo').textContent = `${$('f-chapo').value.length}/300`;
+    const mots = ($('f-contenu').value.trim().match(/\S+/g) || []).length;
+    $('c-contenu').textContent = `${mots} mot${mots>1?'s':''}`;
+    $('f-date').hidden = !$('p-programmer').checked;
+  }
+  function afficherPhoto(){
+    const z = $('photo-apercu');
+    const src = photo.etat === 'nouvelle' ? photo.mini : (photo.etat === 'gardee' ? (courant && courant.miniature) || photo.mini : '');
+    z.innerHTML = src ? `<img src="${A.esc(src)}" alt="">` : 'Aucune photo';
+    $('btn-retirer-photo').hidden = photo.etat === 'aucune';
+  }
+  function remplir(a){
+    $('f-titre').value = a.titre || '';
+    $('f-categorie').value = a.categorie || 'actu';
+    $('f-auteur').value = a.auteur || '';
+    $('f-chapo').value = a.chapo || '';
+    $('f-legende').value = a.legende || '';
+    $('f-contenu').value = a.contenu || '';
+    $('f-lien').value = a.lien || '';
+    $('f-lien-libelle').value = a.lien_libelle || '';
+    const futur = a.publie && a.publie_le && new Date(a.publie_le) > new Date();
+    $('p-brouillon').checked = !a.publie;
+    $('p-maintenant').checked = !!a.publie && !futur;
+    $('p-programmer').checked = !!futur;
+    $('f-date').value = futur ? versLocal(a.publie_le) : '';
+    majCompteurs();
+  }
+  function versLocal(iso){
+    const d = new Date(iso); const p = n=> String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function nettoyerMessages(){
+    $('resultat').hidden = true; $('confirm').hidden = true; $('recup').hidden = true;
+  }
+
+  function nouveau(recuperer){
+    courant = null;
+    photo = { etat:'aucune', grande:'', mini:'' };
+    nettoyerMessages();
+    $('form-titre').textContent = 'Nouvel article';
+    $('form-etat').className = 'pill brouillon'; $('form-etat').textContent = 'Pas encore enregistré';
+    $('btn-supprimer').hidden = true;
+    remplir({ categorie:'actu', publie:false });
+    if(recuperer){
+      try{
+        const b = JSON.parse(store.get(BROUILLON_KEY, localStorage) || 'null');
+        if(b && (b.titre || b.contenu)){ remplir(b); $('recup').hidden = false; }
+      }catch(e){}
+    }
+    afficherPhoto(); rendreListe(); masquerApercu();
+    $('f-titre').focus();
+  }
+  $('btn-nouveau').onclick = ()=> nouveau(false);
+
+  async function ouvrir(id){
+    nettoyerMessages();
+    try{
+      const res = await A.rpc('oc_actu_lire', { p_code: code, p_id: id });
+      courant = res.actu;
+      photo = { etat: courant.photo ? 'gardee' : 'aucune', grande: '', mini: '' };
+      remplir(courant);
+      $('form-titre').textContent = 'Modifier l\'article';
+      const [cls, lib] = etatDe(courant);
+      $('form-etat').className = 'pill ' + cls; $('form-etat').textContent = lib;
+      $('btn-supprimer').hidden = false;
+      afficherPhoto(); rendreListe(); masquerApercu();
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }catch(e){
+      montrerResultat('err', e.message);
+    }
+  }
+
+  // Sauvegarde locale du texte d'un nouvel article (en cas de fermeture accidentelle)
+  let tSauve = null;
+  function sauverLocal(){
+    if(courant) return;
+    clearTimeout(tSauve);
+    tSauve = setTimeout(()=>{
+      store.set(BROUILLON_KEY, JSON.stringify({
+        titre: $('f-titre').value, categorie: $('f-categorie').value, auteur: $('f-auteur').value,
+        chapo: $('f-chapo').value, legende: $('f-legende').value, contenu: $('f-contenu').value,
+        lien: $('f-lien').value, lien_libelle: $('f-lien-libelle').value, publie: false
+      }), localStorage);
+    }, 400);
+  }
+  $('form').addEventListener('input', ()=>{ majCompteurs(); sauverLocal(); if(!$('apercu').hidden) rendreApercu(); });
+  $('form').addEventListener('change', majCompteurs);
+
+  // ---------- Outils d'écriture ----------
+  document.querySelectorAll('[data-outil]').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      const ta = $('f-contenu');
+      const debut = ta.selectionStart, fin = ta.selectionEnd;
+      const sel = ta.value.slice(debut, fin);
+      let ins, curseur;
+      if(b.dataset.outil === 'gras'){
+        ins = `**${sel || 'texte en gras'}**`; curseur = sel ? debut + ins.length : debut + 2;
+      }else if(b.dataset.outil === 'intertitre'){
+        ins = `\n\n## ${sel || 'Intertitre'}\n\n`; curseur = debut + ins.length;
+      }else{
+        const lignes = (sel || 'Premier point\nDeuxième point').split('\n').map(l=> '- ' + l.replace(/^[-•]\s*/, ''));
+        ins = `\n\n${lignes.join('\n')}\n\n`; curseur = debut + ins.length;
+      }
+      ta.setRangeText(ins, debut, fin, 'end');
+      if(!sel && b.dataset.outil === 'gras') ta.setSelectionRange(debut + 2, debut + ins.length - 2);
+      ta.focus();
+      ta.dispatchEvent(new Event('input', { bubbles: true }));
+    });
+  });
+
+  // ---------- Photo (redimensionnée dans le navigateur) ----------
+  function chargerImage(file){
+    return new Promise((ok, ko)=>{
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = ()=>{ URL.revokeObjectURL(url); ok(img); };
+      img.onerror = ()=>{ URL.revokeObjectURL(url); ko(new Error('Ce fichier n\'est pas une image lisible.')); };
+      img.src = url;
+    });
+  }
+  function reduire(img, maxDim, qualite, maxLong){
+    let w = img.naturalWidth, h = img.naturalHeight;
+    const r = Math.min(1, maxDim / Math.max(w, h));
+    w = Math.round(w * r); h = Math.round(h * r);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    let q = qualite, data = c.toDataURL('image/jpeg', q);
+    while(data.length > maxLong && q > 0.4){ q -= 0.08; data = c.toDataURL('image/jpeg', q); }
+    if(data.length > maxLong && maxDim > 400) return reduire(img, Math.round(maxDim * 0.8), qualite, maxLong);
+    return data;
+  }
+  $('f-photo').addEventListener('change', async (e)=>{
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    if(!file.type.startsWith('image/')){ $('photo-info').textContent = 'Choisissez une image (JPG, PNG, HEIC…).'; return; }
+    $('photo-info').textContent = 'Préparation de la photo…';
+    try{
+      const img = await chargerImage(file);
+      const grande = reduire(img, 1600, 0.82, 560000);
+      const mini = reduire(img, 640, 0.78, 110000);
+      photo = { etat:'nouvelle', grande, mini };
+      afficherPhoto();
+      $('photo-info').textContent = `Photo prête (${Math.round(grande.length * 0.75 / 1024)} Ko).`;
+      if(!$('apercu').hidden) rendreApercu();
+    }catch(err){
+      $('photo-info').textContent = err.message;
+    }
+  });
+  $('btn-retirer-photo').onclick = ()=>{ photo = { etat:'aucune', grande:'', mini:'' }; afficherPhoto(); $('photo-info').textContent = ''; };
+
+  // ---------- Aperçu ----------
+  function rendreApercu(){
+    const a = lireFormulaire();
+    const yt = A.youtubeId(a.lien);
+    const src = photo.etat === 'nouvelle' ? photo.grande : (photo.etat === 'gardee' && courant ? courant.photo : '');
+    $('apercu').innerHTML = `
+      <p class="eyebrow">Aperçu</p>
+      <span class="tag">${A.esc(A.RUBRIQUES[a.categorie])}</span>
+      <h1>${A.esc(a.titre || 'Titre de l\'article')}</h1>
+      ${a.chapo ? `<p class="chapo">${A.esc(a.chapo)}</p>` : ''}
+      ${src ? `<figure><img src="${A.esc(src)}" alt="">${a.legende ? `<figcaption>${A.esc(a.legende)}</figcaption>` : ''}</figure>` : ''}
+      <div class="corps">${A.rendreContenu(a.contenu) || '<p style="color:var(--ink-soft)">Le texte apparaîtra ici.</p>'}</div>
+      ${yt ? `<p class="hint">▶ La vidéo YouTube sera affichée ici.</p>` : (a.lien ? `<p><span class="btn btn-main">${A.esc(A.libelleLien(a.lien, a.lien_libelle))} →</span></p>` : '')}`;
+  }
+  function masquerApercu(){ $('apercu').hidden = true; $('btn-apercu').textContent = 'Aperçu'; }
+  $('btn-apercu').onclick = ()=>{
+    if($('apercu').hidden){ rendreApercu(); $('apercu').hidden = false; $('btn-apercu').textContent = 'Masquer l\'aperçu'; $('apercu').scrollIntoView({ behavior:'smooth', block:'start' }); }
+    else masquerApercu();
+  };
+
+  // ---------- Enregistrer ----------
+  function lireFormulaire(){
+    return {
+      titre: $('f-titre').value.trim(),
+      categorie: $('f-categorie').value,
+      auteur: $('f-auteur').value.trim(),
+      chapo: $('f-chapo').value.trim(),
+      legende: $('f-legende').value.trim(),
+      contenu: $('f-contenu').value.replace(/\s+$/, ''),
+      lien: $('f-lien').value.trim(),
+      lien_libelle: $('f-lien-libelle').value.trim()
+    };
+  }
+  function montrerResultat(type, texte, liens){
+    $('r-msg').className = 'msg ' + type; $('r-msg').textContent = texte;
+    $('r-liens').innerHTML = '';
+    (liens || []).forEach(([lib, href])=>{
+      const a = document.createElement('a'); a.className = 'btn btn-sm'; a.href = href; a.textContent = lib;
+      if(/^actus/.test(href)) a.target = '_blank';
+      $('r-liens').appendChild(a);
+    });
+    $('resultat').hidden = false;
+    $('resultat').scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  $('form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    nettoyerMessages();
+    const a = lireFormulaire();
+    if(a.titre.length < 3){ montrerResultat('err', 'Le titre doit faire au moins 3 caractères.'); $('f-titre').focus(); return; }
+    if(a.lien && !/^https:\/\//.test(a.lien)){ montrerResultat('err', 'Le lien doit commencer par https://'); $('f-lien').focus(); return; }
+    const mode = document.querySelector('input[name="pub"]:checked').value;
+    let publie_le = null;
+    if(mode === 'programmer'){
+      if(!$('f-date').value){ montrerResultat('err', 'Choisissez la date et l\'heure de publication.'); $('f-date').focus(); return; }
+      const d = new Date($('f-date').value);
+      if(isNaN(d)){ montrerResultat('err', 'Date de publication invalide.'); return; }
+      publie_le = d.toISOString();
+    }else if(mode === 'maintenant'){
+      // un article déjà publié garde sa date d'origine
+      publie_le = courant && courant.publie && courant.publie_le && new Date(courant.publie_le) <= new Date() ? courant.publie_le : null;
+    }
+    const envoi = {
+      ...a,
+      id: courant ? courant.id : null,
+      slug: courant ? courant.slug : A.slugifier(a.titre),
+      publie: mode !== 'brouillon',
+      publie_le,
+      garder_photo: photo.etat === 'gardee',
+      photo: photo.etat === 'nouvelle' ? photo.grande : '',
+      miniature: photo.etat === 'nouvelle' ? photo.mini : ''
+    };
+    $('btn-enregistrer').disabled = true; $('btn-enregistrer').textContent = 'Enregistrement…';
+    try{
+      const res = await A.rpc('oc_actu_enregistrer', { p_code: code, p_actu: envoi });
+      store.del(BROUILLON_KEY, localStorage);
+      const lienArticle = 'actus.html#' + encodeURIComponent(res.slug);
+      const enLigne = res.publie && new Date(res.publie_le) <= new Date();
+      const liens = [];
+      if(enLigne){
+        liens.push(['Voir l\'article', lienArticle]);
+        const p = new URLSearchParams({ titre: a.titre.slice(0, 60), message: (a.chapo || '').slice(0, 180), lien: './' + lienArticle });
+        liens.push(['Annoncer par une alerte', 'envoyer.html?' + p.toString()]);
+      }
+      const texte = !res.publie ? 'Brouillon enregistré. Il reste invisible pour le public.'
+        : enLigne ? 'Article publié ! Il est en ligne sur la page Actus et sur l\'accueil.'
+        : `Article programmé : il sera publié le ${A.dateLongue(res.publie_le)} à ${new Date(res.publie_le).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}.`;
+      await rafraichirListe();
+      await ouvrir(res.id);
+      montrerResultat('ok', texte, liens);
+    }catch(err){
+      const technique = /fetch|^erreur \d|network|load failed/i.test(err.message);
+      montrerResultat('err', technique ? 'L\'enregistrement a échoué. Vérifiez votre connexion et réessayez.' : err.message);
+    }finally{
+      $('btn-enregistrer').disabled = false; $('btn-enregistrer').textContent = 'Enregistrer';
+    }
+  });
+
+  // ---------- Supprimer ----------
+  $('btn-supprimer').onclick = ()=>{ $('confirm').hidden = false; };
+  $('btn-annuler').onclick = ()=>{ $('confirm').hidden = true; };
+  $('btn-confirmer').onclick = async ()=>{
+    if(!courant) return;
+    $('btn-confirmer').disabled = true;
+    try{
+      await A.rpc('oc_actu_supprimer', { p_code: code, p_id: courant.id });
+      await rafraichirListe();
+      nouveau(false);
+      montrerResultat('ok', 'Article supprimé.');
+    }catch(err){
+      montrerResultat('err', err.message);
+    }finally{
+      $('btn-confirmer').disabled = false;
+    }
+  };
+
+  // ---------- Reprise de session ----------
+  const enMemoire = store.get(CODE_KEY);
+  if(enMemoire && A.configure){ connecter(enMemoire).catch(()=> store.del(CODE_KEY)); }
+})();
+</script>
+</body>
+</html>

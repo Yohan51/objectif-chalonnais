@@ -17,6 +17,7 @@
     { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
   "shortcuts": [
+    { "name": "Actus", "url": "./actus.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Bons plans", "url": "./bons-plans.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Galerie", "url": "./galerie.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Quiz", "url": "./quiz.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] }

@@ -4,7 +4,10 @@
 
 | Fichier | Rôle |
 |---|---|
-| `index.html` | Accueil : présentation, réseaux, inscription à la lettre, contact |
+| `index.html` | Accueil : présentation, dernières actus, réseaux, inscription à la lettre, contact |
+| `actus.html` | La rubrique Actualités (liste et articles) |
+| `rediger.html` | Rédaction des actus, réservée à l'équipe (non visible dans le menu) |
+| `actus-rendu.js` | Mise en forme des articles (ne pas modifier) |
 | `bons-plans.html` | Le guide des bons plans, avec la carte OpenStreetMap |
 | `galerie.html` | La galerie photo, alimentée par les dossiers déposés dans Supabase |
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
@@ -13,6 +16,7 @@
 | `site.css` | Barre de navigation commune |
 | `logo.png` | Logo de l'association |
 | `envoyer.html` | Page réservée pour envoyer une alerte (non visible dans le menu) |
+| `supabase/actus.sql` | Table des actualités, à exécuter dans Supabase après `securite.sql` |
 | `supabase/securite.sql` | Protection de la carte des bons plans, à exécuter dans Supabase |
 | `push.js`, `supabase/envoyer-notification.ts` | Alertes : abonnement des téléphones et fonction d'envoi à coller dans Supabase |
 | `manifest.webmanifest`, `sw.js`, `app.js`, `offline.html`, `icons/` | Mode application : installation sur téléphone et fonctionnement hors ligne (ne pas modifier) |
@@ -185,6 +189,25 @@ select oc_private.restaurer(123);
 - 2 nouveaux bons plans, 3 commentaires ou 3 notes au maximum par envoi.
 - Code modérateur : bloqué 15 minutes après 8 essais ratés.
 - Lettre et alertes : 10 inscriptions par heure et par appareil, adresses vérifiées.
+
+## 8. Les actualités
+
+### Installation (une seule fois)
+
+*SQL Editor* → *New query* → colle tout le fichier `supabase/actus.sql` → *Run*. (Il faut avoir installé `securite.sql` avant.)
+
+### Écrire un article
+
+1. Ouvre `…/objectif-chalonnais/rediger.html` (garde l'adresse en favori, elle n'est pas dans le menu) et tape le **code modérateur**.
+2. *Nouvel article* : titre, rubrique, chapô (le résumé affiché dans la liste), photo, texte.
+3. Mise en forme du texte : une ligne vide entre deux paragraphes, `## ` en début de ligne pour un intertitre, `- ` pour une liste, `**texte**` pour du gras. Les boutons au-dessus du texte le font pour toi. Les liens `https://…` deviennent cliquables.
+4. *Vidéo ou lien* : un lien YouTube affiche la vidéo dans l'article ; un lien TikTok, Instagram ou autre affiche un bouton.
+5. *Publication* : brouillon (invisible), publier maintenant, ou programmer une date.
+6. *Aperçu* pour vérifier, puis *Enregistrer*. Après publication, le bouton *Annoncer par une alerte* ouvre la page d'alerte déjà remplie.
+
+La photo est redimensionnée automatiquement : envoie-la directement depuis ton téléphone. Ce que tu tapes pour un nouvel article est gardé sur l'appareil tant qu'il n'est pas enregistré.
+
+Pour modifier ou supprimer un article, clique dessus dans la liste de gauche. L'adresse d'un article ne change pas si tu modifies son titre : les liens déjà partagés restent valables.
 
 ## Bon à savoir
 
