@@ -208,6 +208,21 @@
   .social:hover{border-color:var(--sky-deep);}
   .social:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
   .social small{font-family:var(--font-mono);font-weight:500;font-size:12px;color:var(--ink-soft);}
+  .social-nom{display:flex;align-items:center;gap:12px;}
+  .social small{white-space:nowrap;}
+  @media (max-width:420px){ .social{padding:12px 14px;} .social-nom{gap:10px;} .social small{font-size:11px;} }
+  .social-logo{
+    flex-shrink:0;width:36px;height:36px;border-radius:10px;
+    display:grid;place-items:center;color:#fff;
+  }
+  .social-logo i{
+    display:block;width:20px;height:20px;background:currentColor;
+    -webkit-mask:var(--logo) center/contain no-repeat;mask:var(--logo) center/contain no-repeat;
+  }
+  .social-logo.tiktok{background:#000;}
+  .social-logo.instagram{background:radial-gradient(circle at 30% 107%, #fdf497 0%, #fd5949 45%, #d6249f 60%, #285AEB 90%);}
+  .social-logo.youtube{background:#FF0000;}
+  .social-logo.facebook{background:#1877F2;}
   form.news{display:flex;flex-direction:column;gap:12px;}
   form.news label{font-weight:800;font-size:14px;}
   .news-row{display:flex;gap:8px;flex-wrap:wrap;}
@@ -454,7 +469,7 @@
     const a = document.createElement('a');
     a.className = 'social';
     a.href = lien; a.target = '_blank'; a.rel = 'noopener';
-    a.innerHTML = `<span>${nom}</span><small>${desc} →</small>`;
+    a.innerHTML = `<span class="social-nom"><span class="social-logo ${cle}" aria-hidden="true"><i style="--logo:url('icons/reseaux/${cle}.svg')"></i></span>${nom}</span><small>${desc} →</small>`;
     box.appendChild(a);
   });
 
