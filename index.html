@@ -139,6 +139,56 @@
   .finder dt{text-transform:uppercase;letter-spacing:.08em;font-size:11px;}
   .finder dd{margin:0;color:var(--ink);}
 
+  /* ---------- Photo à la une (dernier album) ---------- */
+  .une{margin:0;display:block;text-decoration:none;color:inherit;}
+  .une-cadre{
+    border-radius:var(--radius);overflow:hidden;background:var(--line);
+    aspect-ratio:4/5;max-height:560px;width:100%;
+  }
+  .une-cadre img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .6s ease;}
+  .une:hover .une-cadre img{transform:scale(1.03);}
+  .une-legende{
+    display:flex;justify-content:space-between;align-items:baseline;gap:12px;
+    margin-top:12px;font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);
+  }
+  .une-legende b{
+    font-family:var(--font-body);font-size:15px;font-weight:800;color:var(--ink);
+    display:block;letter-spacing:0;text-transform:none;margin-top:2px;
+  }
+  .une-legende .lbl{text-transform:uppercase;letter-spacing:.08em;}
+  .une-legende .go{color:var(--sky-deep);font-weight:500;white-space:nowrap;}
+  .stat-ligne{margin:26px 0 0;font-size:14.5px;color:var(--ink-soft);display:flex;align-items:baseline;gap:10px;flex-wrap:wrap;}
+  .stat-ligne strong{font-family:var(--font-display);font-size:28px;font-weight:800;color:var(--ink);line-height:1;}
+
+  /* ---------- Derniers albums ---------- */
+  .albums-bande{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+  .alb{display:flex;flex-direction:column;gap:10px;text-decoration:none;color:var(--ink);}
+  .alb-cover{
+    aspect-ratio:3/2;border-radius:12px;overflow:hidden;background:var(--line);position:relative;
+  }
+  .alb-cover img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease;}
+  .alb:hover .alb-cover img{transform:scale(1.04);}
+  .alb-n{
+    position:absolute;right:10px;bottom:10px;background:rgba(15,34,48,.78);color:#fff;
+    font-family:var(--font-mono);font-size:11.5px;padding:4px 9px;border-radius:999px;
+  }
+  .alb h3{font-size:19px;font-weight:800;}
+  .alb .d{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);margin-top:-6px;}
+  @media (max-width:760px){
+    .une{order:-1;}
+    .une-cadre{aspect-ratio:4/3;}
+    .stat-ligne{margin-top:20px;}
+    .stat-ligne strong{font-size:24px;}
+    .albums-bande{
+      display:flex;overflow-x:auto;scroll-snap-type:x mandatory;gap:14px;
+      margin-inline:-20px;padding-inline:20px;scroll-padding-inline:20px;scrollbar-width:none;
+    }
+    .albums-bande::-webkit-scrollbar{display:none;}
+    .alb{flex:0 0 72%;scroll-snap-align:start;}
+    .albums-bande::after{content:"";flex:0 0 6px;}
+  }
+  @media (prefers-reduced-motion: reduce){ .une:hover .une-cadre img,.alb:hover .alb-cover img{transform:none;} }
+
   /* ---------- Bandeau d'information ---------- */
   .notice{
     background:var(--notice);
@@ -305,8 +355,16 @@
           <a class="btn btn-main" href="bons-plans.html">Explorer les bons plans</a>
           <a class="btn btn-ghost" href="galerie.html">Voir la galerie</a>
         </div>
+        <p class="stat-ligne" id="stat-ligne" hidden><strong>164 000</strong> personnes nous suivaient sur Facebook. Merci d'être là, ici aussi.</p>
       </div>
-      <div class="finder vf" aria-label="Notre communauté">
+      <a class="une vf" id="une" href="galerie.html" hidden>
+        <div class="une-cadre"><img id="une-img" alt="" fetchpriority="high" decoding="async"></div>
+        <div class="une-legende">
+          <span><span class="lbl">Dernier album</span><b id="une-titre"></b><span id="une-date"></span></span>
+          <span class="go">Voir l'album →</span>
+        </div>
+      </a>
+      <div class="finder vf" id="finder" aria-label="Notre communauté">
         <div>Notre communauté</div>
         <div class="big">164 000</div>
         <p class="caption">personnes nous suivaient sur Facebook. Merci d'être là, ici aussi.</p>
@@ -325,6 +383,19 @@
       <a href="#nous-suivre">Nous suivre →</a>
     </div>
   </div>
+
+  <section id="derniers-albums" hidden>
+    <div class="wrap">
+      <div class="section-head actus-head">
+        <div>
+          <p class="eyebrow">La galerie</p>
+          <h2>Les derniers albums</h2>
+        </div>
+        <a class="btn btn-ghost" href="galerie.html">Toute la galerie →</a>
+      </div>
+      <div class="albums-bande" id="albums-bande"></div>
+    </div>
+  </section>
 
   <section id="dernieres-actus" hidden>
     <div class="wrap">
@@ -543,6 +614,97 @@
       </a>`).join('');
     document.getElementById('dernieres-actus').hidden = false;
   }catch(e){}
+})();
+</script>
+<script>
+/* Photo à la une et derniers albums, tirés de la galerie (Supabase Storage) */
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  const URL_BASE = (cfg.supabaseUrl || '').replace(/\/+$/, '');
+  const CLE = cfg.supabaseCle || '';
+  const BUCKET = cfg.galerieBucket || 'galerie';
+  const IMG = /\.(jpe?g|png|webp|avif)$/i;
+  const NB = 6, NB_LUS = 10;
+  const CACHE = 'oc-une';
+  const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
+  const headers = { apikey: CLE, 'Content-Type': 'application/json' };
+  if(CLE.startsWith('eyJ')) headers.Authorization = 'Bearer ' + CLE;
+
+  function parseAlbum(name){
+    const m = name.match(/^(\d{4})-(\d{2})(?:-(\d{2}))?[\s_-]+(.+)$/);
+    if(!m) return { date:'', titre:name.replace(/_+/g,' ') };
+    return { date:(m[3] ? parseInt(m[3],10)+' ' : '') + (MOIS[parseInt(m[2],10)-1] || '') + ' ' + m[1], titre:m[4].replace(/_+/g,' ') };
+  }
+  const publicUrl = (path)=> `${URL_BASE}/storage/v1/object/public/${BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}`;
+  async function list(prefix, limit){
+    const r = await fetch(`${URL_BASE}/storage/v1/object/list/${BUCKET}`, {
+      method:'POST', headers, body: JSON.stringify({ prefix, limit: limit || 1000, offset:0, sortBy:{ column:'name', order:'asc' } })
+    });
+    if(!r.ok) throw new Error(r.status);
+    return r.json();
+  }
+  const isFolder = (o)=> o.id === null || (!o.metadata && !IMG.test(o.name));
+
+  function afficherUne(u){
+    const img = document.getElementById('une-img');
+    img.onload = ()=>{
+      document.getElementById('une').hidden = false;
+      document.getElementById('finder').hidden = true;
+      document.getElementById('stat-ligne').hidden = false;
+    };
+    img.alt = u.titre;
+    img.src = u.src;
+    document.getElementById('une').href = u.href;
+    document.getElementById('une-titre').textContent = u.titre;
+    document.getElementById('une-date').textContent = u.date;
+  }
+  // Affichage immédiat de la dernière photo connue, en attendant la mise à jour
+  try{ const c = JSON.parse(localStorage.getItem(CACHE) || 'null'); if(c && c.src) afficherUne(c); }catch(e){}
+
+  if(!URL_BASE || !CLE) return;
+  (async ()=>{
+    try{
+      const racine = await list('');
+      const albums = racine.filter(isFolder).map(o=> o.name).sort().reverse().slice(0, NB_LUS);
+      if(!albums.length) return;
+      const details = await Promise.all(albums.map(async name=>{
+        try{
+          const photos = (await list(name + '/')).filter(o=> !isFolder(o) && IMG.test(o.name));
+          return { name, photos };
+        }catch(e){ return { name, photos: [] }; }
+      }));
+      let pleins = details.filter(a=> a.photos.length);
+      if(!pleins.length) return;
+      // rangées complètes de 3 sur ordinateur : 6, sinon 3, sinon ce qu'il y a
+      pleins = pleins.slice(0, pleins.length >= NB ? NB : (pleins.length >= 3 ? 3 : pleins.length));
+
+      // À la une : la couverture (1re photo) de l'album le plus récent
+      const a0 = pleins[0], p0 = parseAlbum(a0.name);
+      const une = { src: publicUrl(a0.name + '/' + a0.photos[0].name), titre: p0.titre, date: p0.date, href: 'galerie.html#' + encodeURIComponent(a0.name) };
+      try{
+        const c = JSON.parse(localStorage.getItem(CACHE) || 'null');
+        if(!c || c.src !== une.src) afficherUne(une);
+        localStorage.setItem(CACHE, JSON.stringify(une));
+      }catch(e){ afficherUne(une); }
+
+      // Bande des derniers albums
+      const bande = document.getElementById('albums-bande');
+      bande.innerHTML = '';
+      pleins.forEach(a=>{
+        const { titre, date } = parseAlbum(a.name);
+        const el = document.createElement('a');
+        el.className = 'alb';
+        el.href = 'galerie.html#' + encodeURIComponent(a.name);
+        el.innerHTML = '<div class="alb-cover"><img loading="lazy" decoding="async" alt=""><span class="alb-n"></span></div><h3></h3><span class="d"></span>';
+        el.querySelector('img').src = publicUrl(a.name + '/' + a.photos[0].name);
+        el.querySelector('.alb-n').textContent = a.photos.length + ' photo' + (a.photos.length > 1 ? 's' : '');
+        el.querySelector('h3').textContent = titre;
+        el.querySelector('.d').textContent = date;
+        bande.appendChild(el);
+      });
+      document.getElementById('derniers-albums').hidden = false;
+    }catch(e){ /* galerie indisponible : l'accueil reste tel quel */ }
+  })();
 })();
 </script>
 <script src="app.js"></script>

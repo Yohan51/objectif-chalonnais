@@ -102,6 +102,8 @@ Seul toi, depuis le tableau de bord Supabase, peux ajouter ou supprimer des phot
 
 Les photos apparaissent sur le site immédiatement, dans l'ordre alphabétique de leur nom de fichier. La première sert de couverture à l'album.
 
+**Sur l'accueil** : la couverture de l'album le plus récent s'affiche en grand en haut de la page, et les 6 derniers albums juste en dessous. Pour choisir la photo de couverture, renomme-la pour qu'elle passe en premier, par exemple `00-couverture.jpg`. Choisis une belle photo en largeur ou carrée, sans texte incrusté : sur téléphone, elle est recadrée au format 4/3.
+
 ### Préparer les photos
 
 - **Redimensionne-les avant l'envoi** : 2 000 pixels sur le grand côté, qualité JPG 80 %. Une photo pèse alors 300 à 600 Ko au lieu de 5 à 10 Mo. Le site se charge vite et l'offre gratuite (1 Go) contient 2 000 à 3 000 photos.
