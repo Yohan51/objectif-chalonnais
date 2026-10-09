@@ -1,5 +1,7 @@
 Dossier des photos du site.
 
 une.jpg : la grande photo en tête de l'accueil (2400 px de large environ, moins de 500 Ko).
-Remplace-la par une autre portant exactement le même nom pour changer la photo.
-Si le fichier est absent, l'accueil affiche la couverture du dernier album de la galerie.
+bons-plans.jpg, galerie.jpg, jeux.jpg, quiz.jpg : facultatives, elles remplacent les illustrations des 4 cartes de l'accueil (1200 x 600 px environ, moins de 250 Ko).
+
+Pour changer une photo, dépose-en une nouvelle avec exactement le même nom.
+Si un fichier est absent, l'accueil garde l'illustration (ou, pour une.jpg, la couverture du dernier album).

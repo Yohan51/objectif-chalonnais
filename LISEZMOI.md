@@ -114,6 +114,10 @@ Une grande photo occupe toute la largeur du haut de l'accueil, avec le titre par
 - **Format conseillé** : en largeur, environ 2 400 pixels de large, moins de 500 Ko. Le côté gauche est assombri pour que le texte reste lisible ; un sujet placé à droite ou au centre ressort le mieux. Sur téléphone, la photo est recadrée en hauteur : garde le sujet principal au centre.
 - **Sans photo choisie**, l'accueil affiche la couverture de l'album le plus récent de la galerie, avec un lien vers l'album en bas à droite. Pour choisir cette couverture, renomme la photo voulue pour qu'elle passe en premier, par exemple `00-couverture.jpg`.
 
+### Les illustrations des 4 cartes de l'accueil
+
+Les cartes *Bons plans*, *Galerie*, *Jeux concours* et *Quiz* sont illustrées par des dessins aux couleurs du site. Pour mettre une de tes photos à la place, dépose-la dans le dossier `photos` sous le nom `bons-plans.jpg`, `galerie.jpg`, `jeux.jpg` ou `quiz.jpg` (format paysage, environ 1 200 × 600 pixels, moins de 250 Ko). Pour revenir au dessin, supprime simplement le fichier.
+
 ### Préparer les photos
 
 - **Redimensionne-les avant l'envoi** : 2 000 pixels sur le grand côté, qualité JPG 80 %. Une photo pèse alors 300 à 600 Ko au lieu de 5 à 10 Mo. Le site se charge vite et l'offre gratuite (1 Go) contient 2 000 à 3 000 photos.
