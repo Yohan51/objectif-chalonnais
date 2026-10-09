@@ -1,0 +1,50 @@
+# Robot « Aperçus des actus » — L'Objectif Châlonnais
+# Toutes les 15 minutes, fabrique les pages de partage des articles publiés
+# (titre, résumé et photo visibles dans WhatsApp, Facebook, Messenger…).
+# On peut aussi le lancer à la main : onglet Actions → Aperçus des actus → Run workflow.
+name: Aperçus des actus
+
+on:
+  schedule:
+    - cron: '*/15 * * * *'
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pages: write
+
+concurrency:
+  group: apercus
+  cancel-in-progress: false
+
+jobs:
+  apercus:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 20
+
+      - name: Fabriquer les pages de partage
+        run: node scripts/apercus.mjs
+        env:
+          SITE_URL: ${{ vars.SITE_URL }}
+
+      - name: Publier s'il y a du nouveau
+        run: |
+          git config user.name "Aperçus L'Objectif"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add a
+          if git diff --cached --quiet; then
+            echo "Rien de nouveau."
+            exit 0
+          fi
+          git commit -m "Aperçus des actus mis à jour"
+          git push
+          # Demande à GitHub Pages de remettre le site en ligne avec les nouvelles pages
+          curl -s -o /dev/null -w "Pages : %{http_code}\n" -X POST \
+            -H "Authorization: Bearer ${{ secrets.GITHUB_TOKEN }}" \
+            -H "Accept: application/vnd.github+json" \
+            "https://api.github.com/repos/${{ github.repository }}/pages/builds" || true
