@@ -14,6 +14,7 @@
 | `bons-plans.html` | Le guide des bons plans, avec la carte OpenStreetMap |
 | `galerie.html` | La galerie photo, alimentée par les dossiers déposés dans Supabase |
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
+| `mentions-legales.html` | Mentions légales et politique de confidentialité (lien en bas de chaque page) |
 | `jeux.html` | Les jeux concours : participation des abonnés et gagnants |
 | `tirage.html`, `qrcode.min.js` | Outil de l'équipe : créer les jeux, tirage au sort, certificats (non visible dans le menu) |
 | `supabase/jeux.sql` | Tables des jeux concours, à exécuter dans Supabase après `actus.sql` |
@@ -249,6 +250,17 @@ Le règlement (gratuit, majeurs résidant en France, une participation par perso
 5. Une fois les lots remis : *Effacer les coordonnées des participants*. Sinon, elles sont effacées automatiquement 3 mois après le tirage.
 
 L'onglet *Tirage libre* reprend l'ancien outil : tu colles les commentaires d'une publication Instagram ou TikTok (ou une liste de noms) et tu tires au sort de la même façon, sans rien publier sur le site.
+
+## 11. Mentions légales
+
+La page `mentions-legales.html` reprend l'éditeur, le directeur de publication, les hébergeurs et la politique de confidentialité. Deux informations facultatives peuvent s'y ajouter depuis `config.js`, en ajoutant ces lignes juste après la ligne `contact` :
+
+```
+  telephone: '06 12 34 56 78',   // numéro de l'association (demandé par la loi)
+  rna: 'W511234567',             // numéro RNA de l'association, s'il existe
+```
+
+Pense à mettre à jour la date en bas de la page si tu changes la façon dont le site utilise les données (nouveau formulaire, nouveau service…).
 
 ## Bon à savoir
 

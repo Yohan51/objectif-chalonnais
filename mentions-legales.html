@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Mentions légales et confidentialité — L'Objectif Châlonnais</title>
+<meta name="description" content="Mentions légales du site de L'Objectif Châlonnais et politique de confidentialité : quelles données nous collectons, pourquoi, combien de temps, et vos droits.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="L'Objectif Châlonnais">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Mentions légales et confidentialité — L'Objectif Châlonnais">
+<meta property="og:url" content="https://lobjectifchalonnais.fr/mentions-legales.html">
+<meta property="og:image" content="https://lobjectifchalonnais.fr/icons/partage.jpg">
+<link rel="canonical" href="https://lobjectifchalonnais.fr/mentions-legales.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  html{scroll-padding-top:16px;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;}
+  a{color:var(--sky-deep);}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 64px;}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.15;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .page-head{padding-block:44px 20px;}
+  .page-head h1{font-size:clamp(32px,5vw,46px);font-weight:800;margin-top:8px;}
+  .page-head p{color:var(--ink-soft);margin:10px 0 0;}
+  .sommaire{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+  .sommaire a{
+    display:inline-block;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--surface);color:var(--ink);font-weight:700;font-size:14px;text-decoration:none;
+  }
+  .sommaire a:hover{border-color:var(--sky-deep);}
+  .bloc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px 26px 10px;margin-top:22px;}
+  .bloc > h2{font-size:28px;font-weight:800;margin-bottom:6px;}
+  .bloc h3{font-size:19px;font-weight:800;margin:22px 0 6px;}
+  .bloc p, .bloc li{color:var(--ink-soft);}
+  .bloc p{margin:0 0 14px;}
+  .bloc ul{margin:0 0 14px;padding-left:20px;}
+  .bloc li{margin-bottom:6px;}
+  .bloc strong{color:var(--ink);}
+  dl.fiche{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:8px 0 18px;}
+  dl.fiche dt{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);padding-top:3px;}
+  dl.fiche dd{margin:0;color:var(--ink);font-weight:600;}
+  .tableau{width:100%;border-collapse:collapse;margin:6px 0 18px;font-size:14.5px;}
+  .tableau th, .tableau td{text-align:left;vertical-align:top;padding:10px 10px 10px 0;border-bottom:1px solid var(--line);}
+  .tableau th{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;}
+  .tableau td{color:var(--ink-soft);}
+  .tableau td:first-child{color:var(--ink);font-weight:700;}
+  .maj{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);margin-top:26px;}
+  @media (max-width:600px){
+    .bloc{padding:20px 18px 6px;}
+    dl.fiche{grid-template-columns:1fr;gap:2px;}
+    dl.fiche dd{margin-bottom:10px;}
+    .tableau thead{display:none;}
+    .tableau, .tableau tbody, .tableau tr, .tableau td{display:block;width:100%;}
+    .tableau tr{border-bottom:1px solid var(--line);padding:10px 0;}
+    .tableau td{border:none;padding:2px 0;}
+    .tableau td[data-l]::before{content:attr(data-l) " : ";font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="actus.html">Actus</a>
+    <a href="jeux.html">Jeux</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Informations légales</p>
+    <h1>Mentions légales et confidentialité</h1>
+    <p>Qui édite ce site, qui l'héberge, et ce que nous faisons de vos données. En résumé : nous collectons le strict nécessaire, nous ne vendons rien, et nous n'utilisons aucun traceur publicitaire.</p>
+    <ul class="sommaire">
+      <li><a href="#mentions">Mentions légales</a></li>
+      <li><a href="#confidentialite">Confidentialité</a></li>
+      <li><a href="#droits">Vos droits</a></li>
+    </ul>
+  </header>
+
+  <!-- ===================== MENTIONS LÉGALES ===================== -->
+  <section class="bloc" id="mentions">
+    <h2>Mentions légales</h2>
+
+    <h3>Éditeur du site</h3>
+    <dl class="fiche">
+      <dt>Nom</dt><dd>L'Objectif Châlonnais, association loi 1901</dd>
+      <dt>Siège</dt><dd>7 rue Georges Danton, 51000 Châlons-en-Champagne</dd>
+      <dt id="rna-dt" hidden>N° RNA</dt><dd id="rna-dd" hidden></dd>
+      <dt>Président</dt><dd>M. Aïssa Filali</dd>
+      <dt>Contact</dt><dd><a class="js-contact" href="mailto:lobjectifchalonnais@gmail.com">lobjectifchalonnais@gmail.com</a></dd>
+      <dt id="tel-dt" hidden>Téléphone</dt><dd id="tel-dd" hidden></dd>
+    </dl>
+    <p><strong>Directeur de la publication :</strong> M. Aïssa Filali, président de l'association.</p>
+
+    <h3>Hébergement</h3>
+    <p><strong>Site :</strong> GitHub Pages, service de GitHub, Inc., 88 Colin P. Kelly Jr. Street, San Francisco, CA 94107, États-Unis — <a href="https://github.com" rel="noopener">github.com</a>.</p>
+    <p><strong>Base de données</strong> (bons plans, actus, jeux, abonnements) : Supabase, Inc. — <a href="https://supabase.com" rel="noopener">supabase.com</a>.</p>
+    <p><strong>Nom de domaine :</strong> IONOS SE, Elgendorfer Str. 57, 56410 Montabaur, Allemagne.</p>
+
+    <h3>Propriété intellectuelle</h3>
+    <p>Les textes, photos et vidéos publiés sur ce site sont la propriété de L'Objectif Châlonnais ou de leurs auteurs. Toute reproduction ou réutilisation sans autorisation est interdite. Pour utiliser une de nos photos, écrivez-nous : nous répondons volontiers.</p>
+    <p>Les contributions des visiteurs (bons plans, avis, commentaires, photos) restent la propriété de leurs auteurs, qui autorisent l'association à les afficher sur le site. L'association peut retirer toute contribution contraire à la loi ou hors sujet.</p>
+
+    <h3>Crédits</h3>
+    <ul>
+      <li>Carte : © les contributeurs d'<a href="https://www.openstreetmap.org/copyright" rel="noopener">OpenStreetMap</a>, affichée avec Leaflet.</li>
+      <li>Logos des réseaux sociaux : <a href="https://fontawesome.com" rel="noopener">Font Awesome</a> (licence CC BY 4.0). TikTok, Instagram, YouTube et Facebook sont des marques de leurs propriétaires respectifs ; ce site n'est ni affilié ni parrainé par eux.</li>
+    </ul>
+  </section>
+
+  <!-- ===================== CONFIDENTIALITÉ ===================== -->
+  <section class="bloc" id="confidentialite">
+    <h2>Politique de confidentialité</h2>
+    <p>Le responsable des traitements est l'association L'Objectif Châlonnais, représentée par son président, M. Aïssa Filali. Vos données servent uniquement aux usages décrits ci-dessous. Elles ne sont <strong>ni vendues, ni louées, ni transmises</strong> à des fins commerciales.</p>
+
+    <h3>Ce que nous collectons, et pourquoi</h3>
+    <table class="tableau">
+      <thead><tr><th>Service</th><th>Données</th><th>Pourquoi</th><th>Durée</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Lettre d'information</td>
+          <td data-l="Données">Votre adresse e-mail</td>
+          <td data-l="Pourquoi">Vous envoyer la lettre (votre consentement)</td>
+          <td data-l="Durée">Jusqu'à votre désinscription</td>
+        </tr>
+        <tr>
+          <td>Alertes sur téléphone</td>
+          <td data-l="Données">Un identifiant technique d'abonnement fourni par votre navigateur (ni nom, ni numéro)</td>
+          <td data-l="Pourquoi">Vous envoyer les alertes (votre consentement)</td>
+          <td data-l="Durée">Jusqu'à la désactivation des alertes ou l'expiration de l'abonnement</td>
+        </tr>
+        <tr>
+          <td>Jeux concours</td>
+          <td data-l="Données">Prénom, nom, e-mail, téléphone</td>
+          <td data-l="Pourquoi">Organiser le tirage au sort et contacter les gagnants (règlement du jeu)</td>
+          <td data-l="Durée">Effacées au plus tard 3 mois après le tirage. Seuls le prénom et l'initiale du nom des gagnants restent affichés.</td>
+        </tr>
+        <tr>
+          <td>Bons plans, avis, commentaires, photos</td>
+          <td data-l="Données">Ce que vous publiez, et le prénom ou pseudo que vous indiquez (facultatif)</td>
+          <td data-l="Pourquoi">Afficher votre contribution sur la carte (votre choix de publier)</td>
+          <td data-l="Durée">Tant que la contribution est en ligne</td>
+        </tr>
+        <tr>
+          <td>Protection contre les abus</td>
+          <td data-l="Données">Une empreinte chiffrée de votre adresse IP lors d'un envoi</td>
+          <td data-l="Pourquoi">Limiter le spam et les tentatives de piratage (intérêt légitime)</td>
+          <td data-l="Durée">Au plus 2 jours</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>Ce qui reste sur votre appareil</h3>
+    <p>Le site garde sur votre téléphone ou votre ordinateur quelques réglages pratiques : vos réponses au quiz, vos participations aux jeux, votre choix pour les alertes, et une copie des pages pour l'utilisation hors ligne. Ces informations ne nous sont pas envoyées et vous pouvez les effacer en vidant les données du site dans votre navigateur.</p>
+    <p><strong>Aucun cookie publicitaire, aucun outil de mesure d'audience, aucun pixel de réseau social.</strong> C'est pourquoi aucun bandeau de cookies ne vous est demandé.</p>
+
+    <h3>Services extérieurs</h3>
+    <p>Pour fonctionner, certaines pages font appel à des services extérieurs, qui reçoivent alors votre adresse IP comme pour toute visite web :</p>
+    <ul>
+      <li><strong>Google Fonts</strong>, pour les polices d'écriture ;</li>
+      <li><strong>OpenStreetMap</strong>, pour les fonds de carte des bons plans ;</li>
+      <li><strong>YouTube</strong>, uniquement quand un article contient une vidéo ;</li>
+      <li>le service d'alertes de votre navigateur (Google, Apple ou Mozilla), si vous activez les alertes.</li>
+    </ul>
+    <p>Certains de ces prestataires, ainsi que nos hébergeurs GitHub et Supabase, sont établis aux États-Unis. Les transferts de données correspondants sont encadrés par les garanties prévues par le RGPD (clauses contractuelles types de la Commission européenne ou cadre de protection des données UE–États-Unis).</p>
+
+    <h3>Sécurité</h3>
+    <p>Les échanges avec le site sont chiffrés (HTTPS). Les coordonnées des participants aux jeux ne sont accessibles qu'à l'équipe de l'association, avec un code réservé, et ne sont jamais affichées publiquement.</p>
+  </section>
+
+  <!-- ===================== DROITS ===================== -->
+  <section class="bloc" id="droits">
+    <h2>Vos droits</h2>
+    <p>Conformément au Règlement général sur la protection des données (RGPD) et à la loi Informatique et Libertés, vous pouvez à tout moment :</p>
+    <ul>
+      <li>savoir quelles données nous avons sur vous et en obtenir une copie ;</li>
+      <li>les faire corriger ou effacer ;</li>
+      <li>vous opposer à leur utilisation ou en demander la limitation ;</li>
+      <li>retirer votre consentement (désinscription de la lettre, désactivation des alertes depuis l'accueil du site).</li>
+    </ul>
+    <p>Pour cela, écrivez-nous à <a class="js-contact" href="mailto:lobjectifchalonnais@gmail.com">lobjectifchalonnais@gmail.com</a>. Nous répondons dans un délai d'un mois au plus.</p>
+    <p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la CNIL : <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">cnil.fr/fr/plaintes</a>.</p>
+    <p class="maj">Dernière mise à jour : 9 octobre 2026</p>
+  </section>
+</main>
+
+<footer class="oc-pied">
+  <span>© L'Objectif Châlonnais · Association loi 1901</span>
+  <a href="mentions-legales.html" aria-current="page">Mentions légales et confidentialité</a>
+</footer>
+
+<script src="config.js"></script>
+<script>
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  if(cfg.contact){
+    document.querySelectorAll('.js-contact').forEach(a=>{ a.textContent = cfg.contact; a.href = 'mailto:' + cfg.contact; });
+  }
+  if(cfg.telephone){
+    const dd = document.getElementById('tel-dd');
+    const a = document.createElement('a');
+    a.href = 'tel:' + String(cfg.telephone).replace(/[^\d+]/g, '');
+    a.textContent = cfg.telephone;
+    dd.appendChild(a);
+    dd.hidden = false; document.getElementById('tel-dt').hidden = false;
+  }
+  if(cfg.rna){
+    document.getElementById('rna-dd').textContent = cfg.rna;
+    document.getElementById('rna-dd').hidden = false; document.getElementById('rna-dt').hidden = false;
+  }
+})();
+</script>
+<script src="app.js"></script>
+</body>
+</html>

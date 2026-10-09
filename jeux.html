@@ -178,6 +178,11 @@
   </section>
 </main>
 
+<footer class="oc-pied">
+  <span>© L'Objectif Châlonnais · Association loi 1901</span>
+  <a href="mentions-legales.html">Mentions légales et confidentialité</a>
+</footer>
+
 <script src="config.js"></script>
 <script src="actus-rendu.js"></script>
 <script src="app.js"></script>
@@ -214,7 +219,7 @@
       <p><strong>Participation.</strong> Jeu gratuit et sans obligation d'achat, ouvert à toute personne physique majeure résidant en France. Une seule participation par personne (même e-mail ou même téléphone). Pour participer, il faut avoir activé les alertes de L'Objectif Châlonnais sur son appareil et remplir le formulaire avant le ${esc(finTexte(j.date_fin))}.</p>
       <p><strong>Lot${j.nb_gagnants > 1 ? 's' : ''}.</strong> ${esc(j.lot || 'Voir la description du jeu.')} ${j.nb_gagnants > 1 ? `${j.nb_gagnants} gagnants seront tirés au sort.` : 'Un gagnant sera tiré au sort.'} Les lots ne sont ni échangeables ni remboursables.</p>
       <p><strong>Tirage et résultats.</strong> Le tirage au sort a lieu après la clôture parmi les participations valides. Le prénom et l'initiale du nom des gagnants sont publiés sur cette page et sur nos réseaux. Les gagnants sont contactés par e-mail ou téléphone ; sans réponse sous 15 jours, le lot est remis en jeu.</p>
-      <p><strong>Données personnelles.</strong> Vos coordonnées servent uniquement à l'organisation de ce jeu et au contact des gagnants. Elles ne sont ni vendues ni transmises, et sont effacées au plus tard 3 mois après le tirage. Pour toute question ou pour exercer vos droits : ${esc(contact)}.</p>
+      <p><strong>Données personnelles.</strong> Vos coordonnées servent uniquement à l'organisation de ce jeu et au contact des gagnants. Elles ne sont ni vendues ni transmises, et sont effacées au plus tard 3 mois après le tirage. Pour toute question ou pour exercer vos droits : ${esc(contact)}. Détails dans notre <a href="mentions-legales.html#confidentialite">politique de confidentialité</a>.</p>
       ${j.reglement ? `<p><strong>Conditions particulières.</strong> ${esc(j.reglement)}</p>` : ''}
       <p>Ce jeu n'est ni organisé ni parrainé par Meta, Instagram, TikTok ou YouTube.</p>
     </div>`;

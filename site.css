@@ -110,3 +110,12 @@
 @keyframes oc-fade{from{opacity:0}to{opacity:1}}
 @keyframes oc-rise{from{transform:translateY(24px);opacity:0}to{transform:none;opacity:1}}
 @media (prefers-reduced-motion: reduce){ .oc-welcome,.oc-welcome-card{animation:none;} }
+
+/* Pied de page commun (pages intérieures) */
+.oc-pied{
+  display:flex;flex-wrap:wrap;gap:6px 22px;justify-content:center;
+  padding:22px 20px calc(26px + env(safe-area-inset-bottom, 0px));
+  border-top:1px solid var(--line, #D7E3EA);
+  font-size:13.5px;color:var(--ink-soft, #4B6372);text-align:center;
+}
+.oc-pied a{color:inherit;font-weight:700;}
