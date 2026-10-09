@@ -12,6 +12,7 @@
 import fs from 'node:fs';
 import path from 'node:path';
 import vm from 'node:vm';
+import crypto from 'node:crypto';
 
 const racine = process.cwd();
 const dossier = path.join(racine, 'a');
@@ -38,6 +39,21 @@ function adresseSite(){
 }
 const SITE = adresseSite();
 
+// Dimensions d'une image JPEG/PNG (sans bibliothèque) : Facebook et WhatsApp
+// affichent la photo dès le premier partage quand largeur et hauteur sont fournies.
+function dimensions(buf){
+  if(buf[0] === 0x89 && buf[1] === 0x50) return { w: buf.readUInt32BE(16), h: buf.readUInt32BE(20) };
+  if(buf[0] !== 0xFF || buf[1] !== 0xD8) return null;
+  let i = 2;
+  while(i + 9 < buf.length){
+    if(buf[i] !== 0xFF){ i++; continue; }
+    const m = buf[i + 1];
+    if(m >= 0xC0 && m <= 0xCF && ![0xC4, 0xC8, 0xCC].includes(m)) return { h: buf.readUInt16BE(i + 5), w: buf.readUInt16BE(i + 7) };
+    i += 2 + buf.readUInt16BE(i + 2);
+  }
+  return null;
+}
+
 const esc = (s)=> String(s == null ? '' : s)
   .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
 const court = (s, n)=> { s = String(s || '').replace(/\s+/g, ' ').trim(); return s.length > n ? s.slice(0, n - 1).trimEnd() + '…' : s; };
@@ -60,10 +76,9 @@ const RUBRIQUES = { actu:'Actualité locale', sport:'Sport', culture:'Culture', 
 
 for(const a of actus){
   if(!/^[a-z0-9]+(-[a-z0-9]+)*$/.test(a.slug)) continue;
-  const versionImage = Date.parse(a.modifie_le || a.publie_le || '') || 0;
 
   // Photo
-  let image = SITE + 'icons/partage.jpg', typeImage = 'image/jpeg';
+  let image = SITE + 'icons/partage.jpg', typeImage = 'image/jpeg', dims = { w: 1200, h: 630 };
   // La version réduite (640 px, < 100 Ko) passe partout : WhatsApp ignore les images trop lourdes
   const data = a.miniature || a.photo;
   const m = data && data.match(/^data:image\/(jpeg|png|webp);base64,([A-Za-z0-9+/]+=*)$/);
@@ -74,8 +89,11 @@ for(const a of actus){
     const chemin = path.join(dossier, fichier);
     if(!fs.existsSync(chemin) || !fs.readFileSync(chemin).equals(contenu)) fs.writeFileSync(chemin, contenu);
     gardes.add(fichier);
-    image = `${SITE}a/${fichier}?v=${versionImage}`;
+    // nouvelle adresse dès que la photo change : les applis ne gardent pas l'ancienne en mémoire
+    const empreinte = crypto.createHash('sha1').update(contenu).digest('hex').slice(0, 10);
+    image = `${SITE}a/${fichier}?v=${empreinte}`;
     typeImage = 'image/' + m[1];
+    dims = dimensions(contenu);
   }
 
   const cible = `../actus.html#${a.slug}`;
@@ -96,7 +114,10 @@ for(const a of actus){
 <meta property="og:description" content="${esc(desc)}">
 <meta property="og:url" content="${esc(SITE + 'a/' + a.slug + '.html')}">
 <meta property="og:image" content="${esc(image)}">
-<meta property="og:image:type" content="${typeImage}">
+<meta property="og:image:secure_url" content="${esc(image)}">
+<meta property="og:image:type" content="${typeImage}">${dims ? `
+<meta property="og:image:width" content="${dims.w}">
+<meta property="og:image:height" content="${dims.h}">` : ''}
 <meta property="og:image:alt" content="${esc(titre)}">
 <meta property="article:published_time" content="${esc(a.publie_le || '')}">
 <meta property="article:section" content="${esc(RUBRIQUES[a.categorie] || 'Actualité')}">
