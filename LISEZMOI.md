@@ -8,6 +8,9 @@
 | `actus.html` | La rubrique Actualités (liste et articles) |
 | `rediger.html` | Rédaction des actus, réservée à l'équipe (non visible dans le menu) |
 | `actus-rendu.js` | Mise en forme des articles (ne pas modifier) |
+| `.github/workflows/apercus.yml`, `scripts/apercus.mjs` | Robot qui fabrique les aperçus de partage des articles (ne pas modifier) |
+| `a/` | Pages de partage des articles, fabriquées par le robot (ne pas modifier) |
+| `404.html` | Page « introuvable », qui redirige aussi les liens de partage pas encore fabriqués |
 | `bons-plans.html` | Le guide des bons plans, avec la carte OpenStreetMap |
 | `galerie.html` | La galerie photo, alimentée par les dossiers déposés dans Supabase |
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
@@ -135,16 +138,17 @@ notify pgrst, 'reload schema';
 2. **Secrets** : *Edge Functions* → *Secrets* → ajoute :
    - `VAPID_PUBLIC_KEY` et `VAPID_PRIVATE_KEY` (les deux clés données par Claude ; la clé privée ne doit jamais être publiée sur GitHub)
    - `VAPID_SUBJECT` : `mailto:lobjectifchalonnais@gmail.com`
-   - `CODE_ENVOI` : un code de ton choix, que tu taperas pour envoyer une alerte
 
-3. **Fonction d'envoi** : *Edge Functions* → *Deploy a new function* → *Via Editor*. Nom : `envoyer-notification`. Remplace tout le code par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*.
+3. **Code** : *SQL Editor* → colle `supabase/alertes-code.sql` → *Run*. Le code demandé pour envoyer une alerte est ton **code modérateur**.
 
-4. Dans les réglages de la fonction (*Details*), **désactive « Enforce JWT verification »** (ou « Verify JWT ») et enregistre. C'est ton code d'envoi qui protège la fonction.
+4. **Fonction d'envoi** : *Edge Functions* → *Deploy a new function* → *Via Editor*. Nom : `envoyer-notification`. Remplace tout le code par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*.
+
+5. Dans les réglages de la fonction (*Details*), **désactive « Enforce JWT verification »** (ou « Verify JWT ») et enregistre. C'est ton code modérateur qui protège la fonction.
 
 ### Envoyer une alerte
 
 1. Ouvre `…/objectif-chalonnais/envoyer.html` (garde cette adresse en favori, elle n'est pas dans le menu).
-2. Tape ton code, un titre, un message, et choisis ce qui s'ouvre au toucher : une page du site, votre compte TikTok, Instagram ou YouTube (liens repris de `config.js`), ou une vidéo précise (colle son lien de partage).
+2. Tape ton code modérateur, un titre, un message, et choisis ce qui s'ouvre au toucher : une page du site, votre compte TikTok, Instagram ou YouTube (liens repris de `config.js`), ou une vidéo précise (colle son lien de partage).
 3. *M'envoyer un test* pour vérifier sur ton téléphone, puis *Envoyer à tous*.
 
 Les visiteurs s'abonnent avec le bouton « Recevoir les alertes » de l'accueil. Sur iPhone, ils doivent d'abord installer l'application.
@@ -208,6 +212,14 @@ select oc_private.restaurer(123);
 La photo est redimensionnée automatiquement : envoie-la directement depuis ton téléphone. Ce que tu tapes pour un nouvel article est gardé sur l'appareil tant qu'il n'est pas enregistré.
 
 Pour modifier ou supprimer un article, clique dessus dans la liste de gauche. L'adresse d'un article ne change pas si tu modifies son titre : les liens déjà partagés restent valables.
+
+## 9. Aperçus de partage des articles
+
+Le bouton *Partager* d'un article donne un lien en `…/a/nom-de-l-article.html`. Dans WhatsApp, Facebook ou Messenger, ce lien affiche le titre, le résumé et la photo de l'article, puis ouvre l'article.
+
+Ces pages sont fabriquées par un robot GitHub toutes les 15 minutes (onglet *Actions* → *Aperçus des actus*). Pour l'installer, une seule fois : sur GitHub, *Add file* → *Create new file*, nom `.github/workflows/apercus.yml`, colle le contenu du fichier, puis *Commit changes*. Pour lancer le robot tout de suite : *Actions* → *Aperçus des actus* → *Run workflow*.
+
+Si tu passes un jour à un nom de domaine à toi, ajoute-le dans *Settings* → *Secrets and variables* → *Actions* → onglet *Variables* : nom `SITE_URL`, valeur `https://ton-domaine.fr/`.
 
 ## Bon à savoir
 

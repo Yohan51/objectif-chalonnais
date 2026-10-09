@@ -4,7 +4,10 @@
 // → Via Editor, nom : envoyer-notification
 //
 // Secrets nécessaires (Edge Functions → Secrets) :
-//   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT, CODE_ENVOI
+//   VAPID_PUBLIC_KEY, VAPID_PRIVATE_KEY, VAPID_SUBJECT
+// Le code demandé pour envoyer est le CODE MODÉRATEUR (vérifié par la base,
+// voir supabase/alertes-code.sql). L'ancien secret CODE_ENVOI, s'il existe
+// encore, reste accepté.
 // =====================================================================
 
 const CORS = {
@@ -107,21 +110,36 @@ if (typeof Deno !== "undefined" && Deno.serve) Deno.serve(async (req) => {
   const VAPID_PUBLIC = env("VAPID_PUBLIC_KEY");
   const VAPID_PRIVATE = env("VAPID_PRIVATE_KEY");
   const SUBJECT = env("VAPID_SUBJECT") || "mailto:lobjectifchalonnais@gmail.com";
-  const CODE = env("CODE_ENVOI");
+  const ANCIEN_CODE = env("CODE_ENVOI");
   const SB_URL = env("SUPABASE_URL");
   const SB_KEY = env("SERVICE_KEY") || env("SUPABASE_SERVICE_ROLE_KEY");
-  if (!VAPID_PUBLIC || !VAPID_PRIVATE || !CODE) return json({ erreur: "Secrets manquants dans Supabase (VAPID ou CODE_ENVOI)." }, 500);
+  if (!VAPID_PUBLIC || !VAPID_PRIVATE) return json({ erreur: "Secrets manquants dans Supabase (VAPID)." }, 500);
   if (!SB_URL || !SB_KEY) return json({ erreur: "Clé d'accès à la base introuvable (ajoute le secret SERVICE_KEY)." }, 500);
-
-  let data: { code?: string; titre?: string; message?: string; lien?: string; endpoint?: string };
-  try { data = await req.json(); } catch { return json({ erreur: "Requête illisible." }, 400); }
-  if ((data.code || "") !== CODE) return json({ erreur: "Code d'envoi incorrect." }, 403);
-  const titre = (data.titre || "").trim().slice(0, 80);
-  const message = (data.message || "").trim().slice(0, 240);
-  if (!titre) return json({ erreur: "Le titre est obligatoire." }, 400);
 
   const dbHeaders: Record<string, string> = { apikey: SB_KEY };
   if (SB_KEY.startsWith("eyJ")) dbHeaders.Authorization = `Bearer ${SB_KEY}`;
+
+  let data: { code?: string; titre?: string; message?: string; lien?: string; endpoint?: string };
+  try { data = await req.json(); } catch { return json({ erreur: "Requête illisible." }, 400); }
+
+  // Vérification du code modérateur par la base (8 essais ratés = blocage 15 minutes)
+  const code = (data.code || "").trim();
+  let codeOk = !!ANCIEN_CODE && code === ANCIEN_CODE;
+  if (!codeOk && code) {
+    const ip = (req.headers.get("cf-connecting-ip") || (req.headers.get("x-forwarded-for") || "").split(",")[0] || "").trim();
+    const v = await fetch(`${SB_URL}/rest/v1/rpc/oc_verifier_code_serveur`, {
+      method: "POST",
+      headers: { ...dbHeaders, "Content-Type": "application/json" },
+      body: JSON.stringify({ p_code: code, p_ip: ip }),
+    });
+    if (!v.ok) return json({ erreur: "Vérification du code impossible : as-tu bien exécuté alertes-code.sql dans Supabase ?" }, 500);
+    codeOk = (await v.json()) === true;
+  }
+  if (!codeOk) return json({ erreur: "Code modérateur incorrect (après 8 essais ratés, l'accès est bloqué 15 minutes)." }, 403);
+
+  const titre = (data.titre || "").trim().slice(0, 80);
+  const message = (data.message || "").trim().slice(0, 240);
+  if (!titre) return json({ erreur: "Le titre est obligatoire." }, 400);
 
   let subs: Sub[];
   if (data.endpoint) {

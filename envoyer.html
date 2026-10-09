@@ -98,8 +98,8 @@
 
   <form id="form" novalidate>
     <div class="field">
-      <label for="f-code">Code d'envoi</label>
-      <input id="f-code" type="password" autocomplete="current-password" placeholder="Le code choisi dans Supabase">
+      <label for="f-code">Code modérateur</label>
+      <input id="f-code" type="password" autocomplete="current-password" placeholder="Le même code que pour la carte et la rédaction">
     </div>
     <div class="field">
       <label for="f-titre">Titre <small id="c-titre">0/60</small></label>
@@ -158,7 +158,8 @@
   const $ = (id)=> document.getElementById(id);
   const CODE_KEY = 'oc-code-envoi';
 
-  try{ $('f-code').value = localStorage.getItem(CODE_KEY) || ''; }catch(e){}
+  // Code mémorisé sur cet appareil, ou repris de la rédaction (même onglet)
+  try{ $('f-code').value = sessionStorage.getItem('oc-redaction-code') || localStorage.getItem(CODE_KEY) || ''; }catch(e){}
 
   // Réseaux renseignés dans config.js
   const RESEAUX = [['tiktok','Notre compte TikTok'],['instagram','Notre compte Instagram'],['youtube','Notre chaîne YouTube'],['facebook','Notre page Facebook']];
@@ -220,7 +221,7 @@
 
   function valider(){
     if(!URL_BASE || !CLE){ status('Supabase n\'est pas configuré dans config.js.', 'err'); return false; }
-    if(!$('f-code').value.trim()){ status('Saisis le code d\'envoi.', 'err'); $('f-code').focus(); return false; }
+    if(!$('f-code').value.trim()){ status('Saisis le code modérateur.', 'err'); $('f-code').focus(); return false; }
     if(!$('f-titre').value.trim()){ status('Le titre est obligatoire.', 'err'); $('f-titre').focus(); return false; }
     if($('f-lien').value === 'externe' && !lienExterne()){ status('Colle un lien complet, qui commence par https://', 'err'); $('f-lien-externe').focus(); return false; }
     return true;
