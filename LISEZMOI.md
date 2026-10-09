@@ -11,7 +11,7 @@
 | `.github/workflows/apercus.yml`, `scripts/apercus.mjs` | Robot qui fabrique les aperçus de partage des articles (ne pas modifier) |
 | `a/` | Pages de partage des articles, fabriquées par le robot (ne pas modifier) |
 | `404.html` | Page « introuvable », qui redirige aussi les liens de partage pas encore fabriqués |
-| `bons-plans.html` | Le guide des bons plans, avec la carte OpenStreetMap |
+| `bons-plans.html` | Le guide des bons plans (liste, filtres, notes, commentaires) |
 | `galerie.html` | La galerie photo, alimentée par les dossiers déposés dans Supabase |
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
 | `stats.html`, `compteur.js`, `supabase/compteur.sql` | Compteur de visites anonyme et page des statistiques de l'équipe |
@@ -25,7 +25,7 @@
 | `logo.png` | Logo de l'association |
 | `envoyer.html` | Page réservée pour envoyer une alerte (non visible dans le menu) |
 | `supabase/actus.sql` | Table des actualités, à exécuter dans Supabase après `securite.sql` |
-| `supabase/securite.sql` | Protection de la carte des bons plans, à exécuter dans Supabase |
+| `supabase/securite.sql` | Protection du guide des bons plans, à exécuter dans Supabase |
 | `push.js`, `supabase/envoyer-notification.ts` | Alertes : abonnement des téléphones et fonction d'envoi à coller dans Supabase |
 | `manifest.webmanifest`, `sw.js`, `app.js`, `offline.html`, `icons/` | Mode application : installation sur téléphone et fonctionnement hors ligne (ne pas modifier) |
 
@@ -168,7 +168,7 @@ notify pgrst, 'reload schema';
 
 Les visiteurs s'abonnent avec le bouton « Recevoir les alertes » de l'accueil. Sur iPhone, ils doivent d'abord installer l'application.
 
-## 7. Sécurité de la carte des bons plans
+## 7. Sécurité du guide des bons plans
 
 Les visiteurs peuvent **ajouter** (bons plans, notes, commentaires, photos, signalements) mais ni effacer ni modifier ce qui existe. Seul le code modérateur permet de supprimer, publier ou marquer un partenaire, et ce code est vérifié par Supabase, plus dans la page.
 
@@ -295,7 +295,7 @@ Réglages facultatifs dans `config.js`, après la ligne `contact` :
 
 ## Bon à savoir
 
-- **Modération** : bouton *Modération* de la carte, avec le code choisi à la section 7.
-- **Ajouter un lieu depuis la carte** : un clic (ou un appui) sur la carte propose « Ajouter un bon plan ici », avec le quartier présélectionné.
+- **Modération** : lien *Espace modérateur* en bas de la page des bons plans, avec le code choisi à la section 7.
+- **Ajouter un bon plan** : bouton *Ajouter un bon plan* en haut de la page. Sur place, le bouton *Je suis sur place* du formulaire enregistre la position exacte, utilisée par le tri « Près de moi ».
 - **Sauvegardes** : en plus de l'historique automatique, exporte de temps en temps la table `kv` (*Table Editor → Export*).
 - **Sauvegarde automatique** : voir la section 7 pour revenir à une version précédente.

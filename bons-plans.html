@@ -3,12 +3,13 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Bons plans à Châlons</title>
+<title>Bons plans — L'Objectif Châlonnais</title>
+<meta name="description" content="Restos, balades, lieux insolites et sorties à Châlons-en-Champagne, repérés et notés par les Chalonnais.">
 <meta property="og:type" content="website">
 <meta property="og:site_name" content="L'Objectif Châlonnais">
 <meta property="og:locale" content="fr_FR">
 <meta property="og:title" content="Les bons plans de Châlons">
-<meta property="og:description" content="La carte participative des bonnes adresses, balades et sorties à Châlons-en-Champagne.">
+<meta property="og:description" content="Les bonnes adresses, balades et sorties de Châlons-en-Champagne, repérées et notées par les Chalonnais.">
 <meta property="og:url" content="https://lobjectifchalonnais.fr/bons-plans.html">
 <meta property="og:image" content="https://lobjectifchalonnais.fr/icons/partage.jpg">
 <meta property="og:image:width" content="1200">
@@ -23,441 +24,194 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="default">
 <link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
 <link rel="icon" type="image/png" href="icons/favicon-48.png">
-<link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="">
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@500;600;700;800&family=Nunito:wght@400;500;600;700;800&family=IBM+Plex+Mono:wght@400;500&display=swap" rel="stylesheet">
 <style>
+  /* Mêmes couleurs que le reste du site (anciens noms gardés pour les fenêtres) */
   :root{
-    --craie:#F7F2EA;
-    --craie-2:#EFE8DB;
-    --encre:#0A0A0A;
-    --encre-soft:#4A4F54;
-    --bouteille:#0A0A0A;
-    --bouteille-2:#1C1C1C;
-    --or:#C9A227;
-    --brique:#B5502B;
+    --craie:#F4F8FA;      /* fond */
+    --craie-2:#E3EDF2;    /* fond secondaire */
+    --surface:#FFFFFF;
+    --encre:#183140;      /* texte */
+    --encre-soft:#4B6372;
+    --muted:#7A8F9C;
+    --bouteille:#183140;  /* boutons foncés */
+    --bouteille-2:#23465A;
+    --or:#B8860B;
+    --or-bg:#FFF4D6;
+    --brique:#C0472F;
     --ardoise:#4A6670;
     --prune:#6D3B5E;
-    --line:#E5DFD2;
+    --line:#D7E3EA;
     --sky:#9FD8F5;
     --sky-deep:#2E97C7;
     --navy:#183140;
-    --radius:10px;
+    --radius:14px;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --craie:#0F2230; --craie-2:#1D3A4C; --surface:#183140; --encre:#EAF4F9; --encre-soft:#A9C2D0; --muted:#7F99A8;
+      --bouteille:#EAF4F9; --bouteille-2:#C9DFEA; --line:#2B4A5E; --sky-deep:#6CC1EA; --navy:#EAF4F9;
+      --or:#F2C76B; --or-bg:#3A2E12; --brique:#F08A73; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --craie:#0F2230; --craie-2:#1D3A4C; --surface:#183140; --encre:#EAF4F9; --encre-soft:#A9C2D0; --muted:#7F99A8;
+    --bouteille:#EAF4F9; --bouteille-2:#C9DFEA; --line:#2B4A5E; --sky-deep:#6CC1EA; --navy:#EAF4F9;
+    --or:#F2C76B; --or-bg:#3A2E12; --brique:#F08A73; color-scheme:dark;
   }
   *{box-sizing:border-box;}
-  html,body{margin:0;padding:0;height:100%;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;padding:0;}
   body{
     background:var(--craie);
     color:var(--encre);
-    font-family:'Nunito',sans-serif;
-    display:flex;
-    flex-direction:column;
-    height:100vh;
-    height:100dvh;
-    overflow:hidden;
+    font-family:var(--font-body);
+    font-size:16px;
+    line-height:1.55;
   }
+  a{color:var(--sky-deep);}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
 
-  /* ---------- HEADER ---------- */
-  header{
-    background:var(--craie);
-    color:var(--bouteille);
-    padding:12px 20px;
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    gap:16px;
-    flex-wrap:wrap;
-    border-bottom:3px solid var(--sky-deep);
-    z-index:20;
-  }
-  .brand{
-    display:flex;
-    align-items:center;
-    gap:14px;
-    line-height:1.1;
-  }
-  .brand img{
-    height:38px;
-    width:auto;
-    display:block;
-  }
-  .brand .brand-text{
-    display:flex;
-    flex-direction:column;
-    gap:2px;
-    border-left:1.5px solid var(--line);
-    padding-left:14px;
-  }
-  .brand .eyebrow{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
-    letter-spacing:0.12em;
-    text-transform:uppercase;
-    color:var(--sky-deep);
-    font-weight:600;
-  }
-  .brand h1{
-    font-family:'Baloo 2',sans-serif;
-    font-weight:700;
-    font-size:17px;
-    margin:0;
-    color:var(--encre);
-  }
-  .brand .sub{
-    font-size:11.5px;
-    color:var(--encre-soft);
-    margin-top:1px;
-  }
-  .header-actions{
-    display:flex;
-    align-items:center;
-    gap:10px;
-    flex-wrap:wrap;
-    justify-content:flex-end;
-  }
-  #add-btn{
-    position:fixed;
-    right:22px;
-    bottom:78px;
-    z-index:60;
-    display:flex;
-    align-items:center;
-    gap:9px;
-    font-family:'Nunito',sans-serif;
-    font-weight:700;
-    font-size:15px;
-    background:var(--bouteille);
-    color:var(--craie);
-    border:none;
-    padding:15px 22px 15px 18px;
-    border-radius:999px;
-    cursor:pointer;
-    box-shadow:0 6px 18px rgba(10,10,10,0.28);
-    transition:transform .15s ease, box-shadow .15s ease, background .15s ease;
-  }
-  #add-btn .fab-icon{
-    font-size:20px;
-    line-height:1;
-    display:inline-block;
-  }
-  #add-btn::after{
-    content:'';
-    position:absolute;
-    inset:0;
-    border-radius:999px;
-    box-shadow:0 0 0 0 rgba(159,216,245,0.55);
-    animation:fabPulse 2.8s ease-out infinite;
-    pointer-events:none;
-  }
-  @keyframes fabPulse{
-    0%{box-shadow:0 0 0 0 rgba(159,216,245,0.55);}
-    70%{box-shadow:0 0 0 14px rgba(159,216,245,0);}
-    100%{box-shadow:0 0 0 0 rgba(159,216,245,0);}
-  }
-  #add-btn:hover{transform:translateY(-2px) scale(1.03);box-shadow:0 10px 24px rgba(10,10,10,0.32);background:var(--bouteille-2);}
-  #add-btn:active{transform:translateY(0) scale(1);}
-  @media (prefers-reduced-motion: reduce){
-    #add-btn::after{animation:none;}
-  }
-  @media (max-width:520px){
-    #add-btn{padding:16px;border-radius:50%;bottom:92px;}
-    #add-btn .fab-label{display:none;}
-  }
+  /* ---------- MISE EN PAGE (comme les autres pages du site) ---------- */
+  .bp-wrap{max-width:1080px;margin:0 auto;padding:0 20px 56px;}
+  .page-head{padding-block:44px 22px;}
+  .page-head .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .page-head h1{font-family:var(--font-display);font-size:clamp(34px,5vw,52px);font-weight:800;line-height:1.1;margin:8px 0 0;text-wrap:balance;}
+  .page-head p{color:var(--encre-soft);max-width:60ch;margin:10px 0 0;font-size:17px;}
 
-  /* ---------- SEARCH BAR ---------- */
+  /* recherche + ajouter */
+  .bp-outils{display:flex;gap:12px;align-items:center;flex-wrap:wrap;}
   #search-bar{
-    display:flex;
-    align-items:center;
-    gap:8px;
-    padding:10px 20px;
-    background:var(--craie);
-    border-bottom:1px solid var(--line);
-    flex-shrink:0;
+    flex:1 1 320px;display:flex;align-items:center;gap:10px;
+    background:var(--surface);border:1.5px solid var(--line);border-radius:999px;padding:0 18px;min-height:50px;
   }
-  #search-icon{font-size:14px;opacity:0.6;flex-shrink:0;}
-  #search-input{
-    flex:1;
-    border:none;
-    background:transparent;
-    font-family:'Nunito',sans-serif;
-    font-size:13.5px;
-    color:var(--encre);
-    outline:none;
-    min-width:0;
+  #search-bar:focus-within{border-color:var(--sky-deep);}
+  #search-icon{font-size:15px;opacity:.6;flex-shrink:0;}
+  #search-input{flex:1;border:none;background:transparent;font:inherit;font-size:16px;color:var(--encre);outline:none;min-width:0;}
+  #search-input::placeholder{color:var(--muted);}
+  #search-clear{font-family:var(--font-mono);font-size:13px;color:var(--encre-soft);cursor:pointer;padding:4px;flex-shrink:0;}
+  #add-btn{
+    display:inline-flex;align-items:center;gap:8px;min-height:50px;
+    font:inherit;font-weight:800;font-size:15px;
+    background:var(--bouteille);color:var(--craie);border:none;border-radius:999px;padding:0 24px;cursor:pointer;
+    transition:transform .12s ease, background .15s ease;
   }
-  #search-input::placeholder{color:#9A9A9A;}
-  #search-clear{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:12px;
-    color:var(--encre-soft);
-    cursor:pointer;
-    flex-shrink:0;
-    padding:2px 4px;
-  }
-  #search-clear:hover{color:var(--sky-deep);}
+  #add-btn:hover{transform:translateY(-1px);background:var(--bouteille-2);}
+  #add-btn .fab-icon{font-size:20px;line-height:1;}
 
-  /* ---------- FILTER BAR ---------- */
+  /* catégories : une seule rangée qui défile */
   #filters{
-    display:flex;
-    gap:8px;
-    padding:10px 20px;
-    background:var(--craie-2);
-    border-bottom:1px solid var(--line);
-    overflow-x:auto;
-    flex-shrink:0;
+    display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;
+    margin:18px -20px 0;padding:2px 20px 4px;scroll-padding-inline:20px;
   }
-  #quartier-filters{
-    display:flex;
-    gap:8px;
-    padding:8px 20px;
-    background:var(--craie);
-    border-bottom:1px solid var(--line);
-    overflow-x:auto;
-    flex-shrink:0;
-  }
-  .chip-quartier{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    white-space:nowrap;
-    padding:6px 12px;
-    border-radius:999px;
-    border:1.5px solid var(--sky-deep);
-    background:#fff;
-    color:var(--sky-deep);
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:5px;
-    transition:all .12s ease;
-  }
-  .chip-quartier.active{
-    background:var(--sky-deep);
-    color:#fff;
-  }
-  .chip-quartier:hover{opacity:0.85;}
+  #filters::-webkit-scrollbar{display:none;}
   .chip{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11.5px;
-    letter-spacing:0.03em;
-    white-space:nowrap;
-    padding:7px 13px;
-    border-radius:999px;
-    border:1.5px solid var(--line);
-    background:var(--craie);
-    color:var(--encre-soft);
-    cursor:pointer;
-    display:flex;
-    align-items:center;
-    gap:6px;
-    transition:all .12s ease;
+    flex-shrink:0;display:inline-flex;align-items:center;gap:7px;
+    font:inherit;font-weight:700;font-size:14px;white-space:nowrap;
+    padding:8px 15px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--surface);color:var(--encre);cursor:pointer;transition:border-color .12s ease, background .12s ease;
   }
-  .chip .dot{width:8px;height:8px;border-radius:50%;flex-shrink:0;}
-  .chip.active{
-    background:var(--encre);
-    color:var(--craie);
-    border-color:var(--encre);
-  }
-  .chip:hover{border-color:var(--encre-soft);}
+  .chip:hover{border-color:var(--sky-deep);}
+  .chip.active{background:var(--bouteille);border-color:var(--bouteille);color:var(--craie);}
+  .chip .ico{font-size:15px;line-height:1;}
 
-  /* ---------- SIGNATURE: VIEWFINDER CORNERS ---------- */
-  /* A nod to L'Objectif's own mark — the lens watching over the town. */
-  .viewfinder,
-  .card{position:relative;}
-  .viewfinder::before, .card::before,
-  .viewfinder::after, .card::after{
-    content:'';
-    position:absolute;
-    width:14px;height:14px;
-    border:2px solid var(--sky-deep);
-    opacity:0;
-    transition:opacity .18s ease, transform .18s ease;
-    pointer-events:none;
+  /* quartier, tri, nombre */
+  .bp-barre{display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin:14px 0 20px;}
+  .bp-select{
+    appearance:none;-webkit-appearance:none;font:inherit;font-size:14px;font-weight:700;color:var(--encre);
+    background:var(--surface) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' fill='none' stroke='%234B6372' stroke-width='1.8'/%3E%3C/svg%3E") no-repeat right 14px center;
+    border:1.5px solid var(--line);border-radius:999px;padding:9px 38px 9px 16px;cursor:pointer;
   }
-  .viewfinder::before, .card::before{
-    top:9px;left:9px;
-    border-right:none;border-bottom:none;
-    transform:translate(5px,5px);
+  .bp-select:focus{border-color:var(--sky-deep);outline:none;}
+  #panel-count{margin-left:auto;font-family:var(--font-mono);font-size:12.5px;color:var(--encre-soft);}
+  #admin-pill{
+    font-family:var(--font-mono);font-size:12px;background:var(--or-bg);color:var(--or);
+    padding:6px 12px;border-radius:999px;
   }
-  .viewfinder::after, .card::after{
-    bottom:9px;right:9px;
-    border-left:none;border-top:none;
-    transform:translate(-5px,-5px);
-  }
-  .viewfinder:hover::before, .card:hover::before,
-  .viewfinder:hover::after, .card:hover::after,
-  .viewfinder.always-framed::before,
-  .viewfinder.always-framed::after{
-    opacity:1;
-    transform:translate(0,0);
-  }
+  .reset-filters-link{display:block;margin-top:14px;font-weight:800;font-size:14px;color:var(--sky-deep);cursor:pointer;text-decoration:underline;}
 
-  /* ---------- MAIN LAYOUT ---------- */
-  #main{
-    flex:1;
-    display:flex;
-    min-height:0;
-    overflow:hidden;
-  }
-  header,#filters,#discovery-bar,#partner-cta{position:relative;z-index:20;}
-
-  #panel{
-    flex:1;
-    background:var(--craie);
-    overflow-y:auto;
-    padding:28px 28px 24px 28px;
-  }
-  #panel-heading{
-    position:relative;
-    display:inline-block;
-    padding:6px 22px;
-    margin-bottom:4px;
-  }
-  #panel h2{
-    font-family:'Baloo 2',sans-serif;
-    font-size:22px;
-    font-weight:800;
-    letter-spacing:-0.01em;
-    margin:0;
-  }
-  #panel .tagline{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    color:var(--sky-deep);
-    margin:0 0 18px 0;
-  }
-  #panel-toolbar{
-    display:flex;
-    align-items:center;
-    justify-content:space-between;
-    flex-wrap:wrap;
-    gap:10px;
-    margin-bottom:16px;
-  }
-  #panel .count{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    color:var(--encre-soft);
-    margin-bottom:0;
-  }
-  #sort-controls{
-    display:flex;
-    gap:6px;
-    flex-wrap:wrap;
-  }
-  .sort-chip{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    padding:5px 11px;
-    border-radius:999px;
-    border:1.5px solid var(--line);
-    background:#fff;
-    color:var(--encre-soft);
-    cursor:pointer;
-    white-space:nowrap;
-    transition:all .12s ease;
-  }
-  .sort-chip.active{background:var(--encre);color:var(--craie);border-color:var(--encre);}
-  .sort-chip:hover{border-color:var(--sky-deep);}
-  .reset-filters-link{
-    display:block;
-    margin-top:14px;
-    font-family:'Nunito',sans-serif;
-    font-weight:700;
-    font-size:13px;
-    color:var(--sky-deep);
-    cursor:pointer;
-    text-decoration:underline;
-  }
-  #cards{
-    display:grid;
-    grid-template-columns:repeat(auto-fill, minmax(268px, 1fr));
-    gap:16px;
-  }
+  /* cartes */
+  #cards{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
   .card{
-    border:1px solid var(--line);
-    border-radius:3px;
-    padding:16px 17px;
-    cursor:pointer;
-    background:#fff;
+    display:flex;flex-direction:column;cursor:pointer;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);overflow:hidden;
     transition:border-color .15s ease, transform .15s ease, box-shadow .15s ease;
   }
-  .card:hover{border-color:var(--sky-deep);transform:translateY(-2px);box-shadow:0 10px 22px rgba(10,10,10,0.09);}
-  .card-thumb{
-    width:calc(100% + 34px);
-    margin:-16px -17px 12px -17px;
-    height:140px;
-    border-radius:3px 3px 0 0;
-    overflow:hidden;
-    background:var(--craie-2);
-    display:flex;
-    align-items:center;
-    justify-content:center;
+  .card:hover{border-color:var(--sky-deep);transform:translateY(-2px);box-shadow:0 12px 28px rgba(15,34,48,.10);}
+  .card:focus-visible{outline:3px solid var(--sky);outline-offset:2px;}
+  .card-thumb{position:relative;aspect-ratio:16/10;overflow:hidden;display:grid;place-items:center;background:var(--craie-2);}
+  .card-thumb img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;display:block;transition:transform .5s ease;}
+  .card:hover .card-thumb img{transform:scale(1.04);}
+  .card-thumb .ico-grand{font-size:44px;line-height:1;filter:saturate(.9);opacity:.95;}
+  .card-thumb .pastille{
+    position:absolute;left:12px;top:12px;z-index:1;display:inline-flex;align-items:center;gap:6px;
+    background:rgba(255,255,255,.92);color:#183140;font-family:var(--font-mono);font-size:11px;letter-spacing:.04em;
+    text-transform:uppercase;padding:5px 10px;border-radius:999px;
   }
-  .card-thumb img{width:100%;height:100%;object-fit:cover;display:block;}
-  .card-thumb .thumb-placeholder{font-size:22px;opacity:0.3;}
-  .card .tag{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
-    letter-spacing:0.08em;
-    text-transform:uppercase;
-    display:inline-flex;
-    align-items:center;
-    gap:6px;
-    margin-bottom:8px;
+  .card-thumb .pastille .dot{width:8px;height:8px;border-radius:50%;}
+  .card-body{display:flex;flex-direction:column;gap:6px;padding:16px 18px 18px;flex:1;}
+  .card h3{font-family:var(--font-display);font-size:21px;font-weight:800;line-height:1.15;margin:0;}
+  .card p{font-size:14.5px;color:var(--encre-soft);margin:0;line-height:1.5;
+    display:-webkit-box;-webkit-line-clamp:3;-webkit-box-orient:vertical;overflow:hidden;}
+  .card .badges{display:flex;flex-wrap:wrap;gap:6px;}
+  .card .badges:empty{display:none;}
+  .card .badges .partner-badge, .card .badges .attendee-badge{margin:0;}
+  .card .rating-row{margin-top:2px;}
+  .card .lieu{font-family:var(--font-mono);font-size:12px;color:var(--encre-soft);}
+  .card .card-pied{
+    display:flex;justify-content:space-between;align-items:center;gap:10px;margin-top:auto;padding-top:10px;
+    border-top:1px dashed var(--line);font-size:13px;color:var(--muted);
   }
-  .card .tag .dot{
-    width:8px;height:8px;border-radius:50%;
-    box-shadow:0 0 0 2px #fff, 0 0 0 3px currentColor;
-  }
-  .card h3{
-    font-family:'Baloo 2',sans-serif;
-    font-size:16px;
-    font-weight:700;
-    letter-spacing:-0.005em;
-    margin:0 0 5px 0;
-  }
-  .card p{
-    font-size:12.5px;
-    color:var(--encre-soft);
-    margin:0;
-    line-height:1.45;
-  }
-  .card .quartier{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10.5px;
-    color:var(--sky-deep);
-    margin-top:7px;
-  }
-  .directions-link{
-    display:inline-flex;
-    align-items:center;
-    gap:5px;
-    font-family:'Nunito',sans-serif;
-    font-weight:600;
-    font-size:12.5px;
-    color:var(--sky-deep);
-    text-decoration:none;
-    cursor:pointer;
-    margin-top:4px;
-  }
+  .card .meta{white-space:nowrap;overflow:hidden;text-overflow:ellipsis;min-width:0;}
+  .directions-link{font-weight:800;font-size:13.5px;color:var(--sky-deep);text-decoration:none;white-space:nowrap;}
   .directions-link:hover{text-decoration:underline;}
-  .card .meta{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:10px;
-    color:#9A9A9A;
-    margin-top:7px;
-  }
   .empty-note{
-    font-size:13px;
-    color:var(--encre-soft);
-    line-height:1.6;
-    border:1.5px dashed var(--line);
-    border-radius:3px;
-    padding:32px 24px;
-    text-align:center;
-    grid-column:1/-1;
+    grid-column:1/-1;font-size:15px;color:var(--encre-soft);line-height:1.6;
+    border:1.5px dashed var(--line);border-radius:var(--radius);padding:36px 24px;text-align:center;
+  }
+  /* encart partenaires, glissé dans la liste */
+  .card-partenaire{
+    display:flex;flex-direction:column;justify-content:center;gap:10px;padding:24px;
+    background:var(--or-bg);border:1px dashed var(--or);border-radius:var(--radius);color:var(--encre);
+  }
+  .card-partenaire h3{font-family:var(--font-display);font-size:21px;font-weight:800;margin:0;text-wrap:balance;}
+  .card-partenaire p{margin:0;font-size:14.5px;color:var(--encre-soft);}
+  .card-partenaire a{font-weight:800;}
+
+  /* « Et aussi » : tendances, classement, archives */
+  .bp-aussi{margin-top:48px;}
+  .bp-aussi h2{font-family:var(--font-display);font-size:clamp(26px,3.5vw,34px);font-weight:800;margin:0 0 16px;}
+  .bp-aussi-grille{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:16px;}
+  .bp-aussi-grille button{
+    text-align:left;font:inherit;color:var(--encre);cursor:pointer;
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);padding:20px;
+    display:flex;flex-direction:column;gap:4px;transition:border-color .15s ease, transform .15s ease;
+  }
+  .bp-aussi-grille button:hover{border-color:var(--sky-deep);transform:translateY(-1px);}
+  .bp-aussi-grille .ico{font-size:26px;line-height:1;margin-bottom:6px;}
+  .bp-aussi-grille strong{font-family:var(--font-display);font-size:20px;font-weight:800;line-height:1.15;}
+  .bp-aussi-grille span.d{font-size:14px;color:var(--encre-soft);}
+  .oc-pied .lien-mod{background:none;border:none;font:inherit;color:inherit;font-weight:700;text-decoration:underline;cursor:pointer;padding:0;}
+
+  /* lieu précis dans le formulaire */
+  .geo-ligne{display:flex;align-items:center;gap:10px;flex-wrap:wrap;margin-top:8px;font-size:13px;color:var(--encre-soft);}
+  .geo-ligne button{font:inherit;font-size:13px;font-weight:700;border:1.5px solid var(--line);background:var(--surface);color:var(--encre);border-radius:999px;padding:6px 12px;cursor:pointer;}
+  .geo-ligne button:disabled{opacity:.6;cursor:wait;}
+
+  @media (max-width:900px){
+    #cards{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  @media (max-width:640px){
+    .page-head{padding-block:28px 18px;}
+    #cards{grid-template-columns:minmax(0,1fr);gap:16px;}
+    .bp-aussi-grille{grid-template-columns:minmax(0,1fr);}
+    #add-btn{flex:1 1 100%;justify-content:center;}
+    #panel-count{margin-left:0;width:100%;}
+    .bp-select{flex:1 1 0;min-width:0;}
   }
 
   /* ---------- STAMP badge on popup ---------- */
@@ -640,7 +394,7 @@
     padding:9px 10px;
     border:1.5px solid var(--line);
     border-radius:7px;
-    background:#fff;
+    background:var(--surface);
     color:var(--encre);
   }
   .field textarea{resize:vertical;min-height:60px;}
@@ -678,24 +432,6 @@
     font-size:12px;color:var(--brique);margin-top:6px;min-height:16px;
   }
 
-  #mod-btn{
-    background:transparent;
-    border:1.5px solid rgba(10,10,10,0.2);
-    color:var(--bouteille);
-    cursor:pointer;
-    flex-shrink:0;
-    transition:all .12s ease;
-  }
-  #mod-btn:hover{border-color:var(--sky-deep);color:var(--sky-deep);}
-  #admin-pill{
-    font-family:'IBM Plex Mono',monospace;
-    font-size:11px;
-    background:var(--or);
-    color:var(--encre);
-    padding:6px 11px;
-    border-radius:999px;
-    white-space:nowrap;
-  }
   #admin-logout{cursor:pointer;text-decoration:underline;}
 
   .report-link{
@@ -756,7 +492,7 @@
     font-family:'IBM Plex Mono',monospace;font-size:10.5px;color:var(--encre-soft);margin-bottom:14px;
   }
   .report-item{
-    border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:#fff;
+    border:1px solid var(--line);border-radius:10px;padding:12px 14px;margin-bottom:10px;background:var(--surface);
   }
   .report-item .r-head{
     font-family:'IBM Plex Mono',monospace;font-size:10px;text-transform:uppercase;color:var(--brique);
@@ -792,7 +528,7 @@
     color:var(--encre-soft);
     margin-top:4px;
   }
-  #board-btn, #archive-btn, #podium-btn, #geoloc-btn, #mod-btn{
+  .ancien-bouton-entete{
     display:inline-flex;
     align-items:center;
     gap:6px;
@@ -813,8 +549,7 @@
     font-size:12px;
     white-space:nowrap;
   }
-  #board-btn:hover, #archive-btn:hover, #podium-btn:hover, #geoloc-btn:hover{border-color:var(--sky-deep);background:var(--craie-2);}
-  #geoloc-btn.loading{opacity:0.5;cursor:wait;}
+
   #board-overlay{
     position:fixed;inset:0;background:rgba(30,27,22,0.55);
     display:none;align-items:center;justify-content:center;z-index:120;padding:20px;
@@ -973,8 +708,8 @@
     background:var(--bouteille);
     color:var(--craie);
     padding:10px 18px;
-    margin:10px 20px 0 20px;
-    border-radius:10px;
+    margin:0 0 18px;
+    border-radius:12px;
     font-size:13px;
     flex-wrap:wrap;
   }
@@ -1192,23 +927,11 @@
 
 
   @media (max-width:760px){
-    #cards{grid-template-columns:1fr;}
-    #panel{padding:14px;}
-    header{padding:10px 14px;}
-    .brand h1{font-size:15px;}
-    .brand img{height:32px;}
-    .brand .brand-text{padding-left:10px;}
-    .brand .sub{display:none;}
-    .header-actions{gap:7px;width:100%;}
-    #board-btn, #archive-btn, #podium-btn, #mod-btn, #geoloc-btn{
-      padding:6px 10px 6px 9px;
-    }
+
+
     .btn-icon{font-size:14px;}
     .btn-label{font-size:11px;}
-    #admin-pill{font-size:10px;}
-    #search-bar, #filters, #discovery-bar{padding-left:14px;padding-right:14px;}
-    #partner-cta{font-size:11.5px;padding:8px 14px;}
-    .discovery-pill{margin-left:14px;margin-right:14px;flex-direction:column;align-items:flex-start;gap:6px;}
+    .discovery-pill{flex-direction:column;align-items:flex-start;gap:6px;}
     .photos-grid{grid-template-columns:repeat(3,1fr);gap:6px;}
     #podium-top3{gap:6px;}
     .podium-stand{max-width:120px;}
@@ -1218,48 +941,6 @@
     }
   }
 
-  /* ---------- CARTE ---------- */
-  .brand .brand-text{border-left:none;padding-left:0;}
-  #panel{flex:0 0 440px;max-width:440px;border-right:1px solid var(--line);}
-  #map-wrap{flex:1;position:relative;min-width:0;z-index:0;isolation:isolate;}
-  #map{position:absolute;inset:0;background:var(--craie-2);}
-  #map-hint{
-    position:absolute;top:12px;left:50%;transform:translateX(-50%);
-    z-index:500;pointer-events:none;
-    background:rgba(24,49,64,.88);color:#fff;
-    font-family:'Nunito',sans-serif;font-size:12.5px;font-weight:700;
-    padding:6px 14px;border-radius:999px;white-space:nowrap;
-    max-width:calc(100% - 24px);overflow:hidden;text-overflow:ellipsis;
-  }
-  .map-add-popup button{
-    border:none;background:var(--navy);color:#fff;
-    font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;
-    padding:8px 12px;border-radius:8px;cursor:pointer;
-  }
-  .map-add-popup button:hover{background:var(--sky-deep);}
-  .leaflet-container{font-family:'Nunito',sans-serif;}
-  .leaflet-tooltip{font-weight:700;}
-  #view-toggle{display:none;}
-  .hint-short{display:none;}
-  @media (max-width:760px){
-    #panel{flex:1;max-width:none;border-right:none;}
-    #view-toggle{
-      display:flex;gap:6px;padding:8px 14px;
-      background:var(--craie);border-bottom:1px solid var(--line);
-      position:relative;z-index:20;
-    }
-    #view-toggle button{
-      flex:1;border:1.5px solid var(--line);background:#fff;color:var(--navy);
-      font-family:'Nunito',sans-serif;font-weight:800;font-size:13px;
-      padding:8px;border-radius:999px;cursor:pointer;
-    }
-    #view-toggle button.active{background:var(--navy);border-color:var(--navy);color:#fff;}
-    #main.show-map #panel{display:none;}
-    #main:not(.show-map) #map-wrap{display:none;}
-    .hint-long{display:none;}
-    .hint-short{display:inline;}
-    #map-hint{left:auto;right:12px;transform:none;}
-  }
 </style>
 </head>
 <body>
@@ -1275,68 +956,59 @@
   </div>
 </nav>
 
-<header>
-  <div class="brand">
-    <div class="brand-text">
-      <div class="eyebrow">Le guide des bons plans</div>
-      <h1>Restos, balades, insolite &amp; événements</h1>
-      <div class="sub">À Châlons, par les Chalonnais</div>
-    </div>
-  </div>
-  <div class="header-actions">
-    <span id="admin-pill" style="display:none;">🛡 Mode modérateur <span id="admin-logout">— quitter</span></span>
-    <button id="board-btn" title="Classement des contributeurs" style="background:var(--craie);"><span class="btn-icon">🏆</span><span class="btn-label">Classement</span></button>
-    <button id="archive-btn" title="Événements passés" style="background:var(--craie);"><span class="btn-icon">🗄</span><span class="btn-label">Archives</span></button>
-    <button id="podium-btn" title="The Place to Be" style="background:var(--craie);"><span class="btn-icon">🔥</span><span class="btn-label">Tendances</span></button>
-    <button id="mod-btn" title="Espace modérateur"><span class="btn-icon">⚙</span><span class="btn-label">Modération</span></button>
-    <button id="geoloc-btn" title="Ajouter un bon plan à ma position actuelle"><span class="btn-icon">📍</span><span class="btn-label">Ma position</span></button>
-  </div>
-</header>
+<main class="bp-wrap">
+  <header class="page-head">
+    <p class="eyebrow">Le guide des bons plans</p>
+    <h1>Les bons plans de Châlons</h1>
+    <p>Restos, balades, lieux insolites et sorties : repérés, testés et notés par les Chalonnais. Ajoutez les vôtres !</p>
+  </header>
 
-<div id="search-bar">
-  <span id="search-icon">🔎</span>
-  <input id="search-input" type="text" placeholder="Rechercher un bon plan (nom, description...)">
-  <span id="search-clear" style="display:none;">✕</span>
-</div>
-<div id="filters"></div>
-<div id="quartier-filters"></div>
-<div id="discovery-bar"></div>
-
-<div id="view-toggle" role="group" aria-label="Affichage">
-  <button type="button" id="view-list" class="active">☰ Liste</button>
-  <button type="button" id="view-map">🗺️ Carte</button>
-</div>
-<div id="main">
-  <div id="panel">
-    <div id="panel-heading" class="viewfinder always-framed">
-      <h2>Les bons plans</h2>
+  <div class="bp-outils">
+    <div id="search-bar">
+      <span id="search-icon" aria-hidden="true">🔎</span>
+      <input id="search-input" type="search" placeholder="Rechercher un lieu, une envie…" aria-label="Rechercher un bon plan">
+      <span id="search-clear" role="button" aria-label="Effacer la recherche" style="display:none;">✕</span>
     </div>
-    <div class="tagline">Repérés, testés et partagés par les Chalonnais</div>
-    <div id="panel-toolbar">
-      <div class="count" id="panel-count">chargement…</div>
-      <div id="sort-controls">
-        <span class="sort-chip active" data-sort="recent">Récents</span>
-        <span class="sort-chip" data-sort="rating">Mieux notés</span>
-        <span class="sort-chip" data-sort="comments">Plus commentés</span>
-      </div>
-    </div>
-    <div id="cards"></div>
+    <button id="add-btn" type="button"><span class="fab-icon">＋</span><span class="fab-label">Ajouter un bon plan</span></button>
   </div>
-  <div id="map-wrap">
-    <div id="map" aria-label="Carte des bons plans"></div>
-    <div id="map-hint"><span class="hint-long">Touchez la carte pour proposer un bon plan à cet endroit</span><span class="hint-short">Touchez la carte pour ajouter un lieu</span></div>
-  </div>
-</div>
 
-<div id="partner-cta">
-  <span>🤝 Vous êtes commerçant à Châlons ? Devenez partenaire de L'Objectif Chalonnais en soutenant l'association — <a href="mailto:lobjectifchalonnais@gmail.com">lobjectifchalonnais@gmail.com</a></span>
-  <span id="partner-cta-close" title="Masquer">✕</span>
-</div>
+  <div id="filters" role="group" aria-label="Catégories"></div>
+
+  <div class="bp-barre">
+    <select id="quartier-filters" class="bp-select" aria-label="Quartier"></select>
+    <select id="sort-select" class="bp-select" aria-label="Trier">
+      <option value="recent">Les plus récents</option>
+      <option value="rating">Les mieux notés</option>
+      <option value="comments">Les plus commentés</option>
+      <option value="near">Près de moi</option>
+    </select>
+    <span id="admin-pill" style="display:none;">🛡 Mode modérateur · <span id="admin-logout">quitter</span></span>
+    <span id="panel-count" aria-live="polite">chargement…</span>
+  </div>
+
+  <div id="discovery-bar"></div>
+  <div id="cards"></div>
+
+  <section class="bp-aussi" aria-labelledby="aussi-titre">
+    <h2 id="aussi-titre">Et aussi</h2>
+    <div class="bp-aussi-grille">
+      <button type="button" id="podium-btn"><span class="ico">🔥</span><strong>Les tendances</strong><span class="d">Les prochains événements où les Chalonnais comptent aller.</span></button>
+      <button type="button" id="board-btn"><span class="ico">🏆</span><strong>Le classement</strong><span class="d">Les meilleurs contributeurs et leurs coups de cœur.</span></button>
+      <button type="button" id="archive-btn"><span class="ico">🗄</span><strong>Les archives</strong><span class="d">Les événements passés, toujours notables et commentables.</span></button>
+    </div>
+  </section>
+</main>
+
+<footer class="oc-pied">
+  <span>© L'Objectif Châlonnais · Association loi 1901</span>
+  <a href="mentions-legales.html">Mentions légales et confidentialité</a>
+  <button type="button" class="lien-mod" id="mod-btn">Espace modérateur</button>
+</footer>
 
 <div id="overlay">
   <div id="modal">
     <h2>Ajouter un bon plan</h2>
-    <div class="loc-hint" id="loc-hint">📍 Choisissez votre quartier ci-dessous</div>
+    <div class="loc-hint" id="loc-hint">Quelques infos suffisent : le nom, la catégorie, le quartier et pourquoi vous l'aimez.</div>
     <div class="field">
       <label>Nom du lieu ou de l'événement</label>
       <input id="f-name" type="text" maxlength="60" placeholder="Ex. Le café du Jard">
@@ -1351,8 +1023,9 @@
       <div class="cat-picker" id="f-quartier"></div>
     </div>
     <div class="field">
-      <label>Adresse précise (optionnel)</label>
-      <input id="f-address" type="text" maxlength="100" placeholder="Ex. 12 rue du Général Sarrail">
+      <label>Adresse (conseillé)</label>
+      <input id="f-address" type="text" maxlength="100" placeholder="Ex. 12 rue du Général Sarrail" autocomplete="street-address">
+      <div class="geo-ligne"><button type="button" id="f-geoloc">📍 Je suis sur place</button><span id="f-geoloc-info">pour situer le lieu précisément (tri « Près de moi »)</span></div>
     </div>
     <div class="field" id="f-eventdate-field" style="display:none;">
       <label id="f-eventdate-label">Cet événement a lieu le...</label>
@@ -1573,14 +1246,9 @@
   <img id="lightbox-img" src="" alt="Photo agrandie">
 </div>
 
-<button id="add-btn">
-  <span class="fab-icon">＋</span>
-  <span class="fab-label">Ajouter un bon plan</span>
-</button>
 
 <div id="toast"></div>
 
-<script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
 <script src="config.js"></script>
 <script src="compteur.js" defer></script>
 <script src="storage.js"></script>
@@ -1690,15 +1358,25 @@
   };
 
   const filterBar = document.getElementById('filters');
-  Object.entries(CATEGORIES).forEach(([key,c])=>{
-    const chip = document.createElement('div');
-    chip.className = 'chip active';
+  function setCategorie(key){
+    activeFilters = key === 'all' ? new Set(Object.keys(CATEGORIES)) : new Set([key]);
+    filterBar.querySelectorAll('.chip').forEach(ch=>{
+      const on = ch.dataset.cat === key;
+      ch.classList.toggle('active', on);
+      ch.setAttribute('aria-pressed', on);
+    });
+    render();
+  }
+  [['all', {label:'Tout', icon:'✦'}], ...Object.entries(CATEGORIES)].forEach(([key,c])=>{
+    const chip = document.createElement('button');
+    chip.type = 'button';
+    chip.className = 'chip' + (key === 'all' ? ' active' : '');
     chip.dataset.cat = key;
-    chip.innerHTML = `<span class="dot" style="background:${c.color}"></span>${c.label}`;
+    chip.setAttribute('aria-pressed', key === 'all');
+    chip.innerHTML = `<span class="ico" aria-hidden="true">${c.icon}</span>${c.label}`;
     chip.onclick = ()=>{
-      if(activeFilters.has(key)){activeFilters.delete(key); chip.classList.remove('active');}
-      else{activeFilters.add(key); chip.classList.add('active');}
-      render();
+      setCategorie(chip.classList.contains('active') && key !== 'all' ? 'all' : key);
+      chip.scrollIntoView({ block:'nearest', inline:'nearest', behavior:'smooth' });
     };
     filterBar.appendChild(chip);
   });
@@ -1932,7 +1610,8 @@
       const q = `${p.address.trim()}, Châlons-en-Champagne`;
       return `https://www.google.com/maps/dir/?api=1&destination=${encodeURIComponent(q)}`;
     }
-    return `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+    if(p.preciseLocation || p.seeded) return `https://www.google.com/maps/dir/?api=1&destination=${p.lat},${p.lng}`;
+    return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(p.name + ', Châlons-en-Champagne')}`;
   }
 
   function escapeHtml(s){
@@ -2162,7 +1841,25 @@
     return haystack.includes(searchQuery);
   }
 
+  let maPosition = null;  // { lat, lng } quand le tri « Près de moi » est choisi
+  function coordsDe(p){
+    if(typeof p.lat === 'number' && typeof p.lng === 'number' && (p.preciseLocation || p.seeded)) return { lat:p.lat, lng:p.lng, precis:true };
+    const q = QUARTIERS[p.quartier];
+    return q ? { lat:q.lat, lng:q.lng, precis:false } : null;
+  }
+  function distanceDe(p){
+    if(!maPosition) return null;
+    const c = coordsDe(p);
+    return c ? distanceMeters(maPosition.lat, maPosition.lng, c.lat, c.lng) : null;
+  }
+  function distanceTexte(m){
+    if(m === null) return '';
+    return m < 1000 ? `à ${Math.max(50, Math.round(m / 50) * 50)} m` : `à ${(m / 1000).toFixed(1).replace('.', ',')} km`;
+  }
   function sortComparator(a, b){
+    if(sortMode === 'near' && maPosition){
+      return (distanceDe(a) ?? 1e9) - (distanceDe(b) ?? 1e9) || b.ts - a.ts;
+    }
     if(sortMode === 'rating'){
       const diff = avgRating(b).value - avgRating(a).value;
       if(diff !== 0) return diff;
@@ -2187,12 +1884,8 @@
     activeQuartier = 'all';
     spotlightAuthor = null;
     spotlightDisplayName = null;
-    activeFilters = new Set(Object.keys(CATEGORIES));
-    document.querySelectorAll('.chip').forEach(el=>el.classList.add('active'));
-    document.querySelectorAll('.chip-quartier').forEach(el=>{
-      el.classList.toggle('active', el.textContent === 'Tous les quartiers');
-    });
-    render();
+    document.getElementById('quartier-filters').value = 'all';
+    setCategorie('all');
   }
 
   function render(){
@@ -2206,12 +1899,12 @@
       matchesSearch(p)
     );
 
-    renderMapMarkers(visible);
-    document.getElementById('panel-count').textContent = `${visible.length} bon${visible.length>1?'s':''} plan${visible.length>1?'s':''} affiché${visible.length>1?'s':''}`;
+    const n = visible.length;
+    document.getElementById('panel-count').textContent = `${n} bon${n>1?'s':''} plan${n>1?'s':''}`;
 
     const cardsEl = document.getElementById('cards');
     cardsEl.innerHTML = '';
-    if(visible.length === 0){
+    if(n === 0){
       const msg = searchQuery
         ? `Aucun résultat pour « ${escapeHtml(searchInput.value)} ». Essayez un autre mot-clé.`
         : spotlightAuthor
@@ -2223,32 +1916,49 @@
       if(rl) rl.onclick = resetAllFilters;
       return;
     }
-    [...visible]
-      .sort((a,b)=> (b.isPartner?1:0)-(a.isPartner?1:0) || sortComparator(a,b))
-      .forEach(p=>{
+    const tries = [...visible].sort((a,b)=>
+      (sortMode === 'near' && maPosition ? 0 : (b.isPartner?1:0)-(a.isPartner?1:0)) || sortComparator(a,b));
+    tries.forEach((p, i)=>{
       const c = CATEGORIES[p.cat];
       const q = QUARTIERS[p.quartier];
       const avg = avgRating(p);
-      const card = document.createElement('div');
+      const nbCom = (p.comments||[]).length;
+      const dist = sortMode === 'near' ? distanceDe(p) : null;
+      const card = document.createElement('article');
       card.className = 'card';
+      card.tabIndex = 0;
+      card.setAttribute('aria-label', p.name);
       const showThumb = p.hasCoverPhoto || (PHOTO_CATEGORIES.includes(p.cat) && p.photoCount > 0);
+      const fond = `linear-gradient(135deg, ${c.color}26, ${c.color}55)`;
       card.innerHTML = `
-        ${showThumb ? `<div class="card-thumb" id="thumb-${p.id}"><span class="thumb-placeholder">📷</span></div>` : ''}
-        <div class="tag"><span class="dot" style="background:${c.color}"></span>${c.label}</div>
-        <h3>${escapeHtml(p.name)}</h3>
-        ${p.isPartner ? `<div class="partner-badge">🥂 Partenaire de L'Objectif Chalonnais</div>` : ''}
-        ${eventDateBadge(p)}
-        ${attendeeBadge(p)}
-        <p>${escapeHtml(p.desc)}</p>
-        ${p.address ? `<div class="quartier">📌 ${escapeHtml(p.address)}</div>` : ''}
-        <div class="rating-row">${starsHtml(avg.value,false)}<span class="avg-num">${avg.label} · ${(p.comments||[]).length} commentaire${(p.comments||[]).length>1?'s':''}${p.photoCount>0 ? ' · 📷 '+p.photoCount : ''}</span></div>
-        ${q ? `<div class="quartier">📍 ${q.label}</div>` : ''}
-        <a class="directions-link" href="${directionsUrl(p)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">🗺️ Voir l'itinéraire</a>
-        <div class="meta">${escapeHtml(p.author || 'Anonyme')}${fbLink(p.fb)}${badgeInline(p.author)}</div>
+        <div class="card-thumb" id="thumb-${escapeHtml(p.id)}" style="background:${fond}">
+          <span class="pastille"><span class="dot" style="background:${c.color}"></span>${escapeHtml(c.label)}</span>
+          <span class="ico-grand" aria-hidden="true">${c.icon}</span>
+        </div>
+        <div class="card-body">
+          <h3>${escapeHtml(p.name)}</h3>
+          <div class="badges">${p.isPartner ? `<div class="partner-badge">🥂 Partenaire de L'Objectif</div>` : ''}${eventDateBadge(p)}${attendeeBadge(p)}</div>
+          <p>${escapeHtml(p.desc)}</p>
+          <div class="rating-row">${starsHtml(avg.value,false)}<span class="avg-num">${avg.label}${nbCom ? ` · ${nbCom} commentaire${nbCom>1?'s':''}` : ''}${p.photoCount>0 ? ' · 📷 '+p.photoCount : ''}</span></div>
+          <div class="lieu">📍 ${[p.address ? escapeHtml(p.address) : '', q ? q.label : ''].filter(Boolean).join(' · ')}${dist !== null ? ` · <strong>${distanceTexte(dist)}</strong>` : ''}</div>
+          <div class="card-pied">
+            <span class="meta">${p.author ? 'Par ' + escapeHtml(p.author) : 'Anonyme'}${fbLink(p.fb)}${badgeInline(p.author)}</span>
+            <a class="directions-link" href="${directionsUrl(p)}" target="_blank" rel="noopener noreferrer" onclick="event.stopPropagation()">Y aller →</a>
+          </div>
+        </div>
       `;
       card.onclick = ()=> openDetail(p.id);
+      card.onkeydown = (e)=>{ if(e.key === 'Enter' && e.target === card) openDetail(p.id); };
       cardsEl.appendChild(card);
       if(showThumb) loadCardThumb(p.id);
+      // encart « partenaires », une fois, après la 6e carte (ou en fin de liste)
+      if(i === Math.min(5, tries.length - 1) && !spotlightAuthor){
+        const contact = (window.OC_CONFIG && window.OC_CONFIG.contact) || 'lobjectifchalonnais@gmail.com';
+        const enc = document.createElement('aside');
+        enc.className = 'card-partenaire';
+        enc.innerHTML = `<h3>🤝 Commerçant à Châlons ?</h3><p>Devenez partenaire de L'Objectif Châlonnais : votre adresse mise en avant ici, et une association locale soutenue.</p><a href="mailto:${escapeHtml(contact)}?subject=${encodeURIComponent('Devenir partenaire')}">${escapeHtml(contact)}</a>`;
+        cardsEl.appendChild(enc);
+      }
     });
   }
 
@@ -2277,7 +1987,11 @@
   function paintCardThumb(pinId, dataUrl){
     const el = document.getElementById('thumb-' + pinId);
     if(!el || !dataUrl) return;
-    el.innerHTML = `<img src="${escapeHtml(dataUrl)}" alt="Photo du lieu">`;
+    const img = document.createElement('img');
+    img.alt = ''; img.loading = 'lazy'; img.decoding = 'async';
+    img.src = dataUrl;
+    const ico = el.querySelector('.ico-grand'); if(ico) ico.remove();
+    el.appendChild(img);
   }
 
   // ---------- ADMIN COVER PHOTO (any category, contributors cannot remove) ----------
@@ -2379,39 +2093,36 @@
     }
   }
 
-  document.querySelectorAll('.sort-chip').forEach(chip=>{
-    chip.onclick = ()=>{
-      sortMode = chip.dataset.sort;
-      document.querySelectorAll('.sort-chip').forEach(c=>c.classList.remove('active'));
-      chip.classList.add('active');
-      render();
-    };
-  });
+  const sortSelect = document.getElementById('sort-select');
+  sortSelect.onchange = ()=>{
+    const v = sortSelect.value;
+    if(v !== 'near'){ sortMode = v; render(); return; }
+    if(!navigator.geolocation){ showToast('La localisation n\'est pas disponible sur cet appareil.'); sortSelect.value = sortMode; return; }
+    showToast('Recherche de votre position…');
+    navigator.geolocation.getCurrentPosition(pos=>{
+      maPosition = { lat: pos.coords.latitude, lng: pos.coords.longitude };
+      if(distanceMeters(maPosition.lat, maPosition.lng, 48.9564, 4.3667) > 30000){
+        showToast('Vous semblez loin de Châlons : les distances sont calculées depuis votre position.');
+      }
+      sortMode = 'near'; render();
+    }, err=>{
+      showToast(err.code === err.PERMISSION_DENIED ? 'Localisation refusée : tri par date conservé.' : 'Impossible de vous localiser pour le moment.');
+      sortSelect.value = sortMode === 'near' ? 'recent' : sortMode;
+      if(sortMode === 'near') sortMode = 'recent';
+    }, { enableHighAccuracy:false, timeout:10000, maximumAge:300000 });
+  };
 
   function renderQuartierFilters(){
-    const bar = document.getElementById('quartier-filters');
-    if(bar.children.length) return; // build once
-    const allChip = document.createElement('div');
-    allChip.className = 'chip-quartier active';
-    allChip.textContent = 'Tous les quartiers';
-    allChip.onclick = ()=>{ setActiveQuartier('all'); };
-    bar.appendChild(allChip);
-    Object.entries(QUARTIERS).forEach(([key, q])=>{
-      const chip = document.createElement('div');
-      chip.className = 'chip-quartier';
-      chip.dataset.quartier = key;
-      chip.textContent = q.label;
-      chip.onclick = ()=>{ setActiveQuartier(key); };
-      bar.appendChild(chip);
-    });
+    const sel = document.getElementById('quartier-filters');
+    if(sel.options.length) return; // construit une seule fois
+    sel.add(new Option('Tous quartiers', 'all'));
+    Object.entries(QUARTIERS).forEach(([key, q])=> sel.add(new Option(q.label, key)));
+    sel.onchange = ()=> setActiveQuartier(sel.value);
   }
 
   function setActiveQuartier(key){
     activeQuartier = key;
-    document.querySelectorAll('.chip-quartier').forEach(el=>{
-      const isAll = el.textContent === 'Tous les quartiers';
-      el.classList.toggle('active', (key==='all' && isAll) || el.dataset.quartier === key);
-    });
+    document.getElementById('quartier-filters').value = key;
     render();
   }
 
@@ -2432,35 +2143,23 @@
     openModal();
   };
 
-  const geolocBtn = document.getElementById('geoloc-btn');
-  geolocBtn.onclick = ()=>{
-    if(!navigator.geolocation){
-      showToast("Localisation non disponible sur cet appareil — choisissez votre quartier dans le formulaire");
-      pendingLatLng = null;
-      openModal();
-      return;
-    }
-    geolocBtn.classList.add('loading');
-    geolocBtn.disabled = true;
-    navigator.geolocation.getCurrentPosition(
-      (pos)=>{
-        geolocBtn.classList.remove('loading');
-        geolocBtn.disabled = false;
-        pendingLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude, precise: true };
-        openModal();
-      },
-      (err)=>{
-        geolocBtn.classList.remove('loading');
-        geolocBtn.disabled = false;
-        const msg = err.code === err.PERMISSION_DENIED
-          ? "Localisation refusée — choisissez votre quartier dans le formulaire"
-          : "Impossible de vous localiser — choisissez votre quartier dans le formulaire";
-        showToast(msg);
-        pendingLatLng = null;
-        openModal();
-      },
-      { enableHighAccuracy:true, timeout:8000 }
-    );
+  const fGeoloc = document.getElementById('f-geoloc');
+  const fGeolocInfo = document.getElementById('f-geoloc-info');
+  fGeoloc.onclick = ()=>{
+    if(!navigator.geolocation){ fGeolocInfo.textContent = 'Localisation indisponible sur cet appareil.'; return; }
+    fGeoloc.disabled = true; fGeolocInfo.textContent = 'Localisation…';
+    navigator.geolocation.getCurrentPosition(pos=>{
+      fGeoloc.disabled = false;
+      pendingLatLng = { lat: pos.coords.latitude, lng: pos.coords.longitude, precise: true };
+      fGeoloc.textContent = '✓ Position enregistrée';
+      fGeolocInfo.textContent = 'Merci ! Le lieu sera situé précisément.';
+      const q = nearestQuartier(pendingLatLng.lat, pendingLatLng.lng);
+      if(!selectedQuartier){ const opt = document.querySelector(`.quartier-opt[data-quartier="${q}"]`); if(opt) opt.click(); }
+      checkDuplicatesDebounced();
+    }, err=>{
+      fGeoloc.disabled = false;
+      fGeolocInfo.textContent = err.code === err.PERMISSION_DENIED ? 'Localisation refusée : l\'adresse suffit.' : 'Impossible de vous localiser : l\'adresse suffit.';
+    }, { enableHighAccuracy:true, timeout:10000 });
   };
 
   function openModal(){
@@ -2476,9 +2175,9 @@
     statusMsg.textContent='';
     submitBtn.disabled = true;
     submitBtn.textContent = 'Ajouter le bon plan';
-    locHint.textContent = pendingLatLng
-      ? (pendingLatLng.fromMap ? `📍 Emplacement choisi sur la carte` : `📍 Votre position actuelle a été enregistrée`)
-      : `📍 Choisissez votre quartier ci-dessous`;
+    fGeoloc.textContent = '📍 Je suis sur place';
+    fGeoloc.disabled = false;
+    fGeolocInfo.textContent = 'pour situer le lieu précisément (tri « Près de moi »)';
     overlay.classList.add('open');
     nameInput.focus();
   }
@@ -3678,88 +3377,6 @@
       restEl.appendChild(row);
     });
   }
-
-  // ---------- CARTE (Leaflet + OpenStreetMap) ----------
-  const mainEl = document.getElementById('main');
-  let map = null, markersLayer = null, mapFitted = false;
-
-  function initMap(){
-    if(map || typeof L === 'undefined') return;
-    map = L.map('map', { zoomControl:true }).setView(CHALONS, 14);
-    L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-      maxZoom: 19,
-      attribution: '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a>'
-    }).addTo(map);
-    markersLayer = L.layerGroup().addTo(map);
-    map.on('click', (e)=>{
-      const box = document.createElement('div');
-      box.className = 'map-add-popup';
-      const b = document.createElement('button');
-      b.type = 'button';
-      b.textContent = '＋ Ajouter un bon plan ici';
-      b.onclick = ()=>{
-        map.closePopup();
-        pendingLatLng = { lat:e.latlng.lat, lng:e.latlng.lng, precise:true, fromMap:true };
-        const q = nearestQuartier(e.latlng.lat, e.latlng.lng);
-        openModal();
-        const opt = document.querySelector(`.quartier-opt[data-quartier="${q}"]`);
-        if(opt) opt.click();
-      };
-      box.appendChild(b);
-      L.popup({ closeButton:true }).setLatLng(e.latlng).setContent(box).openOn(map);
-    });
-  }
-
-  // Les bons plans placés seulement par quartier partagent le même point :
-  // on les écarte légèrement (toujours de la même façon) pour qu'ils restent cliquables.
-  function markerPosition(p){
-    if(p.preciseLocation || p.seeded) return [p.lat, p.lng];
-    let h = 0;
-    for(const ch of String(p.id)) h = (h*31 + ch.charCodeAt(0)) | 0;
-    const a = (Math.abs(h) % 360) * Math.PI / 180;
-    const r = 0.0006 + (Math.abs(h >> 8) % 10) * 0.0001;
-    return [p.lat + r*Math.sin(a), p.lng + r*1.5*Math.cos(a)];
-  }
-
-  function renderMapMarkers(visible){
-    initMap();
-    if(!map) return;
-    markersLayer.clearLayers();
-    const pts = [];
-    visible.forEach(p=>{
-      if(typeof p.lat !== 'number' || typeof p.lng !== 'number') return;
-      const c = CATEGORIES[p.cat] || { color:'#183140', icon:'•' };
-      const pos = markerPosition(p);
-      const m = L.circleMarker(pos, {
-        radius: p.isPartner ? 11 : 9,
-        color: p.isPartner ? '#C9A227' : '#FFFFFF',
-        weight: p.isPartner ? 3 : 2,
-        fillColor: c.color,
-        fillOpacity: .95
-      });
-      m.bindTooltip(`${c.icon} ${escapeHtml(p.name)}`, { direction:'top', offset:[0,-8] });
-      m.on('click', ()=> openDetail(p.id));
-      m.addTo(markersLayer);
-      pts.push(pos);
-    });
-    if(!mapFitted && pts.length){
-      map.fitBounds(pts, { padding:[40,40], maxZoom:15 });
-      mapFitted = true;
-    }
-  }
-
-  // Bascule Liste / Carte sur téléphone
-  const viewListBtn = document.getElementById('view-list');
-  const viewMapBtn = document.getElementById('view-map');
-  function setView(showMap){
-    mainEl.classList.toggle('show-map', showMap);
-    viewMapBtn.classList.toggle('active', showMap);
-    viewListBtn.classList.toggle('active', !showMap);
-    if(showMap && map) setTimeout(()=> map.invalidateSize(), 50);
-  }
-  viewListBtn.onclick = ()=> setView(false);
-  viewMapBtn.onclick = ()=> setView(true);
-  window.addEventListener('resize', ()=>{ if(map) map.invalidateSize(); });
 
   // ---------- PARTNER CTA ----------
   const partnerCtaClose = document.getElementById('partner-cta-close');
