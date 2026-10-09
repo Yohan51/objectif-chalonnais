@@ -1,0 +1,44 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Page introuvable — L'Objectif Châlonnais</title>
+<meta name="robots" content="noindex">
+<script>
+  // Lien de partage d'un article dont la page n'est pas encore fabriquée :
+  // on renvoie directement vers l'article.
+  (function(){
+    var m = location.pathname.match(/^(.*\/)a\/([a-z0-9]+(?:-[a-z0-9]+)*)\.html$/);
+    if(m) location.replace(m[1] + 'actus.html#' + m[2]);
+  })();
+</script>
+<style>
+  :root{ --bg:#F4F8FA; --ink:#183140; --soft:#4B6372; --sky:#2E97C7; }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#0F2230; --ink:#EAF4F9; --soft:#A9C2D0; --sky:#6CC1EA; color-scheme:dark; } }
+  html,body{margin:0;min-height:100%;}
+  body{background:var(--bg);color:var(--ink);font-family:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+       display:grid;place-items:center;min-height:100vh;padding:24px;box-sizing:border-box;text-align:center;}
+  main{max-width:380px;display:flex;flex-direction:column;align-items:center;gap:12px;}
+  h1{font-size:26px;margin:0;line-height:1.15;}
+  p{margin:0;color:var(--soft);line-height:1.5;}
+  a{color:var(--sky);font-weight:800;}
+</style>
+</head>
+<body>
+<main>
+  <h1>Cette page n'existe pas</h1>
+  <p>Le lien est peut-être incomplet, ou la page a été retirée.</p>
+  <p><a href="/objectif-chalonnais/">Retour à l'accueil</a></p>
+</main>
+<script>
+  // Lien d'accueil correct quel que soit le nom du dépôt
+  (function(){
+    var base = location.pathname.split('/').filter(Boolean)[0];
+    var lien = document.querySelector('main a');
+    if(location.hostname.endsWith('github.io') && base) lien.href = '/' + base + '/';
+    else lien.href = '/';
+  })();
+</script>
+</body>
+</html>

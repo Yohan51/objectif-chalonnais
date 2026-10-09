@@ -595,7 +595,7 @@
         liens.push(['Annoncer par une alerte', 'envoyer.html?' + p.toString()]);
       }
       const texte = !res.publie ? 'Brouillon enregistré. Il reste invisible pour le public.'
-        : enLigne ? 'Article publié ! Il est en ligne sur la page Actus et sur l\'accueil.'
+        : enLigne ? 'Article publié ! Il est en ligne sur la page Actus et sur l\'accueil. Son aperçu avec photo pour WhatsApp et Facebook sera prêt d\'ici 15 à 20 minutes.'
         : `Article programmé : il sera publié le ${A.dateLongue(res.publie_le)} à ${new Date(res.publie_le).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}.`;
       await rafraichirListe();
       await ouvrir(res.id);

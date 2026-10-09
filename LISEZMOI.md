@@ -138,17 +138,16 @@ notify pgrst, 'reload schema';
 2. **Secrets** : *Edge Functions* → *Secrets* → ajoute :
    - `VAPID_PUBLIC_KEY` et `VAPID_PRIVATE_KEY` (les deux clés données par Claude ; la clé privée ne doit jamais être publiée sur GitHub)
    - `VAPID_SUBJECT` : `mailto:lobjectifchalonnais@gmail.com`
+   - `CODE_ENVOI` : un code de ton choix, que tu taperas pour envoyer une alerte
 
-3. **Code** : *SQL Editor* → colle `supabase/alertes-code.sql` → *Run*. Le code demandé pour envoyer une alerte est ton **code modérateur**.
+3. **Fonction d'envoi** : *Edge Functions* → *Deploy a new function* → *Via Editor*. Nom : `envoyer-notification`. Remplace tout le code par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*.
 
-4. **Fonction d'envoi** : *Edge Functions* → *Deploy a new function* → *Via Editor*. Nom : `envoyer-notification`. Remplace tout le code par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*.
-
-5. Dans les réglages de la fonction (*Details*), **désactive « Enforce JWT verification »** (ou « Verify JWT ») et enregistre. C'est ton code modérateur qui protège la fonction.
+4. Dans les réglages de la fonction (*Details*), **désactive « Enforce JWT verification »** (ou « Verify JWT ») et enregistre. C'est ton code d'envoi qui protège la fonction.
 
 ### Envoyer une alerte
 
 1. Ouvre `…/objectif-chalonnais/envoyer.html` (garde cette adresse en favori, elle n'est pas dans le menu).
-2. Tape ton code modérateur, un titre, un message, et choisis ce qui s'ouvre au toucher : une page du site, votre compte TikTok, Instagram ou YouTube (liens repris de `config.js`), ou une vidéo précise (colle son lien de partage).
+2. Tape ton code, un titre, un message, et choisis ce qui s'ouvre au toucher : une page du site, votre compte TikTok, Instagram ou YouTube (liens repris de `config.js`), ou une vidéo précise (colle son lien de partage).
 3. *M'envoyer un test* pour vérifier sur ton téléphone, puis *Envoyer à tous*.
 
 Les visiteurs s'abonnent avec le bouton « Recevoir les alertes » de l'accueil. Sur iPhone, ils doivent d'abord installer l'application.
