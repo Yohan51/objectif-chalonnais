@@ -151,7 +151,7 @@
   .notice a{color:inherit;font-weight:800;}
 
   /* ---------- Rubriques ---------- */
-  .tools{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:24px;}
+  .tools{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:24px;}
   .tool{
     display:flex;flex-direction:column;gap:12px;
     background:var(--surface);
@@ -252,7 +252,7 @@
   }
   footer .wrap{display:flex;flex-wrap:wrap;gap:8px 24px;justify-content:space-between;}
 
-  @media (max-width:980px){ .tools{grid-template-columns:minmax(0,1fr);} }
+  @media (max-width:700px){ .tools{grid-template-columns:minmax(0,1fr);} }
   @media (max-width:760px){
     section{padding-block:40px;}
     .hero{padding-block:36px 24px;}
@@ -272,6 +272,7 @@
   <div class="oc-nav-links">
     <a href="index.html" aria-current="page">Accueil</a>
     <a href="actus.html">Actus</a>
+    <a href="jeux.html">Jeux</a>
     <a href="bons-plans.html">Bons plans</a>
     <a href="galerie.html">Galerie</a>
     <a href="quiz.html">Quiz</a>
@@ -341,6 +342,12 @@
           <p>Nos photos des événements, des rues et des habitants de Châlons, classées par album. Des années de reportages à parcourir.</p>
           <div class="tags"><span>Événements</span><span>Sport</span><span>Culture</span></div>
           <span class="go">Voir les photos →</span>
+        </a>
+        <a class="tool vf" href="jeux.html">
+          <h3>Jeux concours</h3>
+          <p>Places de spectacle, repas, cadeaux de nos partenaires : participez gratuitement et tentez votre chance au tirage au sort. Il suffit d'activer nos alertes.</p>
+          <div class="tags"><span>Gratuit</span><span>Tirage au sort</span><span>Partenaires</span></div>
+          <span class="go">Voir les jeux →</span>
         </a>
         <a class="tool vf" href="quiz.html">
           <h3>Connais-tu Châlons ?</h3>

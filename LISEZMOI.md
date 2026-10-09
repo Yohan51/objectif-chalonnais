@@ -14,6 +14,9 @@
 | `bons-plans.html` | Le guide des bons plans, avec la carte OpenStreetMap |
 | `galerie.html` | La galerie photo, alimentée par les dossiers déposés dans Supabase |
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
+| `jeux.html` | Les jeux concours : participation des abonnés et gagnants |
+| `tirage.html`, `qrcode.min.js` | Outil de l'équipe : créer les jeux, tirage au sort, certificats (non visible dans le menu) |
+| `supabase/jeux.sql` | Tables des jeux concours, à exécuter dans Supabase après `actus.sql` |
 | `config.js` | **Le seul fichier à modifier** : liens des réseaux, contact, dons, base de données |
 | `storage.js` | Enregistrement des données (ne pas modifier) |
 | `site.css` | Barre de navigation commune |
@@ -220,6 +223,32 @@ Le bouton *Partager* d'un article donne un lien en `…/a/nom-de-l-article.html`
 Ces pages sont fabriquées par un robot GitHub toutes les 15 minutes (onglet *Actions* → *Aperçus des actus*). Pour l'installer, une seule fois : sur GitHub, *Add file* → *Create new file*, nom `.github/workflows/apercus.yml`, colle le contenu du fichier, puis *Commit changes*. Pour lancer le robot tout de suite : *Actions* → *Aperçus des actus* → *Run workflow*.
 
 Le robot lit automatiquement le nom de domaine dans le fichier `CNAME` du dépôt (créé par GitHub quand on règle *Settings → Pages → Custom domain*). Ne supprime pas ce fichier.
+
+## 10. Jeux concours et tirage au sort
+
+Les abonnés participent sur la page **Jeux** du site (prénom, nom, e-mail, téléphone). Condition : avoir activé les alertes sur l'appareil. Sur iPhone, cela veut dire passer par l'application installée. Une seule participation par e-mail et par numéro.
+
+### Installation (une seule fois)
+
+*SQL Editor* → *New query* → colle tout le fichier `supabase/jeux.sql` → *Run*. (Il faut avoir installé `securite.sql` et `actus.sql` avant.)
+
+### Créer un jeu
+
+1. Ouvre `https://lobjectifchalonnais.fr/tirage.html` (garde-la en favori) et tape le **code modérateur**.
+2. *+ Nouveau jeu* : titre, lot, présentation, date de fin, nombre de gagnants, photo, conditions particulières.
+3. Coche *Visible sur le site*, puis *Enregistrer le jeu*. Le lien *Annoncer ce jeu par une alerte* ouvre la page d'alerte déjà remplie.
+
+Le règlement (gratuit, majeurs résidant en France, une participation par personne, données effacées sous 3 mois) est affiché automatiquement sur la page du jeu.
+
+### Faire le tirage
+
+1. Quand le jeu est terminé, il passe en *À tirer* : touche *Tirage*.
+2. Choisis l'animation (défilement, rouleau ou roue) et lance le tirage. L'animation n'affiche que « Prénom N. » : tu peux la filmer pour TikTok ou Instagram.
+3. Les coordonnées complètes des gagnants s'affichent pour les contacter, avec le certificat et le QR code de retrait.
+4. *Publier les gagnants sur le site* : la page Jeux affiche « Prénom N. ». Ensuite *Annoncer par une alerte*.
+5. Une fois les lots remis : *Effacer les coordonnées des participants*. Sinon, elles sont effacées automatiquement 3 mois après le tirage.
+
+L'onglet *Tirage libre* reprend l'ancien outil : tu colles les commentaires d'une publication Instagram ou TikTok (ou une liste de noms) et tu tires au sort de la même façon, sans rien publier sur le site.
 
 ## Bon à savoir
 

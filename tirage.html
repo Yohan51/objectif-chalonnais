@@ -1,0 +1,1484 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Tirage au sort — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Archivo:wght@500;700;800&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;600&display=swap" rel="stylesheet">
+<style>
+  :root{
+    --ink:#0A0A0A;
+    --paper:#FCFCFB;
+    --card:#FFFFFF;
+    --muted:#6B6A66;
+    --line:#E4E2DC;
+    --line-strong:#D2D0C8;
+    --sky:#3FAFE0;
+    --sky-dark:#1E7FA8;
+    --sky-tint:#E7F6FC;
+    --ok:#1F7A4D;
+    --ok-tint:#E6F4EC;
+    --warn:#9A5B00;
+    --warn-tint:#FFF3DC;
+    --err:#B23A2E;
+    --radius:10px;
+  }
+  *{box-sizing:border-box;}
+  html,body{margin:0;padding:0;}
+  body{
+    background:var(--paper);
+    color:var(--ink);
+    font-family:'Inter',sans-serif;
+    min-height:100vh;
+    display:flex;
+    justify-content:center;
+    padding:32px 16px 80px;
+  }
+  .wrap{width:100%;max-width:640px;}
+  [hidden]{display:none !important;}
+
+  .topbar{display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-bottom:18px;}
+  .topbar a, .topbar button{color:var(--sky-dark);background:none;border:none;font:inherit;padding:0;cursor:pointer;text-decoration:underline;}
+
+  .eyebrow{
+    font-family:'IBM Plex Mono',monospace;
+    font-size:12px;
+    letter-spacing:.18em;
+    text-transform:uppercase;
+    color:var(--muted);
+    text-align:center;
+    margin:0 0 22px;
+  }
+  .masthead{
+    text-align:center;
+    margin-bottom:28px;
+    padding-bottom:24px;
+    border-bottom:1px solid var(--line);
+  }
+  .masthead img{width:150px;height:auto;display:block;margin:0 auto 14px;}
+  .masthead h1{font-family:'Archivo',sans-serif;font-weight:800;font-size:26px;letter-spacing:.01em;margin:0;line-height:1.15;}
+  .masthead .sub{
+    font-family:'IBM Plex Mono',monospace;font-size:12px;letter-spacing:.08em;text-transform:uppercase;
+    color:var(--sky-dark);margin-top:8px;
+  }
+
+  /* Verrou */
+  #lockOverlay{min-height:80vh;display:flex;align-items:center;justify-content:center;}
+  .lock-card{
+    width:100%;max-width:340px;background:var(--card);border:1px solid var(--line);
+    border-radius:14px;padding:32px 28px;text-align:center;
+  }
+  .lock-card img{width:110px;height:auto;margin:0 auto 14px;display:block;}
+  .lock-card h1{font-family:'Archivo',sans-serif;font-weight:700;font-size:17px;margin:0 0 6px;}
+  .lock-card p{font-size:13px;color:var(--muted);margin:0 0 20px;line-height:1.5;}
+  .lock-card input{
+    width:100%;text-align:center;letter-spacing:.05em;background:var(--paper);
+    border:1px solid var(--line-strong);border-radius:8px;color:var(--ink);
+    font-family:'Inter',sans-serif;font-size:16px;padding:11px 12px;margin-bottom:14px;
+  }
+  .lock-error{font-size:13px;color:var(--err) !important;margin:-6px 0 14px !important;}
+
+  .card{
+    background:var(--card);border:1px solid var(--line);border-radius:var(--radius);
+    padding:24px;margin-bottom:20px;
+  }
+  .card h2{
+    font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;letter-spacing:.03em;
+    text-transform:uppercase;color:var(--ink);margin:0 0 6px;
+  }
+  .card-head{display:flex;justify-content:space-between;align-items:center;gap:12px;margin-bottom:6px;}
+  .card-head h2{margin:0;}
+  .hint{font-size:13px;color:var(--muted);margin:0 0 14px;line-height:1.55;}
+
+  textarea{
+    width:100%;min-height:150px;background:var(--paper);border:1px solid var(--line-strong);
+    border-radius:8px;color:var(--ink);font-family:'IBM Plex Mono',monospace;font-size:13px;
+    line-height:1.6;padding:12px 14px;resize:vertical;
+  }
+  textarea.prose{font-family:'Inter',sans-serif;font-size:14px;min-height:90px;}
+  textarea::placeholder{color:#B3B1AA;}
+  textarea:focus, input:focus, select:focus{outline:none;border-color:var(--sky);box-shadow:0 0 0 3px var(--sky-tint);}
+
+  .row{display:flex;gap:16px;margin-top:16px;flex-wrap:wrap;}
+  .field{flex:1;min-width:160px;}
+  .field + .field{margin-top:0;}
+  .stack > .field{margin-top:16px;}
+  .field label, .label{display:block;font-size:12px;color:var(--muted);margin-bottom:6px;letter-spacing:.02em;}
+  input[type=text], input[type=number], input[type=datetime-local], input[type=password], select{
+    width:100%;background:var(--paper);border:1px solid var(--line-strong);border-radius:8px;
+    color:var(--ink);font-family:'Inter',sans-serif;font-size:14px;padding:9px 12px;min-height:40px;
+  }
+  .check{display:flex;align-items:center;gap:8px;margin-top:16px;font-size:13px;color:var(--muted);}
+  .check input{width:16px;height:16px;accent-color:var(--sky-dark);flex-shrink:0;}
+
+  .stat{font-family:'IBM Plex Mono',monospace;font-size:12px;color:var(--muted);margin-top:14px;line-height:1.6;}
+  .stat b{color:var(--ink);}
+
+  .link-btn{
+    background:none;border:none;color:var(--sky-dark);font-family:'Inter',sans-serif;font-size:12.5px;
+    text-decoration:underline;padding:0;margin-top:8px;cursor:pointer;
+  }
+  .breakdown{margin-top:10px;max-height:220px;overflow-y:auto;border:1px solid var(--line);border-radius:8px;padding:4px 14px;}
+  .breakdown-row{display:flex;justify-content:space-between;gap:12px;padding:8px 0;border-bottom:1px solid var(--line);font-size:13px;}
+  .breakdown-row:last-child{border-bottom:none;}
+  .breakdown-row .c{font-family:'IBM Plex Mono',monospace;color:var(--muted);white-space:nowrap;}
+
+  /* Onglets */
+  .tabs{display:flex;gap:8px;margin:0 0 20px;}
+
+  /* Liste des jeux */
+  .jeux{display:flex;flex-direction:column;gap:10px;margin-top:14px;}
+  .jeu{
+    border:1px solid var(--line);border-radius:8px;padding:14px 16px;background:var(--paper);
+    display:flex;flex-wrap:wrap;gap:8px 14px;align-items:center;
+  }
+  .jeu.actif{border-color:var(--sky);box-shadow:0 0 0 3px var(--sky-tint);}
+  .jeu-infos{flex:1 1 260px;min-width:0;}
+  .jeu-titre{font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;margin:0 0 4px;}
+  .jeu-meta{font-family:'IBM Plex Mono',monospace;font-size:11.5px;color:var(--muted);line-height:1.6;}
+  .jeu-btns{display:flex;gap:6px;flex-wrap:wrap;}
+  .chip{
+    display:inline-block;font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.06em;
+    text-transform:uppercase;padding:3px 8px;border-radius:999px;margin-right:6px;vertical-align:2px;
+    background:var(--line);color:var(--muted);
+  }
+  .chip.ouvert{background:var(--ok-tint);color:var(--ok);}
+  .chip.atirer{background:var(--warn-tint);color:var(--warn);}
+  .chip.tire{background:var(--sky-tint);color:var(--sky-dark);}
+  .vide{font-family:'IBM Plex Mono',monospace;font-size:13px;color:var(--muted);text-align:center;padding:22px 10px;}
+
+  .photo-zone{display:flex;gap:14px;align-items:center;flex-wrap:wrap;}
+  .photo-zone img{width:110px;height:74px;object-fit:cover;border-radius:6px;border:1px solid var(--line);}
+  .photo-zone .photo-btns{display:flex;flex-direction:column;gap:6px;align-items:flex-start;}
+
+  .msg{font-size:13px;margin-top:12px;line-height:1.5;padding:10px 12px;border-radius:8px;}
+  .msg.ok{background:var(--ok-tint);color:var(--ok);}
+  .msg.err{background:#FBEAE8;color:var(--err);}
+  .msg.info{background:var(--warn-tint);color:var(--warn);}
+  .msg a{color:inherit;font-weight:600;}
+
+  .resume-jeu{
+    border:1px solid var(--line);border-radius:8px;padding:12px 14px;margin:4px 0 0;
+    font-size:13px;line-height:1.6;background:var(--sky-tint);
+  }
+  .resume-jeu b{font-family:'Archivo',sans-serif;}
+
+  button{font-family:'Archivo',sans-serif;cursor:pointer;border:none;}
+  .go{
+    width:100%;margin-top:22px;background:var(--ink);color:var(--paper);font-size:16px;font-weight:700;
+    letter-spacing:.02em;padding:15px;border-radius:8px;transition:transform .08s ease, background .15s ease;
+  }
+  .go:hover{background:#2A2A2A;}
+  .go:active{transform:scale(0.98);}
+  .go:disabled{background:#D2D0C8;color:#8A8880;cursor:not-allowed;}
+  .go.bleu{background:var(--sky-dark);color:#fff;}
+  .go.bleu:hover{background:#176a8d;}
+
+  .error{font-size:13px;color:var(--err);margin-top:10px;}
+
+  .result-zone{min-height:40px;}
+  .result-meta{font-size:13px;color:var(--muted);margin:-4px 0 14px;padding-bottom:14px;border-bottom:1px solid var(--line);}
+  .result-meta b{color:var(--ink);font-weight:600;}
+
+  .spinner{
+    position:relative;text-align:center;padding:40px 46px;font-family:'IBM Plex Mono',monospace;
+    font-size:20px;font-weight:600;color:var(--sky-dark);letter-spacing:.02em;overflow:hidden;
+    white-space:nowrap;text-overflow:ellipsis;
+  }
+  .spinner.landed{animation:land .5s cubic-bezier(.2,.9,.3,1.3);color:var(--ink);}
+  @keyframes land{0%{transform:scale(1);}45%{transform:scale(1.18);}70%{transform:scale(0.96);}100%{transform:scale(1);}}
+
+  .viewfinder{position:relative;}
+  .viewfinder::before,.viewfinder::after,.viewfinder .vf-bl,.viewfinder .vf-br{
+    content:"";position:absolute;width:14px;height:14px;border-color:var(--sky);border-style:solid;border-width:0;
+  }
+  .viewfinder::before{top:6px;left:6px;border-top-width:2px;border-left-width:2px;}
+  .viewfinder::after{top:6px;right:6px;border-top-width:2px;border-right-width:2px;}
+  .viewfinder .vf-bl{bottom:6px;left:6px;border-bottom-width:2px;border-left-width:2px;}
+  .viewfinder .vf-br{bottom:6px;right:6px;border-bottom-width:2px;border-right-width:2px;}
+
+  .mode-select{display:flex;gap:8px;margin-top:6px;}
+  .mode-btn{
+    flex:1;padding:9px 6px;border:1px solid var(--line-strong);border-radius:8px;background:var(--paper);
+    color:var(--muted);font-family:'Inter',sans-serif;font-size:13px;font-weight:500;min-height:40px;
+  }
+  .mode-btn.active{background:var(--ink);color:var(--paper);border-color:var(--ink);}
+  .mode-btn.petit{flex:0 0 auto;padding:7px 12px;min-height:34px;font-size:12.5px;}
+  .mode-btn.danger{color:var(--err);}
+  .mode-btn:disabled{opacity:.5;cursor:not-allowed;}
+
+  .reel-viewport{position:relative;height:64px;overflow:hidden;border:1px solid var(--line);border-radius:8px;background:var(--paper);}
+  .reel-viewport::before{content:"";position:absolute;top:0;left:50%;width:2px;height:100%;background:var(--sky);transform:translateX(-1px);z-index:2;}
+  .reel-track{display:flex;align-items:center;height:100%;will-change:transform;}
+  .reel-chip{
+    flex:0 0 auto;width:150px;text-align:center;font-family:'Archivo',sans-serif;font-weight:700;font-size:15px;
+    color:var(--ink);white-space:nowrap;overflow:hidden;text-overflow:ellipsis;padding:0 8px;
+  }
+
+  .wheel-wrap{display:flex;flex-direction:column;align-items:center;padding:12px 0 6px;}
+  .wheel-pointer{width:0;height:0;border-left:9px solid transparent;border-right:9px solid transparent;border-top:14px solid var(--ink);margin-bottom:-2px;z-index:2;}
+  .wheel-stage{position:relative;width:260px;height:260px;}
+  .wheel-rotor{width:100%;height:100%;transition:transform 3.6s cubic-bezier(.11,.7,.1,1);}
+  .wheel-hub{position:absolute;top:50%;left:50%;width:16px;height:16px;border-radius:50%;background:var(--paper);border:2px solid var(--ink);transform:translate(-50%,-50%);z-index:2;}
+
+  .winners{display:flex;flex-direction:column;gap:12px;}
+  .winner-card{
+    background:var(--paper);color:var(--ink);border:1px solid var(--line);border-radius:8px;
+    padding:16px 18px;display:flex;flex-wrap:wrap;align-items:center;gap:10px 14px;position:relative;
+    animation:pop .35s ease;
+  }
+  @keyframes pop{from{opacity:0;transform:translateY(6px);}to{opacity:1;transform:translateY(0);}}
+  .winner-num{
+    font-family:'IBM Plex Mono',monospace;font-weight:600;font-size:13px;background:var(--ink);color:var(--paper);
+    border-radius:6px;padding:6px 10px;min-width:34px;text-align:center;
+  }
+  .winner-name{font-family:'Archivo',sans-serif;font-weight:700;font-size:18px;letter-spacing:.005em;}
+  .winner-contact{flex-basis:100%;font-size:13px;color:var(--muted);line-height:1.7;}
+  .winner-contact a{color:var(--sky-dark);font-weight:600;text-decoration:none;}
+  .winner-btns{flex-basis:100%;display:flex;gap:8px;flex-wrap:wrap;}
+  .cert-btn{
+    flex:0 0 auto;background:transparent;border:1px solid var(--line-strong);color:var(--sky-dark);
+    font-family:'Inter',sans-serif;font-size:12px;font-weight:500;padding:7px 10px;border-radius:6px;white-space:nowrap;
+  }
+  .cert-btn:hover{border-color:var(--sky-dark);background:var(--sky-tint);}
+  .cert-btn:disabled{opacity:.5;cursor:wait;}
+  .cert-btn.replace-btn{color:var(--muted);}
+  .cert-btn.replace-btn:hover{border-color:var(--ink);color:var(--ink);}
+
+  .qr-panel{width:100%;margin-top:4px;padding:18px;border:1px dashed var(--line-strong);border-radius:8px;text-align:center;}
+  .qr-box{display:inline-block;line-height:0;padding:10px;background:#fff;border-radius:6px;}
+  .qr-code{font-family:'IBM Plex Mono',monospace;font-size:13px;letter-spacing:.06em;color:var(--ink);margin-top:10px;}
+  .qr-caption{font-size:12px;color:var(--muted);margin-top:4px;}
+
+  .actions{display:flex;gap:10px;margin-top:18px;flex-wrap:wrap;}
+  .actions button, .actions a{
+    flex:1;min-width:140px;background:transparent;border:1px solid var(--line-strong);color:var(--muted);
+    font-family:'Archivo',sans-serif;font-size:13px;font-weight:500;letter-spacing:.02em;padding:10px;border-radius:8px;
+    text-align:center;text-decoration:none;
+  }
+  .actions button:hover, .actions a:hover{border-color:var(--ink);color:var(--ink);}
+  .actions .principal{background:var(--ink);color:var(--paper);border-color:var(--ink);font-weight:700;}
+  .actions .principal:hover{background:#2A2A2A;color:var(--paper);}
+  .actions button:disabled{opacity:.5;cursor:not-allowed;}
+
+  .apres{margin-top:18px;padding-top:16px;border-top:1px solid var(--line);}
+
+  .history-entry{padding:14px 0;border-bottom:1px solid var(--line);}
+  .history-entry:last-child{border-bottom:none;}
+  .history-entry .h-date{font-family:'IBM Plex Mono',monospace;font-size:11px;color:var(--muted);letter-spacing:.04em;margin-bottom:4px;}
+  .history-entry .h-title{font-family:'Archivo',sans-serif;font-weight:700;font-size:14px;color:var(--ink);margin-bottom:4px;}
+  .history-entry .h-winners{font-size:13px;color:var(--ink);}
+  .history-entry .h-winners b{color:var(--sky-dark);}
+  .history-stats{display:flex;gap:10px;margin-bottom:16px;flex-wrap:wrap;}
+  .history-stats .stat-box{flex:1;min-width:110px;background:var(--sky-tint);border-radius:8px;padding:12px 14px;text-align:center;}
+  .history-stats .stat-box .num{font-family:'Archivo',sans-serif;font-weight:800;font-size:24px;color:var(--sky-dark);display:block;}
+  .history-stats .stat-box .lbl{font-family:'IBM Plex Mono',monospace;font-size:10.5px;letter-spacing:.04em;color:var(--muted);text-transform:uppercase;}
+  .repeat-winners{font-size:12.5px;color:var(--muted);margin:-6px 0 16px;line-height:1.6;}
+  .repeat-winners b{color:var(--ink);}
+
+  details.reglages{margin-top:4px;}
+  details.reglages summary{cursor:pointer;font-size:13px;color:var(--sky-dark);font-weight:500;}
+
+  .footer-note{text-align:center;font-size:11px;color:#A8A69F;margin-top:28px;line-height:1.6;font-family:'IBM Plex Mono',monospace;}
+
+  @media (max-width:480px){
+    .card{padding:18px 16px;}
+    .masthead h1{font-size:21px;}
+    .masthead img{width:120px;}
+    .row{flex-direction:column;gap:12px;}
+  }
+  @media (prefers-reduced-motion: reduce){
+    .winner-card{animation:none;}
+  }
+</style>
+</head>
+<body>
+
+<div class="wrap">
+
+<!-- ================= Verrou : code modérateur ================= -->
+<div id="lockOverlay">
+  <form class="lock-card" id="lockForm">
+    <img src="icons/logo-carre.png" alt="L'Objectif Châlonnais">
+    <h1>Accès réservé</h1>
+    <p>Jeux concours et tirage au sort. Entrez le code modérateur de l'équipe.</p>
+    <input type="password" id="lockPassword" placeholder="Code modérateur" autocomplete="current-password">
+    <p class="lock-error" id="lockError" hidden></p>
+    <button class="go" id="lockSubmit" type="submit" style="margin-top:0;">Déverrouiller</button>
+  </form>
+</div>
+
+<div id="appRoot" hidden>
+
+  <div class="topbar">
+    <span><a href="jeux.html" target="_blank" rel="noopener">Voir la page publique des jeux</a> · <a href="rediger.html">Rédaction</a> · <a href="envoyer.html">Alertes</a></span>
+    <button type="button" id="btnQuitter">Se déconnecter</button>
+  </div>
+
+  <p class="eyebrow">Jeu concours · L'Objectif Châlonnais</p>
+  <div class="masthead">
+    <img src="icons/logo-carre.png" alt="L'Objectif Châlonnais">
+    <h1>Tirage au sort</h1>
+    <div class="sub">Outil de l'équipe</div>
+  </div>
+
+  <div class="tabs mode-select" id="sourceSelect" role="tablist">
+    <button type="button" class="mode-btn active" data-source="site" role="tab" aria-selected="true">Jeux du site</button>
+    <button type="button" class="mode-btn" data-source="libre" role="tab" aria-selected="false">Tirage libre (Instagram, TikTok…)</button>
+  </div>
+
+  <!-- ================= Jeux du site ================= -->
+  <section id="vueSite">
+    <div class="card">
+      <div class="card-head">
+        <h2>Jeux du site</h2>
+        <button type="button" class="mode-btn petit" id="btnNouveau">+ Nouveau jeu</button>
+      </div>
+      <p class="hint">Les participants s'inscrivent sur la page « Jeux » du site (alertes activées obligatoires). Une fois le jeu terminé, touchez « Tirage ».</p>
+      <div class="jeux" id="listeJeux"><p class="vide">Chargement…</p></div>
+    </div>
+
+    <form class="card" id="formJeu" hidden novalidate>
+      <div class="card-head">
+        <h2 id="formTitre">Nouveau jeu</h2>
+        <button type="button" class="mode-btn petit" id="btnFermerForm">Fermer</button>
+      </div>
+      <div class="stack">
+        <div class="field">
+          <label for="fTitre">Titre du jeu</label>
+          <input type="text" id="fTitre" maxlength="120" placeholder="Ex. 2 places pour le concert de la Foire" required>
+        </div>
+        <div class="field">
+          <label for="fLot">Lot à gagner</label>
+          <input type="text" id="fLot" maxlength="200" placeholder="Ex. Un repas pour deux à L'Escale">
+        </div>
+        <div class="field">
+          <label for="fDescription">Présentation (facultatif)</label>
+          <textarea id="fDescription" class="prose" maxlength="3000" placeholder="Quelques mots sur le lot, le partenaire, comment le récupérer…"></textarea>
+        </div>
+        <div class="row">
+          <div class="field">
+            <label for="fFin">Fin du jeu</label>
+            <input type="datetime-local" id="fFin" required>
+          </div>
+          <div class="field">
+            <label for="fNb">Nombre de gagnants</label>
+            <input type="number" id="fNb" min="1" max="50" value="1">
+          </div>
+        </div>
+        <div class="field">
+          <span class="label">Photo du lot (facultatif)</span>
+          <div class="photo-zone">
+            <img id="fPhotoApercu" alt="" hidden>
+            <div class="photo-btns">
+              <label class="mode-btn petit" style="display:inline-block;cursor:pointer;">Choisir une photo
+                <input type="file" id="fPhoto" accept="image/*" hidden>
+              </label>
+              <button type="button" class="link-btn" id="btnRetirerPhoto" hidden>Retirer la photo</button>
+            </div>
+          </div>
+          <p class="stat" id="photoInfo" style="margin-top:6px;"></p>
+        </div>
+        <div class="field">
+          <label for="fReglement">Conditions particulières (facultatif)</label>
+          <textarea id="fReglement" class="prose" maxlength="6000" placeholder="Ex. Lot offert par… · à retirer avant le… · valable du lundi au jeudi."></textarea>
+          <p class="hint" style="margin-top:8px;">Le règlement général (gratuité, majorité, une participation par personne, données effacées sous 3 mois…) est ajouté automatiquement sur la page du jeu.</p>
+        </div>
+      </div>
+      <label class="check"><input type="checkbox" id="fPublie"> Visible sur le site (sinon : brouillon)</label>
+      <button class="go" type="submit" id="btnEnregistrer">Enregistrer le jeu</button>
+      <div id="formMsg" class="msg" hidden></div>
+      <div class="row" id="formDanger" hidden>
+        <button type="button" class="mode-btn danger" id="btnSupprimer">Supprimer ce jeu</button>
+      </div>
+    </form>
+  </section>
+
+  <!-- ================= Tirage libre ================= -->
+  <section id="vueLibre" hidden>
+    <div class="card">
+      <h2>Étape 1 · Coller les commentaires</h2>
+      <p class="hint">Sélectionne tout le bloc de commentaires (clic avant le premier, <span style="color:var(--ink)">Maj + clic</span> après le dernier visible, ou <span style="color:var(--ink)">Ctrl/Cmd + A</span> dans la zone) puis copie-colle ici, en vrac — noms, textes, dates, « J'aime », tout mélangé n'est pas un problème. Fil trop long ? Colle et extrais par blocs au fur et à mesure que tu scrolles, ils s'additionnent.</p>
+      <textarea id="raw" placeholder="Marie Dupont
+Trop hâte de participer !
+2 j · J'aime · Répondre
+
+Julien Petit
+Génial cette initiative
+1 j · J'aime · Répondre
+..."></textarea>
+      <button class="go bleu" id="extractBtn" type="button" style="margin-top:14px;">Extraire les noms de ce bloc</button>
+      <p class="stat" id="extractStat" hidden></p>
+    </div>
+
+    <div class="card">
+      <h2>Étape 2 · Participants</h2>
+      <p class="hint">Liste extraite automatiquement — relis-la et corrige à la main si besoin avant de lancer le tirage. Tu peux aussi taper ou coller des noms directement ici (un par ligne).</p>
+      <textarea id="names" placeholder="Marie Dupont
+Julien Petit
+Marie Dupont
+Sophie Bernard
+..."></textarea>
+      <label class="check">
+        <input type="checkbox" id="dedupe">
+        Un seul ticket par personne (ignore les doublons de commentaires)
+      </label>
+    </div>
+  </section>
+
+  <!-- ================= Tirage (commun) ================= -->
+  <div class="card" id="carteTirage">
+    <h2>Tirage</h2>
+    <div id="resumeJeu" class="resume-jeu" hidden></div>
+    <p class="hint" id="aucunJeu">Choisissez un jeu terminé dans la liste ci-dessus et touchez « Tirage ».</p>
+
+    <div id="reglagesTirage">
+      <div class="row">
+        <div class="field">
+          <label for="contestSubject">Objet du concours</label>
+          <input type="text" id="contestSubject" placeholder="Ex. L'Escale" maxlength="80">
+        </div>
+        <div class="field">
+          <label for="contestPrize">Lot à gagner</label>
+          <input type="text" id="contestPrize" placeholder="Ex. Un repas pour deux" maxlength="80">
+        </div>
+      </div>
+      <div class="row">
+        <div class="field">
+          <label for="winnerCount">Nombre de gagnants</label>
+          <input type="number" id="winnerCount" value="1" min="1">
+        </div>
+        <div class="field">
+          <label for="exclude">Exclure (séparés par une virgule)</label>
+          <input type="text" id="exclude" placeholder="L'Objectif Châlonnais, Admin">
+        </div>
+      </div>
+      <label class="check">
+        <input type="checkbox" id="excludePastWinners">
+        Exclure les gagnants des tirages précédents
+      </label>
+
+      <p class="stat" id="stat">0 ticket valide</p>
+      <button type="button" id="toggleBreakdown" class="link-btn" hidden>Voir le détail des tickets par personne</button>
+      <div id="ticketBreakdown" class="breakdown" hidden></div>
+      <p class="error" id="error" hidden></p>
+
+      <div class="row">
+        <button type="button" id="exportParticipantsBtn" class="mode-btn">Télécharger la liste des participants</button>
+      </div>
+
+      <div class="field" style="margin-top:16px;">
+        <span class="label">Animation du tirage</span>
+        <div class="mode-select" id="modeSelect">
+          <button type="button" class="mode-btn active" data-mode="scroll">Défilement</button>
+          <button type="button" class="mode-btn" data-mode="reel">Rouleau</button>
+          <button type="button" class="mode-btn" data-mode="wheel">Roue</button>
+        </div>
+        <p class="hint" style="margin-top:8px;">La roue affiche un échantillon de 12 participants maximum (le gagnant y figure toujours). Pour les jeux du site, l'animation n'affiche que « Prénom N. » : vous pouvez la filmer pour les réseaux.</p>
+      </div>
+
+      <button class="go" id="drawBtn" type="button">Lancer le tirage</button>
+    </div>
+  </div>
+
+  <div class="card result-zone" id="resultCard" hidden>
+    <h2>Résultat</h2>
+    <div id="resultInner"></div>
+    <div class="actions" id="actions" hidden>
+      <button type="button" id="publishBtn" class="principal" hidden>Publier les gagnants sur le site</button>
+      <button type="button" id="copyBtn">Copier le résultat</button>
+      <button type="button" id="downloadAllBtn">Tout télécharger (certificats)</button>
+      <button type="button" id="resetBtn">Nouveau tirage</button>
+    </div>
+    <div id="publishMsg" class="msg" hidden></div>
+    <div class="apres" id="apres" hidden>
+      <p class="hint">Gagnants publiés sur la page des jeux. Et maintenant :</p>
+      <div class="actions" style="margin-top:0;">
+        <a id="lienAlerteResultat" href="envoyer.html">Annoncer par une alerte</a>
+        <button type="button" id="effacerBtn">Effacer les coordonnées des participants</button>
+      </div>
+      <p class="hint" style="margin-top:10px;">Effacez les coordonnées une fois les lots remis. Sinon, elles le sont automatiquement 3 mois après le tirage.</p>
+    </div>
+  </div>
+
+  <div class="card" id="historyCard" hidden>
+    <h2>Historique des tirages</h2>
+    <div id="historyStats" class="history-stats"></div>
+    <p class="hint">Mémorisé dans ce navigateur uniquement — pas partagé entre admins ni entre appareils.</p>
+    <div id="historyList"></div>
+    <div class="row" style="margin-top:14px;">
+      <button type="button" id="clearHistoryBtn" class="mode-btn">Effacer l'historique</button>
+    </div>
+  </div>
+
+  <div class="card">
+    <details class="reglages">
+      <summary>Réglages : QR code et sauvegarde</summary>
+      <div class="field" style="margin-top:16px;">
+        <label for="ticketPageUrl">URL de la page ticket (optionnel)</label>
+        <input type="text" id="ticketPageUrl" placeholder="https://…/ticket/" maxlength="200">
+        <p class="hint" style="margin-top:8px;">Si renseignée, le QR code devient un vrai lien qui s'ouvre au scan, au lieu d'un simple texte.</p>
+      </div>
+      <div class="row">
+        <button type="button" id="exportConfigBtn" class="mode-btn">Exporter la configuration</button>
+        <button type="button" id="importConfigBtn" class="mode-btn">Importer une configuration</button>
+        <input type="file" id="importConfigInput" accept="application/json" hidden>
+      </div>
+      <p class="hint" style="margin-top:8px;">Pour transférer l'URL ticket et l'historique à un autre admin, ou les sauvegarder avant de changer d'ordinateur.</p>
+    </details>
+  </div>
+
+  <p class="footer-note">Le tirage se fait dans votre navigateur, avec le générateur aléatoire sécurisé du système.<br>Jeux du site : seuls « Prénom N. » des gagnants sont publiés.</p>
+
+</div>
+</div>
+
+<script src="config.js"></script>
+<script src="actus-rendu.js"></script>
+<script src="qrcode.min.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const esc = (s)=> String(s == null ? '' : s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;').replace(/'/g,'&#39;');
+  const CODE_KEY = 'oc-redaction-code';
+  const ss = {
+    get(k){ try{ return sessionStorage.getItem(k); }catch(e){ return null; } },
+    set(k, v){ try{ sessionStorage.setItem(k, v); }catch(e){} },
+    del(k){ try{ sessionStorage.removeItem(k); }catch(e){} }
+  };
+  const ls = {
+    get(k){ try{ return localStorage.getItem(k); }catch(e){ return null; } },
+    set(k, v){ try{ localStorage.setItem(k, v); }catch(e){} }
+  };
+  function montrer(el, oui){ el.hidden = !oui; }
+
+  // Hasard sécurisé (crypto) — entier dans [0, n[
+  function hasard(n){
+    if(n <= 1) return 0;
+    const max = Math.floor(0x100000000 / n) * n;
+    const buf = new Uint32Array(1);
+    do{ crypto.getRandomValues(buf); }while(buf[0] >= max);
+    return buf[0] % n;
+  }
+  function shuffle(arr){
+    const a = arr.slice();
+    for(let i = a.length - 1; i > 0; i--){ const j = hasard(i + 1); [a[i], a[j]] = [a[j], a[i]]; }
+    return a;
+  }
+
+  let code = null;
+  let jeux = [];
+  let source = 'site';
+  let jeuTirage = null;          // jeu du site sélectionné pour le tirage
+  let participantsSite = [];     // tickets du jeu sélectionné
+  let jeuEdite = null;           // jeu en cours de modification (null = nouveau)
+  let photo = { etat:'aucune', grande:'', mini:'' };
+  const reglagesOnglet = {};
+
+  // =====================================================================
+  // Connexion
+  // =====================================================================
+  async function connecter(c){
+    const res = await A.rpc('oc_jeux_equipe', { p_code: c });
+    code = c; ss.set(CODE_KEY, c);
+    jeux = res.jeux || [];
+    $('lockOverlay').hidden = true; $('appRoot').hidden = false;
+    rendreJeux();
+  }
+  $('lockForm').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('lockPassword').value;
+    $('lockError').hidden = true;
+    if(!c) return;
+    if(!A.configure){ $('lockError').textContent = 'Supabase n\'est pas configuré dans config.js.'; $('lockError').hidden = false; return; }
+    $('lockSubmit').disabled = true;
+    try{ await connecter(c); $('lockPassword').value = ''; }
+    catch(err){ $('lockError').textContent = err.message; $('lockError').hidden = false; $('lockPassword').select(); }
+    finally{ $('lockSubmit').disabled = false; }
+  });
+  $('btnQuitter').onclick = ()=>{ code = null; ss.del(CODE_KEY); location.reload(); };
+  (async ()=>{
+    const c = ss.get(CODE_KEY);
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ ss.del(CODE_KEY); } }
+    if(!code) $('lockPassword').focus();
+  })();
+
+  async function rafraichir(){
+    const res = await A.rpc('oc_jeux_equipe', { p_code: code });
+    jeux = res.jeux || [];
+    rendreJeux();
+  }
+
+  // =====================================================================
+  // Onglets : jeux du site / tirage libre
+  // =====================================================================
+  document.querySelectorAll('#sourceSelect .mode-btn').forEach(b=>{
+    b.addEventListener('click', ()=>{
+      if(b.dataset.source === source) return;
+      // chaque onglet garde ses propres réglages (objet, lot, nombre de gagnants)
+      reglagesOnglet[source] = { s: $('contestSubject').value, p: $('contestPrize').value, n: $('winnerCount').value, x: $('exclude').value };
+      source = b.dataset.source;
+      const r = reglagesOnglet[source] || { s:'', p:'', n:1, x:'' };
+      $('contestSubject').value = r.s; $('contestPrize').value = r.p; $('winnerCount').value = r.n; $('exclude').value = r.x;
+      document.querySelectorAll('#sourceSelect .mode-btn').forEach(x=>{ x.classList.toggle('active', x === b); x.setAttribute('aria-selected', x === b); });
+      montrer($('vueSite'), source === 'site');
+      montrer($('vueLibre'), source === 'libre');
+      majCarteTirage();
+      updateStat();
+    });
+  });
+
+  // =====================================================================
+  // Liste des jeux
+  // =====================================================================
+  function dateCourte(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-FR', { day:'numeric', month:'short', year:'numeric' }) + ' ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+  }
+  function etatJeu(j){
+    if(!j.publie) return { cle:'brouillon', txt:'Brouillon' };
+    if(j.tire_le) return { cle:'tire', txt:'Tiré' };
+    if(new Date(j.date_fin) > new Date()) return { cle:'ouvert', txt:'En cours' };
+    return { cle:'atirer', txt:'À tirer' };
+  }
+  function rendreJeux(){
+    const el = $('listeJeux');
+    if(!jeux.length){ el.innerHTML = '<p class="vide">Aucun jeu pour le moment. Touchez « + Nouveau jeu ».</p>'; return; }
+    el.innerHTML = jeux.map(j=>{
+      const e = etatJeu(j);
+      const gagnants = (j.gagnants || []).length ? `<br>Gagnant${j.gagnants.length > 1 ? 's' : ''} : ${esc(j.gagnants.join(', '))}` : '';
+      const coord = j.coordonnees_effacees ? ' · coordonnées effacées' : '';
+      return `<div class="jeu${jeuTirage && jeuTirage.id === j.id ? ' actif' : ''}" data-id="${j.id}">
+        <div class="jeu-infos">
+          <p class="jeu-titre"><span class="chip ${e.cle}">${e.txt}</span>${esc(j.titre)}</p>
+          <div class="jeu-meta">Fin : ${esc(dateCourte(j.date_fin))} · ${j.participants} participant${j.participants > 1 ? 's' : ''} · ${j.nb_gagnants} gagnant${j.nb_gagnants > 1 ? 's' : ''}${coord}${gagnants}</div>
+        </div>
+        <div class="jeu-btns">
+          <button type="button" class="mode-btn petit" data-action="modifier">Modifier</button>
+          <button type="button" class="mode-btn petit${e.cle === 'atirer' ? ' active' : ''}" data-action="tirage"${j.coordonnees_effacees || !j.participants ? ' disabled' : ''}>Tirage</button>
+        </div>
+      </div>`;
+    }).join('');
+    el.querySelectorAll('.jeu').forEach(row=>{
+      const j = jeux.find(x=> String(x.id) === row.dataset.id);
+      row.querySelector('[data-action="modifier"]').onclick = ()=> ouvrirForm(j);
+      row.querySelector('[data-action="tirage"]').onclick = ()=> choisirPourTirage(j);
+    });
+  }
+
+  // =====================================================================
+  // Créer / modifier un jeu
+  // =====================================================================
+  function versLocal(iso){
+    const d = new Date(iso); const p = (n)=> String(n).padStart(2, '0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function formMsg(html, kind){ const m = $('formMsg'); m.innerHTML = html; m.className = 'msg ' + kind; m.hidden = !html; }
+  async function ouvrirForm(j){
+    formMsg('', 'ok');
+    jeuEdite = null;
+    $('formJeu').hidden = false;
+    $('formTitre').textContent = j ? 'Modifier le jeu' : 'Nouveau jeu';
+    $('formDanger').hidden = !j;
+    if(j){
+      try{
+        const r = await A.rpc('oc_jeu_lire', { p_code: code, p_id: j.id });
+        jeuEdite = r.jeu;
+      }catch(err){ formMsg(esc(err.message), 'err'); return; }
+    }
+    const d = jeuEdite || {};
+    $('fTitre').value = d.titre || '';
+    $('fLot').value = d.lot || '';
+    $('fDescription').value = d.description || '';
+    $('fReglement').value = d.reglement || '';
+    $('fNb').value = d.nb_gagnants || 1;
+    $('fPublie').checked = jeuEdite ? !!d.publie : true;
+    if(d.date_fin) $('fFin').value = versLocal(d.date_fin);
+    else { const f = new Date(); f.setDate(f.getDate() + 7); f.setHours(20, 0, 0, 0); $('fFin').value = versLocal(f.toISOString()); }
+    photo = d.photo ? { etat:'gardee', grande:'', mini:'' } : { etat:'aucune', grande:'', mini:'' };
+    afficherPhoto();
+    $('photoInfo').textContent = '';
+    $('formJeu').scrollIntoView({ behavior:'smooth', block:'start' });
+    $('fTitre').focus({ preventScroll:true });
+  }
+  $('btnNouveau').onclick = ()=> ouvrirForm(null);
+  $('btnFermerForm').onclick = ()=>{ $('formJeu').hidden = true; jeuEdite = null; };
+
+  function afficherPhoto(){
+    const src = photo.etat === 'nouvelle' ? photo.mini : (photo.etat === 'gardee' && jeuEdite ? (jeuEdite.miniature || jeuEdite.photo) : '');
+    $('fPhotoApercu').hidden = !src; if(src) $('fPhotoApercu').src = src;
+    $('btnRetirerPhoto').hidden = !src;
+  }
+  function chargerImage(file){
+    return new Promise((ok, ko)=>{
+      const url = URL.createObjectURL(file);
+      const img = new Image();
+      img.onload = ()=>{ URL.revokeObjectURL(url); ok(img); };
+      img.onerror = ()=>{ URL.revokeObjectURL(url); ko(new Error('Ce fichier n\'est pas une image lisible.')); };
+      img.src = url;
+    });
+  }
+  function reduire(img, maxDim, qualite, maxLong){
+    let w = img.naturalWidth, h = img.naturalHeight;
+    const r = Math.min(1, maxDim / Math.max(w, h));
+    w = Math.round(w * r); h = Math.round(h * r);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, w, h);
+    ctx.drawImage(img, 0, 0, w, h);
+    let q = qualite, data = c.toDataURL('image/jpeg', q);
+    while(data.length > maxLong && q > 0.4){ q -= 0.08; data = c.toDataURL('image/jpeg', q); }
+    if(data.length > maxLong && maxDim > 400) return reduire(img, Math.round(maxDim * 0.8), qualite, maxLong);
+    return data;
+  }
+  $('fPhoto').addEventListener('change', async (e)=>{
+    const file = e.target.files && e.target.files[0];
+    e.target.value = '';
+    if(!file) return;
+    if(!file.type.startsWith('image/')){ $('photoInfo').textContent = 'Choisissez une image (JPG, PNG, HEIC…).'; return; }
+    $('photoInfo').textContent = 'Préparation de la photo…';
+    try{
+      const img = await chargerImage(file);
+      photo = { etat:'nouvelle', grande: reduire(img, 1600, 0.82, 560000), mini: reduire(img, 640, 0.78, 110000) };
+      afficherPhoto();
+      $('photoInfo').textContent = `Photo prête (${Math.round(photo.grande.length * 0.75 / 1024)} Ko).`;
+    }catch(err){ $('photoInfo').textContent = err.message; }
+  });
+  $('btnRetirerPhoto').onclick = ()=>{ photo = { etat:'aucune', grande:'', mini:'' }; afficherPhoto(); $('photoInfo').textContent = ''; };
+
+  function lienAlerte(titre, message, lien){
+    return 'envoyer.html?' + new URLSearchParams({ titre, message, lien }).toString();
+  }
+  function texteFin(iso){
+    const d = new Date(iso);
+    return d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' }) + ' à ' + d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }).replace(':', 'h');
+  }
+
+  $('formJeu').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const titre = $('fTitre').value.trim();
+    if(titre.length < 3){ formMsg('Indiquez un titre (3 caractères minimum).', 'err'); $('fTitre').focus(); return; }
+    if(!$('fFin').value){ formMsg('Indiquez la date de fin du jeu.', 'err'); return; }
+    const fin = new Date($('fFin').value);
+    const nb = parseInt($('fNb').value, 10);
+    if(!(nb >= 1 && nb <= 50)){ formMsg('Le nombre de gagnants doit être compris entre 1 et 50.', 'err'); return; }
+    if(!jeuEdite && fin <= new Date() && !confirm('La date de fin est déjà passée : personne ne pourra participer. Enregistrer quand même ?')) return;
+    const donnees = {
+      id: jeuEdite ? jeuEdite.id : null,
+      slug: jeuEdite ? jeuEdite.slug : A.slugifier(titre),
+      titre, lot: $('fLot').value.trim(), description: $('fDescription').value.trim(),
+      reglement: $('fReglement').value.trim(), date_fin: fin.toISOString(), nb_gagnants: nb,
+      publie: $('fPublie').checked
+    };
+    if(photo.etat === 'gardee') donnees.garder_photo = true;
+    else if(photo.etat === 'nouvelle'){ donnees.photo = photo.grande; donnees.miniature = photo.mini; }
+    const b = $('btnEnregistrer'); b.disabled = true; b.textContent = 'Enregistrement…';
+    try{
+      const r = await A.rpc('oc_jeu_enregistrer', { p_code: code, p_jeu: donnees });
+      const lienPublic = `jeux.html#${r.slug}`;
+      let html = donnees.publie
+        ? `Jeu enregistré et visible : <a href="${esc(lienPublic)}" target="_blank" rel="noopener">voir la page</a>.`
+        : 'Brouillon enregistré (pas encore visible sur le site).';
+      if(donnees.publie && fin > new Date()){
+        const msg = (donnees.lot ? `À gagner : ${donnees.lot}. ` : '') + `Participez avant ${texteFin(donnees.date_fin)} !`;
+        html += ` <a href="${esc(lienAlerte('Nouveau jeu concours 🎁', msg.slice(0, 180), './' + lienPublic))}">Annoncer ce jeu par une alerte</a>.`;
+      }
+      formMsg(html, 'ok');
+      await rafraichir();
+      jeuEdite = (await A.rpc('oc_jeu_lire', { p_code: code, p_id: r.id })).jeu;
+      $('formTitre').textContent = 'Modifier le jeu'; $('formDanger').hidden = false;
+      if(photo.etat === 'nouvelle') photo = { etat:'gardee', grande:'', mini:'' };
+    }catch(err){
+      formMsg(esc(err.message), 'err');
+    }finally{
+      b.disabled = false; b.textContent = 'Enregistrer le jeu';
+    }
+  });
+
+  $('btnSupprimer').onclick = async ()=>{
+    if(!jeuEdite) return;
+    if(!confirm(`Supprimer définitivement le jeu « ${jeuEdite.titre} » et toutes ses participations ?`)) return;
+    try{
+      await A.rpc('oc_jeu_supprimer', { p_code: code, p_jeu_id: jeuEdite.id });
+      if(jeuTirage && jeuTirage.id === jeuEdite.id){ jeuTirage = null; participantsSite = []; majCarteTirage(); updateStat(); }
+      $('formJeu').hidden = true; jeuEdite = null;
+      await rafraichir();
+    }catch(err){ formMsg(esc(err.message), 'err'); }
+  };
+
+  // =====================================================================
+  // Jeu du site → participants
+  // =====================================================================
+  function initiale(nom){ const n = String(nom || '').trim(); return n ? n[0].toUpperCase() + '.' : ''; }
+  async function choisirPourTirage(j){
+    if(new Date(j.date_fin) > new Date() && !j.tire_le){
+      if(!confirm(`Ce jeu est encore ouvert jusqu'au ${dateCourte(j.date_fin)}. Faire le tirage maintenant ?`)) return;
+    }
+    try{
+      const r = await A.rpc('oc_jeu_participants', { p_code: code, p_jeu_id: j.id });
+      participantsSite = (r.participants || []).map(p=>({
+        id: p.id,
+        nom: `${p.prenom} ${p.nom}`.trim(),
+        label: `${p.prenom} ${initiale(p.nom)}`.trim(),
+        email: p.email, tel: p.telephone
+      }));
+    }catch(err){ alert(err.message); return; }
+    jeuTirage = j;
+    $('contestSubject').value = j.titre.slice(0, 80);
+    $('contestPrize').value = (j.lot || '').slice(0, 80);
+    $('winnerCount').value = j.nb_gagnants;
+    rendreJeux();
+    majCarteTirage();
+    updateStat();
+    resetResultat();
+    $('carteTirage').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+
+  function majCarteTirage(){
+    const site = source === 'site';
+    montrer($('resumeJeu'), site && !!jeuTirage);
+    montrer($('aucunJeu'), site && !jeuTirage);
+    montrer($('reglagesTirage'), !site || !!jeuTirage);
+    if(site && jeuTirage){
+      const j = jeuTirage;
+      $('resumeJeu').innerHTML = `Jeu : <b>${esc(j.titre)}</b><br>${participantsSite.length} participant${participantsSite.length > 1 ? 's' : ''} · ${j.nb_gagnants} gagnant${j.nb_gagnants > 1 ? 's' : ''} prévu${j.nb_gagnants > 1 ? 's' : ''}`
+        + (j.tire_le ? `<br><span style="color:var(--warn)">Déjà tiré le ${esc(dateCourte(j.tire_le))} : publier un nouveau tirage remplacera les gagnants affichés.</span>` : '');
+    }
+  }
+
+  // =====================================================================
+  // Tirage libre : extraction des noms (outil d'origine)
+  // =====================================================================
+  const rawEl = $('raw'), namesEl = $('names');
+  const timeRe = /(^|\s)\d{1,3}\s?(min|h|j|sem|mois|an)s?(\s|$|·)/i;
+  const metaRe = /(j.?aime|répondre|reply|^like$|voir la traduction|modifié|réponses?|masquer|^auteur$)/i;
+  function looksLikeName(line){
+    if(!line || line.length > 45) return false;
+    if(/[!?.]$/.test(line)) return false;
+    if(/\d/.test(line)) return false;
+    if(timeRe.test(line) || metaRe.test(line)) return false;
+    const words = line.split(/\s+/);
+    if(words.length < 1 || words.length > 5) return false;
+    return words.every(w => /^[A-ZÀ-Ý]/.test(w));
+  }
+  function extractNames(raw){
+    const lines = raw.split('\n').map(l => l.trim()).filter(Boolean);
+    const found = [];
+    for(let i = 0; i < lines.length; i++){
+      const line = lines[i];
+      if(timeRe.test(line) || metaRe.test(line)) continue;
+      if(!looksLikeName(line)) continue;
+      let confirmed = false;
+      for(let j = i + 1; j < Math.min(lines.length, i + 7); j++){
+        if(timeRe.test(lines[j]) || metaRe.test(lines[j])){ confirmed = true; break; }
+        if(looksLikeName(lines[j])) break;
+      }
+      if(confirmed) found.push(line);
+    }
+    return found;
+  }
+  $('extractBtn').addEventListener('click', ()=>{
+    const st = $('extractStat'); st.hidden = false;
+    if(!rawEl.value.trim()){ st.textContent = 'Colle d\'abord un bloc de commentaires ci-dessus.'; return; }
+    const found = extractNames(rawEl.value);
+    if(!found.length){ st.textContent = 'Aucun nom détecté dans ce bloc — colle les noms manuellement dans la liste ci-dessous si besoin.'; return; }
+    const existing = namesEl.value ? namesEl.value.split('\n').filter(Boolean) : [];
+    namesEl.value = existing.concat(found).join('\n');
+    st.innerHTML = `<b>${found.length}</b> nom${found.length>1?'s':''} détecté${found.length>1?'s':''} et ajouté${found.length>1?'s':''} à la liste ci-dessous.`;
+    rawEl.value = '';
+    updateStat();
+    namesEl.scrollIntoView({ behavior:'smooth', block:'center' });
+  });
+
+  // =====================================================================
+  // Historique (dans ce navigateur)
+  // =====================================================================
+  const HISTORY_KEY = 'objectifChalonnais_history';
+  function loadHistory(){ try{ const r = localStorage.getItem(HISTORY_KEY); return r ? JSON.parse(r) : []; }catch(e){ return []; } }
+  function saveHistory(list){ ls.set(HISTORY_KEY, JSON.stringify(list)); }
+  let drawHistory = loadHistory();
+  function getPastWinnersSet(){
+    const set = new Set();
+    drawHistory.forEach(e => (e.winners || []).forEach(n => set.add(String(n).toLowerCase())));
+    return set;
+  }
+  function renderHistory(){
+    if(!drawHistory.length){ $('historyCard').hidden = true; return; }
+    $('historyCard').hidden = false;
+    const counts = new Map();
+    drawHistory.forEach(e => (e.winners || []).forEach(n => {
+      const k = String(n).toLowerCase();
+      if(!counts.has(k)) counts.set(k, { name:n, count:0 });
+      counts.get(k).count++;
+    }));
+    const total = drawHistory.length, distincts = counts.size;
+    const repeats = [...counts.values()].filter(w => w.count > 1).sort((a, b) => b.count - a.count);
+    $('historyStats').innerHTML = `
+      <div class="stat-box"><span class="num">${total}</span><span class="lbl">Tirage${total>1?'s':''}</span></div>
+      <div class="stat-box"><span class="num">${distincts}</span><span class="lbl">Gagnant${distincts>1?'s':''} distinct${distincts>1?'s':''}</span></div>`;
+    const rep = repeats.length ? `<p class="repeat-winners">A déjà gagné plusieurs fois : ${repeats.map(w => `<b>${esc(w.name)}</b> (${w.count}×)`).join(', ')}</p>` : '';
+    $('historyList').innerHTML = rep + drawHistory.slice().reverse().map(e => {
+      const t = [e.subject, e.prize].filter(Boolean).map(esc).join(' · ') || 'Tirage sans détails';
+      return `<div class="history-entry">
+        <div class="h-date">${esc(e.date || '')}${e.site ? ' · jeu du site' : ''}</div>
+        <div class="h-title">${t}</div>
+        <div class="h-winners">${(e.winners || []).map(n => `<b>${esc(n)}</b>`).join(', ')}</div>
+      </div>`;
+    }).join('');
+  }
+  renderHistory();
+  $('clearHistoryBtn').addEventListener('click', ()=>{
+    if(!confirm('Effacer tout l\'historique des tirages précédents ? Cette action est irréversible.')) return;
+    drawHistory = []; saveHistory(drawHistory); renderHistory(); updateStat();
+  });
+
+  // Réglages : URL ticket, export / import
+  const ticketPageUrlEl = $('ticketPageUrl');
+  ticketPageUrlEl.value = ls.get('objectifChalonnais_ticketPageUrl') || '';
+  ticketPageUrlEl.addEventListener('input', ()=> ls.set('objectifChalonnais_ticketPageUrl', ticketPageUrlEl.value));
+  function telecharger(blob, nom){
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a'); a.href = url; a.download = nom;
+    document.body.appendChild(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(url), 4000);
+  }
+  $('exportConfigBtn').addEventListener('click', ()=>{
+    const config = { type:'objectif-chalonnais-tirage-config', exportedAt:new Date().toISOString(), ticketPageUrl: ticketPageUrlEl.value.trim(), history: drawHistory };
+    telecharger(new Blob([JSON.stringify(config, null, 2)], { type:'application/json' }), 'config-tirage-objectif-chalonnais.json');
+  });
+  $('importConfigBtn').addEventListener('click', ()=> $('importConfigInput').click());
+  $('importConfigInput').addEventListener('change', ()=>{
+    const file = $('importConfigInput').files[0];
+    if(!file) return;
+    const reader = new FileReader();
+    reader.onload = ()=>{
+      try{
+        const config = JSON.parse(reader.result);
+        if(config.type !== 'objectif-chalonnais-tirage-config') throw new Error('Ce fichier ne semble pas être une configuration valide de l\'outil.');
+        const n = Array.isArray(config.history) ? config.history.length : 0;
+        if(!confirm(`Importer cette configuration ?\nURL de la page ticket : ${config.ticketPageUrl || '(vide)'}\nHistorique : ${n} tirage(s).\n\nCela remplacera la configuration actuelle sur cet appareil.`)) return;
+        if(typeof config.ticketPageUrl === 'string'){ ticketPageUrlEl.value = config.ticketPageUrl; ls.set('objectifChalonnais_ticketPageUrl', config.ticketPageUrl); }
+        if(Array.isArray(config.history)){ drawHistory = config.history; saveHistory(drawHistory); renderHistory(); }
+        alert('Configuration importée.');
+      }catch(err){ alert('Impossible d\'importer ce fichier : ' + err.message); }
+      finally{ $('importConfigInput').value = ''; }
+    };
+    reader.readAsText(file);
+  });
+
+  // =====================================================================
+  // Tickets
+  // =====================================================================
+  const MAX_NAME_LENGTH = 60;
+  const winnerCountEl = $('winnerCount'), excludeEl = $('exclude');
+  const dedupeEl = $('dedupe'), excludePastWinnersEl = $('excludePastWinners');
+  const contestSubjectEl = $('contestSubject'), contestPrizeEl = $('contestPrize');
+
+  // Un ticket = { nom (complet), label (affiché pendant l'animation), cle, id?, email?, tel? }
+  function getPool(){
+    const exclus = excludeEl.value.split(',').map(s => s.trim().toLowerCase()).filter(Boolean);
+    let list;
+    if(source === 'site'){
+      list = participantsSite.map(p => Object.assign({ cle: 'id:' + p.id }, p));
+    }else{
+      list = namesEl.value.replace(/\r\n?/g, '\n').split('\n')
+        .map(s => s.trim().slice(0, MAX_NAME_LENGTH)).filter(Boolean)
+        .map(n => ({ nom:n, label:n, cle:n.toLowerCase() }));
+    }
+    list = list.filter(t => !exclus.includes(t.nom.toLowerCase()) && !exclus.includes(t.label.toLowerCase()));
+    if(excludePastWinnersEl.checked){
+      const past = getPastWinnersSet();
+      list = list.filter(t => !past.has(t.nom.toLowerCase()));
+    }
+    if(source === 'libre' && dedupeEl.checked){
+      const vus = new Set();
+      list = list.filter(t => vus.has(t.cle) ? false : (vus.add(t.cle), true));
+    }
+    return list;
+  }
+  function renderTicketBreakdown(pool){
+    const counts = new Map();
+    pool.forEach(t => { if(!counts.has(t.cle)) counts.set(t.cle, { name:t.nom, count:0 }); counts.get(t.cle).count++; });
+    const rows = [...counts.values()].sort((a, b) => b.count - a.count || a.name.localeCompare(b.name));
+    $('ticketBreakdown').innerHTML = rows.map(r => `<div class="breakdown-row"><span>${esc(r.name)}</span><span class="c">${r.count} ticket${r.count > 1 ? 's' : ''}</span></div>`).join('');
+  }
+  $('toggleBreakdown').addEventListener('click', ()=>{
+    const bd = $('ticketBreakdown');
+    const ouvrir = bd.hidden;
+    if(ouvrir) renderTicketBreakdown(getPool());
+    bd.hidden = !ouvrir;
+    $('toggleBreakdown').textContent = ouvrir ? 'Masquer le détail des tickets' : 'Voir le détail des tickets par personne';
+  });
+  function updateStat(){
+    const pool = getPool();
+    const personnes = new Set(pool.map(t => t.cle)).size;
+    let html = `<b>${pool.length}</b> ticket${pool.length>1?'s':''} valide${pool.length>1?'s':''} · <b>${personnes}</b> personne${personnes>1?'s':''}`;
+    if(source === 'libre'){
+      const trop = namesEl.value.split('\n').map(s => s.trim()).filter(l => l.length > MAX_NAME_LENGTH).length;
+      if(trop) html += `<br><span style="color:var(--err);">⚠ ${trop} ligne${trop>1?'s':''} trop longue${trop>1?'s':''} (raccourcie${trop>1?'s':''} à ${MAX_NAME_LENGTH} caractères) — vérifie que ta liste contient bien un nom par ligne.</span>`;
+    }
+    $('stat').innerHTML = html;
+    $('toggleBreakdown').hidden = !(pool.length && source === 'libre');
+    if(!$('ticketBreakdown').hidden) renderTicketBreakdown(pool);
+  }
+  [namesEl, excludeEl].forEach(el => el.addEventListener('input', updateStat));
+  [dedupeEl, excludePastWinnersEl].forEach(el => el.addEventListener('change', updateStat));
+  updateStat();
+
+  $('exportParticipantsBtn').addEventListener('click', ()=>{
+    const subject = contestSubjectEl.value.trim();
+    const dateStr = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+    const slug = A.slugifier(subject) || 'liste';
+    if(source === 'site'){
+      if(!participantsSite.length){ alert('Aucun participant à télécharger.'); return; }
+      const cell = (v)=> '"' + String(v).replace(/"/g, '""') + '"';
+      const lignes = [['Prénom Nom','E-mail','Téléphone'].map(cell).join(';')]
+        .concat(participantsSite.map(p => [p.nom, p.email, p.tel].map(cell).join(';')));
+      telecharger(new Blob(['﻿' + lignes.join('\r\n')], { type:'text/csv;charset=utf-8' }), `participants-${slug}.csv`);
+      return;
+    }
+    const rawLines = namesEl.value.split('\n').map(s => s.trim()).filter(Boolean);
+    if(!rawLines.length){ alert('Ajoute des participants avant de télécharger la liste.'); return; }
+    const header = ["L'Objectif Châlonnais — Liste des participants", subject ? `Concours : ${subject}` : null,
+      `Date d'export : ${dateStr}`, `Nombre de lignes : ${rawLines.length}`, '', '---', ''].filter(l => l !== null);
+    telecharger(new Blob([header.join('\n') + rawLines.join('\n') + '\n'], { type:'text/plain;charset=utf-8' }), `participants-${slug}.txt`);
+  });
+
+  // =====================================================================
+  // Tirage et animations
+  // =====================================================================
+  let selectedMode = 'scroll';
+  document.querySelectorAll('#modeSelect .mode-btn').forEach(btn=>{
+    btn.addEventListener('click', ()=>{
+      document.querySelectorAll('#modeSelect .mode-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active'); selectedMode = btn.dataset.mode;
+    });
+  });
+  if(document.fonts && document.fonts.load){
+    Promise.all([document.fonts.load('800 60px Archivo'), document.fonts.load('700 34px Archivo'),
+      document.fonts.load('400 26px Inter'), document.fonts.load('600 20px "IBM Plex Mono"')]).catch(()=>{});
+  }
+
+  let lastWinners = [], lastPool = [], lastSite = null, publie = false;
+  let currentClaimCodes = new Map();
+  const resultInner = $('resultInner');
+
+  function pickWinners(pool, count){
+    const out = [], vus = new Set();
+    for(const t of shuffle(pool)){
+      if(!vus.has(t.cle)){ vus.add(t.cle); out.push(t); }
+      if(out.length >= count) break;
+    }
+    return out;
+  }
+  function erreur(msg){ $('error').textContent = msg; $('error').hidden = !msg; }
+
+  $('drawBtn').addEventListener('click', ()=>{
+    erreur('');
+    if(source === 'site' && !jeuTirage){ erreur('Choisissez d\'abord un jeu (bouton « Tirage »).'); return; }
+    const pool = getPool();
+    const count = Math.max(1, parseInt(winnerCountEl.value, 10) || 1);
+    const uniques = new Set(pool.map(t => t.cle)).size;
+    if(!pool.length){ erreur(source === 'site' ? 'Aucun participant pour ce jeu.' : 'Ajoute au moins un nom avant de lancer le tirage.'); return; }
+    if(uniques < count){ erreur(`Pas assez de personnes distinctes (${uniques}) pour tirer ${count} gagnant${count>1?'s':''}.`); return; }
+
+    const winners = pickWinners(pool, count);
+    lastWinners = winners; lastPool = pool; lastSite = source === 'site' ? jeuTirage : null; publie = false;
+    $('resultCard').hidden = false;
+    $('actions').hidden = true; $('apres').hidden = true; $('publishMsg').hidden = true;
+    $('drawBtn').disabled = true;
+    $('resultCard').scrollIntoView({ behavior:'smooth', block:'start' });
+
+    if(window.matchMedia('(prefers-reduced-motion: reduce)').matches){ showWinners(winners); return; }
+    if(selectedMode === 'reel') runReel(pool, winners);
+    else if(selectedMode === 'wheel') runWheel(pool, winners);
+    else runScroll(pool, winners);
+  });
+
+  function runScroll(pool, winners){
+    resultInner.innerHTML = '<div class="spinner viewfinder" id="spin"><span class="vf-bl"></span><span class="vf-br"></span></div>';
+    const spin = $('spin');
+    let elapsed = 0, interval = 55;
+    (function tick(){
+      spin.textContent = pool[hasard(pool.length)].label;
+      elapsed += interval;
+      if(elapsed < 3400){ interval *= 1.1; setTimeout(tick, interval); }
+      else {
+        spin.textContent = winners[0].label;
+        spin.classList.add('landed');
+        setTimeout(()=> showWinners(winners), 600);
+      }
+    })();
+  }
+
+  function runReel(pool, winners){
+    const chipWidth = 150, chipCount = 34, chips = [];
+    for(let i = 0; i < chipCount - 1; i++) chips.push(pool[hasard(pool.length)].label);
+    chips.push(winners[0].label);
+    resultInner.innerHTML = `<div class="reel-viewport" id="reelViewport"><div class="reel-track" id="reelTrack">${chips.map(n => `<div class="reel-chip">${esc(n)}</div>`).join('')}</div></div>`;
+    const viewport = $('reelViewport'), track = $('reelTrack');
+    const target = (chips.length - 1) * chipWidth + chipWidth / 2 - viewport.clientWidth / 2;
+    track.style.transition = 'none'; track.style.transform = 'translateX(0px)';
+    void track.offsetWidth;
+    track.style.transition = 'transform 2.6s cubic-bezier(.13,.72,.13,1)';
+    track.style.transform = `translateX(-${target}px)`;
+    track.addEventListener('transitionend', ()=> showWinners(winners), { once:true });
+  }
+
+  function truncateLabel(name, max){ return name.length > max ? name.slice(0, max - 1) + '…' : name; }
+  function runWheel(pool, winners){
+    const winner = winners[0];
+    const autres = [];
+    const vus = new Set([winner.cle]);
+    for(const t of shuffle(pool)){ if(!vus.has(t.cle)){ vus.add(t.cle); autres.push(t); } if(autres.length >= 11) break; }
+    const segments = shuffle([...autres, winner]);
+    const n = segments.length, segAngle = 360 / n;
+    const cx = 130, cy = 130, r = 122;
+    const couleurs = ['#0A0A0A', '#3FAFE0'];
+    let svg = `<svg viewBox="0 0 260 260" width="260" height="260" role="img" aria-label="Roue du tirage">`;
+    if(n === 1){
+      svg += `<circle cx="${cx}" cy="${cy}" r="${r}" fill="#0A0A0A"/><text x="${cx}" y="${cy - 30}" text-anchor="middle" font-size="12" font-family="Inter, sans-serif" fill="#fff">${esc(truncateLabel(winner.label, 18))}</text>`;
+    }
+    segments.forEach((t, i)=>{
+      if(n === 1) return;
+      const a1 = i * segAngle - 90, a2 = a1 + segAngle;
+      const x1 = cx + r * Math.cos(a1 * Math.PI / 180), y1 = cy + r * Math.sin(a1 * Math.PI / 180);
+      const x2 = cx + r * Math.cos(a2 * Math.PI / 180), y2 = cy + r * Math.sin(a2 * Math.PI / 180);
+      const mid = a1 + segAngle / 2;
+      const tx = cx + r * 0.6 * Math.cos(mid * Math.PI / 180), ty = cy + r * 0.6 * Math.sin(mid * Math.PI / 180);
+      svg += `<path d="M${cx},${cy} L${x1},${y1} A${r},${r} 0 ${segAngle > 180 ? 1 : 0} 1 ${x2},${y2} Z" fill="${couleurs[i % 2]}" stroke="#FCFCFB" stroke-width="2"/>`;
+      svg += `<text x="${tx}" y="${ty}" transform="rotate(${mid + 90} ${tx} ${ty})" text-anchor="middle" font-size="9.5" font-family="Inter, sans-serif" font-weight="500" fill="${i % 2 === 0 ? '#FFFFFF' : '#0A0A0A'}">${esc(truncateLabel(t.label, 14))}</text>`;
+    });
+    svg += '</svg>';
+    resultInner.innerHTML = `<div class="wheel-wrap"><div class="wheel-pointer"></div><div class="wheel-stage"><div class="wheel-rotor" id="wheelRotor">${svg}</div><div class="wheel-hub"></div></div></div>`;
+    const rotor = $('wheelRotor');
+    const idx = segments.indexOf(winner);
+    rotor.style.transform = 'rotate(0deg)';
+    void rotor.offsetWidth;
+    rotor.style.transform = `rotate(${6 * 360 - (idx * segAngle + segAngle / 2)}deg)`;
+    rotor.addEventListener('transitionend', ()=> showWinners(winners), { once:true });
+  }
+
+  function showWinners(winners){
+    currentClaimCodes = new Map();
+    winners.forEach(t => currentClaimCodes.set(t.cle, generateClaimCode()));
+    drawHistory.push({
+      date: new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' }),
+      subject: contestSubjectEl.value.trim(), prize: contestPrizeEl.value.trim(),
+      winners: winners.map(t => t.nom), site: !!lastSite
+    });
+    saveHistory(drawHistory); renderHistory();
+    renderWinnersUI();
+  }
+
+  function renderWinnersUI(){
+    const subject = contestSubjectEl.value.trim(), prize = contestPrizeEl.value.trim();
+    const parts = [];
+    if(subject) parts.push(`Concours : <b>${esc(subject)}</b>`);
+    if(prize) parts.push(`Lot : <b>${esc(prize)}</b>`);
+    const meta = parts.length ? `<p class="result-meta">${parts.join(' · ')}</p>` : '';
+    resultInner.innerHTML = meta + '<div class="winners">' + lastWinners.map((t, i) => `
+      <div class="winner-card viewfinder">
+        <span class="vf-bl"></span><span class="vf-br"></span>
+        <div class="winner-num">N°${String(i + 1).padStart(2, '0')}</div>
+        <div class="winner-name">${esc(t.nom)}</div>
+        ${t.email ? `<div class="winner-contact">
+            <a href="mailto:${esc(t.email)}?subject=${encodeURIComponent('Vous avez gagné : ' + (subject || 'jeu concours L\'Objectif Châlonnais'))}">${esc(t.email)}</a>
+            · <a href="tel:${esc(t.tel)}">${esc(t.tel.replace(/(\d{2})(?=\d)/g, '$1 '))}</a>
+            · publié comme « ${esc(t.label)} »
+          </div>` : ''}
+        <div class="winner-btns">
+          <button type="button" class="cert-btn" data-action="cert" data-idx="${i}">Télécharger le certificat</button>
+          <button type="button" class="cert-btn" data-action="qr" data-idx="${i}">Voir le QR code</button>
+          <button type="button" class="cert-btn replace-btn" data-action="remplacer" data-idx="${i}">Tirer un remplaçant</button>
+        </div>
+        <div class="qr-panel" id="qr-panel-${i}" hidden>
+          <div class="qr-box" id="qr-box-${i}"></div>
+          <p class="qr-code" id="qr-code-${i}"></p>
+          <p class="qr-caption">À présenter au moment du retrait du lot</p>
+        </div>
+      </div>`).join('') + '</div>';
+    $('actions').hidden = false;
+    $('publishBtn').hidden = !lastSite;
+    $('publishBtn').disabled = false;
+    $('publishBtn').textContent = publie ? 'Republier les gagnants' : 'Publier les gagnants sur le site';
+    $('drawBtn').disabled = false;
+    resultInner.querySelectorAll('[data-action]').forEach(btn=>{
+      const i = parseInt(btn.dataset.idx, 10);
+      if(btn.dataset.action === 'cert') btn.onclick = ()=> downloadCertificate(lastWinners[i], btn);
+      else if(btn.dataset.action === 'qr') btn.onclick = ()=> toggleQrPanel(lastWinners[i], i);
+      else btn.onclick = ()=> replaceWinner(i);
+    });
+  }
+
+  function replaceWinner(idx){
+    const ancien = lastWinners[idx];
+    const exclus = new Set(lastWinners.map(t => t.cle));
+    const vus = new Set();
+    const candidats = lastPool.filter(t => !exclus.has(t.cle) && (vus.has(t.cle) ? false : (vus.add(t.cle), true)));
+    if(!candidats.length){ alert('Plus personne d\'autre dans la liste pour tirer un remplaçant.'); return; }
+    if(!confirm(`Remplacer ${ancien.nom} par une nouvelle personne tirée au sort ?`)) return;
+    // tirage pondéré par le nombre de tickets (comme le tirage principal)
+    const tickets = lastPool.filter(t => !exclus.has(t.cle));
+    const nouveau = tickets[hasard(tickets.length)];
+    lastWinners[idx] = nouveau;
+    currentClaimCodes.delete(ancien.cle);
+    currentClaimCodes.set(nouveau.cle, generateClaimCode());
+    if(drawHistory.length){ drawHistory[drawHistory.length - 1].winners = lastWinners.map(t => t.nom); saveHistory(drawHistory); renderHistory(); }
+    renderWinnersUI();
+    if(publie){
+      $('publishMsg').className = 'msg info';
+      $('publishMsg').textContent = 'Gagnant remplacé : touchez « Republier les gagnants » pour mettre à jour la page du site.';
+      $('publishMsg').hidden = false;
+    }
+  }
+
+  // ---------- Publication sur le site ----------
+  $('publishBtn').addEventListener('click', async ()=>{
+    if(!lastSite) return;
+    const noms = lastWinners.map(t => `${t.label}`).join(', ');
+    if(lastSite.tire_le && !publie && !confirm('Des gagnants sont déjà publiés pour ce jeu. Les remplacer par ce nouveau tirage ?')) return;
+    if(!confirm(`Publier sur la page des jeux : ${noms} ?`)) return;
+    const b = $('publishBtn'); b.disabled = true; b.textContent = 'Publication…';
+    const m = $('publishMsg');
+    try{
+      const r = await A.rpc('oc_jeu_publier_gagnants', { p_code: code, p_jeu_id: lastSite.id, p_gagnants: lastWinners.map(t => t.id) });
+      publie = true;
+      m.className = 'msg ok';
+      m.innerHTML = `Publié : ${esc((r.gagnants || []).join(', '))}. <a href="jeux.html" target="_blank" rel="noopener">Voir la page</a>`;
+      m.hidden = false;
+      const liste = (r.gagnants || []).join(', ');
+      const msg = `Félicitations à ${liste} ! ${lastSite.lot ? 'Lot : ' + lastSite.lot + '. ' : ''}Merci à tous pour votre participation.`;
+      $('lienAlerteResultat').href = lienAlerte('Résultat du jeu concours 🏆', msg.slice(0, 180), './jeux.html#' + lastSite.slug);
+      $('apres').hidden = false;
+      await rafraichir();
+      lastSite = jeux.find(j => j.id === lastSite.id) || lastSite;
+      jeuTirage = lastSite;
+      majCarteTirage();
+    }catch(err){
+      m.className = 'msg err'; m.textContent = err.message; m.hidden = false;
+    }finally{
+      b.disabled = false; b.textContent = publie ? 'Republier les gagnants' : 'Publier les gagnants sur le site';
+    }
+  });
+
+  $('effacerBtn').addEventListener('click', async ()=>{
+    if(!lastSite) return;
+    if(!confirm('Effacer définitivement les noms, e-mails et téléphones de tous les participants de ce jeu ?\n\nPensez à noter les coordonnées des gagnants avant (ou téléchargez la liste).')) return;
+    try{
+      const r = await A.rpc('oc_jeu_effacer_participants', { p_code: code, p_jeu_id: lastSite.id });
+      $('publishMsg').className = 'msg ok';
+      $('publishMsg').textContent = `${r.effaces} participation${r.effaces > 1 ? 's' : ''} effacée${r.effaces > 1 ? 's' : ''}. Les gagnants restent affichés sur le site (prénom et initiale).`;
+      $('publishMsg').hidden = false;
+      $('effacerBtn').disabled = true;
+      participantsSite = [];
+      await rafraichir();
+      updateStat(); majCarteTirage();
+    }catch(err){ alert(err.message); }
+  });
+
+  // ---------- QR et certificats (outil d'origine) ----------
+  function generateClaimCode(){
+    const chars = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
+    let c = '';
+    for(let i = 0; i < 6; i++) c += chars[hasard(chars.length)];
+    return c;
+  }
+  function buildClaimPayload(t){
+    const subject = contestSubjectEl.value.trim(), prize = contestPrizeEl.value.trim();
+    const claim = currentClaimCodes.get(t.cle) || generateClaimCode();
+    const dateStr = new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+    const baseUrl = ticketPageUrlEl.value.trim();
+    if(baseUrl){
+      try{
+        const url = new URL(baseUrl);
+        url.searchParams.set('nom', t.nom);
+        if(subject) url.searchParams.set('concours', subject);
+        if(prize) url.searchParams.set('lot', prize);
+        url.searchParams.set('date', dateStr);
+        url.searchParams.set('code', claim);
+        return { text: url.toString(), code: claim };
+      }catch(e){}
+    }
+    const lines = ["L'OBJECTIF CHÂLONNAIS — TICKET DE RETRAIT", `Gagnant : ${t.nom}`];
+    if(subject) lines.push(`Concours : ${subject}`);
+    if(prize) lines.push(`Lot : ${prize}`);
+    lines.push(`Date : ${dateStr}`, `Code : ${claim}`);
+    return { text: lines.join('\n'), code: claim };
+  }
+  function toggleQrPanel(t, i){
+    const panel = $(`qr-panel-${i}`), box = $(`qr-box-${i}`);
+    panel.hidden = !panel.hidden;
+    if(!panel.hidden && !box.dataset.rendered){
+      if(typeof QRCode === 'undefined'){ box.innerHTML = '<p class="hint" style="margin:0;">QR code indisponible.</p>'; return; }
+      try{
+        const { text, code: c } = buildClaimPayload(t);
+        new QRCode(box, { text, width:180, height:180, colorDark:'#0A0A0A', colorLight:'#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
+        $(`qr-code-${i}`).textContent = `Code : ${c}`;
+        box.dataset.rendered = '1';
+      }catch(err){ box.innerHTML = '<p class="hint" style="margin:0;">Le QR code n\'a pas pu être généré.</p>'; }
+    }
+  }
+
+  let logoPromise = null;
+  function getLogoImg(){
+    if(logoPromise) return logoPromise;
+    logoPromise = new Promise((ok, ko)=>{
+      const img = new Image();
+      img.onload = ()=> ok(img);
+      img.onerror = ()=>{ logoPromise = null; ko(new Error('Le logo n\'a pas pu être chargé.')); };
+      img.src = 'icons/logo-carre.png';
+    });
+    return logoPromise;
+  }
+  function fitFontSize(ctx, text, maxWidth, family, weight, start, min){
+    let size = start; ctx.font = `${weight} ${size}px ${family}`;
+    while(ctx.measureText(text).width > maxWidth && size > min){ size -= 2; ctx.font = `${weight} ${size}px ${family}`; }
+    return size;
+  }
+  function drawEyeIcon(ctx, cx, cy, r){
+    ctx.beginPath(); ctx.moveTo(cx - r, cy);
+    ctx.quadraticCurveTo(cx, cy - r * 0.8, cx + r, cy); ctx.quadraticCurveTo(cx, cy + r * 0.8, cx - r, cy); ctx.closePath();
+    ctx.lineWidth = 5; ctx.strokeStyle = '#0A0A0A'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.36, 0, 2 * Math.PI); ctx.fillStyle = '#3FAFE0'; ctx.fill();
+    ctx.lineWidth = 4; ctx.strokeStyle = '#0A0A0A'; ctx.stroke();
+    ctx.beginPath(); ctx.arc(cx, cy, r * 0.14, 0, 2 * Math.PI); ctx.fillStyle = '#0A0A0A'; ctx.fill();
+  }
+  function roundRect(ctx, x, y, w, h, r){
+    ctx.beginPath(); ctx.moveTo(x + r, y);
+    ctx.arcTo(x + w, y, x + w, y + h, r); ctx.arcTo(x + w, y + h, x, y + h, r);
+    ctx.arcTo(x, y + h, x, y, r); ctx.arcTo(x, y, x + w, y, r); ctx.closePath();
+  }
+  function drawDashedLine(ctx, x1, x2, y, color){
+    ctx.save(); ctx.strokeStyle = color; ctx.lineWidth = 1.5; ctx.setLineDash([5, 6]);
+    ctx.beginPath(); ctx.moveTo(x1, y); ctx.lineTo(x2, y); ctx.stroke(); ctx.restore();
+  }
+  async function buildCertificateCanvas(t){
+    const subject = contestSubjectEl.value.trim(), prize = contestPrizeEl.value.trim();
+    if(document.fonts && document.fonts.ready){ try{ await document.fonts.ready; }catch(e){} }
+    const W = 1000, H = 1300, marginX = 110;
+    const canvas = document.createElement('canvas'); canvas.width = W; canvas.height = H;
+    const ctx = canvas.getContext('2d');
+    ctx.fillStyle = '#FCFCFB'; ctx.fillRect(0, 0, W, H);
+    ctx.strokeStyle = '#0A0A0A'; ctx.lineWidth = 3; ctx.strokeRect(20, 20, W - 40, H - 40);
+    ctx.beginPath(); ctx.arc(W / 2, 70, 24, 0, 2 * Math.PI); ctx.fillStyle = '#DDDBD5'; ctx.fill();
+    ctx.lineWidth = 3; ctx.strokeStyle = '#0A0A0A'; ctx.stroke();
+    roundRect(ctx, 60, 130, W - 120, 140, 14); ctx.fillStyle = '#0A0A0A'; ctx.fill();
+    const logo = await getLogoImg();
+    roundRect(ctx, 90, 160, 80, 80, 10); ctx.fillStyle = '#FFFFFF'; ctx.fill();
+    ctx.drawImage(logo, 98, 168, 64, 64);
+    ctx.textAlign = 'left'; ctx.fillStyle = '#FFFFFF'; ctx.font = '600 19px "IBM Plex Mono"';
+    ctx.fillText("L'OBJECTIF CHÂLONNAIS", 190, 198);
+    ctx.fillStyle = '#3FAFE0'; ctx.font = '600 16px "IBM Plex Mono"';
+    ctx.fillText('PASS GAGNANT · JEU CONCOURS', 190, 228);
+    const ringCx = W / 2, ringCy = 430, ringR = 110;
+    ctx.beginPath(); ctx.arc(ringCx, ringCy, ringR, 0, 2 * Math.PI); ctx.lineWidth = 5; ctx.strokeStyle = '#3FAFE0'; ctx.stroke();
+    drawEyeIcon(ctx, ringCx, ringCy, 55);
+    ctx.textAlign = 'center'; ctx.fillStyle = '#1E7FA8'; ctx.font = '600 20px "IBM Plex Mono"';
+    ctx.fillText('GAGNANT', W / 2, ringCy + ringR + 50);
+    const nameSize = fitFontSize(ctx, t.nom, W - 160, 'Archivo', 800, 52, 26);
+    ctx.font = `800 ${nameSize}px Archivo`; ctx.fillStyle = '#0A0A0A';
+    ctx.fillText(t.nom, W / 2, ringCy + ringR + 115);
+    const rows = [];
+    if(subject) rows.push(['CONCOURS', subject]);
+    if(prize) rows.push(['LOT', prize]);
+    rows.push(['DATE', new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })]);
+    let rowY = ringCy + ringR + 165;
+    drawDashedLine(ctx, marginX, W - marginX, rowY, '#E4E2DC');
+    rows.forEach(([label, value])=>{
+      rowY += 68;
+      ctx.textAlign = 'left'; ctx.fillStyle = '#6B6A66'; ctx.font = '500 15px "IBM Plex Mono"';
+      ctx.fillText(label, marginX, rowY - 12);
+      ctx.textAlign = 'right';
+      const vs = fitFontSize(ctx, value, 420, 'Inter', 600, 20, 14);
+      ctx.font = `600 ${vs}px Inter`; ctx.fillStyle = '#0A0A0A';
+      ctx.fillText(value, W - marginX, rowY - 12);
+      drawDashedLine(ctx, marginX, W - marginX, rowY, '#E4E2DC');
+    });
+    let qrY = rowY + 55;
+    if(typeof QRCode !== 'undefined'){
+      try{
+        const { text, code: c } = buildClaimPayload(t);
+        const box = document.createElement('div');
+        box.style.position = 'fixed'; box.style.left = '-9999px';
+        document.body.appendChild(box);
+        new QRCode(box, { text, width:220, height:220, colorDark:'#0A0A0A', colorLight:'#FCFCFB', correctLevel: QRCode.CorrectLevel.M });
+        const src = box.querySelector('canvas') || box.querySelector('img');
+        if(src){
+          const s = 180;
+          ctx.drawImage(src, W / 2 - s / 2, qrY, s, s);
+          ctx.textAlign = 'center'; ctx.fillStyle = '#0A0A0A'; ctx.font = '700 24px "IBM Plex Mono"';
+          ctx.fillText(c.split('').join(' '), W / 2, qrY + s + 42);
+          qrY += s + 42;
+        }
+        box.remove();
+      }catch(err){ console.error('QR code non inclus dans le certificat :', err); }
+    }
+    ctx.textAlign = 'center'; ctx.fillStyle = '#6B6A66'; ctx.font = '500 14px "IBM Plex Mono"';
+    ctx.fillText('TICKET DE RETRAIT DU LOT', W / 2, qrY + 40);
+    return canvas;
+  }
+  async function downloadCertificate(t, btn){
+    if(btn){ btn.disabled = true; btn.textContent = 'Génération…'; }
+    try{
+      const canvas = await buildCertificateCanvas(t);
+      const blob = await new Promise((ok, ko)=> canvas.toBlob(b => b ? ok(b) : ko(new Error('Échec de la conversion en image.')), 'image/png'));
+      telecharger(blob, `certificat-${A.slugifier(t.nom) || 'gagnant'}.png`);
+    }catch(err){
+      alert('Le certificat n\'a pas pu être généré. Vérifiez votre connexion et réessayez. Détail : ' + err.message);
+    }finally{
+      if(btn){ btn.disabled = false; btn.textContent = 'Télécharger le certificat'; }
+    }
+  }
+
+  $('copyBtn').addEventListener('click', ()=>{
+    const subject = contestSubjectEl.value.trim(), prize = contestPrizeEl.value.trim();
+    const lines = ['Résultat du tirage au sort — L\'Objectif Châlonnais'];
+    if(subject) lines.push(`Concours : ${subject}`);
+    if(prize) lines.push(`Lot à gagner : ${prize}`);
+    lines.push('', ...lastWinners.map((t, i) => `${i + 1}. ${lastSite ? t.label : t.nom}`));
+    navigator.clipboard.writeText(lines.join('\n')).then(()=>{
+      $('copyBtn').textContent = 'Copié !';
+      setTimeout(()=>{ $('copyBtn').textContent = 'Copier le résultat'; }, 1500);
+    });
+  });
+  $('downloadAllBtn').addEventListener('click', async ()=>{
+    if(!lastWinners.length) return;
+    const b = $('downloadAllBtn'); b.disabled = true;
+    const txt = b.textContent;
+    for(let i = 0; i < lastWinners.length; i++){
+      b.textContent = `Téléchargement ${i + 1}/${lastWinners.length}…`;
+      await downloadCertificate(lastWinners[i]);
+      await new Promise(r => setTimeout(r, 500));
+    }
+    b.textContent = txt; b.disabled = false;
+  });
+
+  function resetResultat(){
+    $('resultCard').hidden = true; $('apres').hidden = true; $('publishMsg').hidden = true;
+    $('effacerBtn').disabled = false;
+    lastWinners = []; lastPool = []; lastSite = null; publie = false;
+  }
+  $('resetBtn').addEventListener('click', ()=>{
+    resetResultat();
+    if(source === 'libre'){
+      namesEl.value = ''; rawEl.value = ''; $('extractStat').hidden = true;
+      dedupeEl.checked = false;
+      contestSubjectEl.value = ''; contestPrizeEl.value = ''; winnerCountEl.value = 1;
+    }
+    excludeEl.value = ''; excludePastWinnersEl.checked = false;
+    $('ticketBreakdown').hidden = true;
+    updateStat();
+    $('carteTirage').scrollIntoView({ behavior:'smooth', block:'start' });
+  });
+
+  majCarteTirage();
+})();
+</script>
+</body>
+</html>

@@ -180,6 +180,15 @@
     });
   }
 
+  // Pour les autres pages (jeux concours…)
+  window.OCAlertes = {
+    disponible: configured && supported && !(isIOS && !isStandalone),
+    iphoneSansAppli: isIOS && !isStandalone,
+    abonnement: currentSubscription,
+    enregistrer: saveSubscription,
+    activer
+  };
+
   initBouton();
   proposerAuDemarrage();
 })();

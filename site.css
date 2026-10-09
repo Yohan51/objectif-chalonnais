@@ -45,9 +45,11 @@
   .oc-nav-logo img{height:22px;}
   .oc-nav-links a{font-size:13px;padding:6px 9px;}
 }
-@media (max-width:430px){
+@media (max-width:500px){
   .oc-nav-logo{display:none;}
-  .oc-nav{justify-content:center;}
+  .oc-nav{justify-content:center;padding-left:8px;padding-right:8px;}
+  .oc-nav-links{gap:1px;}
+  .oc-nav-links a{font-size:12.5px;padding:6px 7px;}
 }
 
 /* Invitation à installer l'application */

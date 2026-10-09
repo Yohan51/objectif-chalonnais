@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Jeux concours — L'Objectif Châlonnais</title>
+<meta name="description" content="Les jeux concours de L'Objectif Châlonnais : tentez de gagner des places et des cadeaux à Châlons-en-Champagne.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="L'Objectif Châlonnais">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Jeux concours — L'Objectif Châlonnais">
+<meta property="og:description" content="Tentez de gagner des places et des cadeaux à Châlons-en-Champagne.">
+<meta property="og:url" content="https://lobjectifchalonnais.fr/jeux.html">
+<meta property="og:image" content="https://lobjectifchalonnais.fr/icons/partage.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="L'Objectif">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  /* Billet de tombola : chaque jeu est un ticket détachable, formulaire sur le talon */
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7; --tile:#E3EDF2;
+    --ok:#2E7D57; --ok-bg:#E5F4EC; --err:#C0472F; --err-bg:#FBEAE6; --gold:#B8860B; --gold-bg:#FFF4D6;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+      --ok:#6FCF97; --ok-bg:#163A2A; --err:#F08A73; --err-bg:#3D211B; --gold:#F2C76B; --gold-bg:#3A2E12; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+    --ok:#6FCF97; --ok-bg:#163A2A; --err:#F08A73; --err-bg:#3D211B; --gold:#F2C76B; --gold-bg:#3A2E12; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;}
+  a{color:var(--sky-deep);}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .wrap{max-width:1080px;margin:0 auto;padding-inline:20px;padding-block:0 64px;}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.12;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .page-head{padding-block:44px 28px;}
+  .page-head h1{font-size:clamp(34px,5vw,52px);font-weight:800;margin-top:8px;}
+  .page-head p{color:var(--ink-soft);max-width:60ch;margin:10px 0 0;}
+
+  /* Billet */
+  .billet{
+    display:grid;grid-template-columns:minmax(0,1.1fr) minmax(0,1fr);
+    background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;margin-bottom:32px;
+  }
+  .billet-gauche{display:flex;flex-direction:column;}
+  .billet-photo{aspect-ratio:3/2;max-width:100%;background:var(--tile);}
+  .billet-photo img{width:100%;height:100%;object-fit:cover;display:block;}
+  .billet-infos{padding:24px;display:flex;flex-direction:column;gap:12px;}
+  .billet-infos h2{font-size:clamp(26px,3.2vw,34px);font-weight:800;}
+  .lot{display:inline-flex;gap:8px;align-items:center;align-self:flex-start;background:var(--gold-bg);color:var(--gold);font-weight:800;border-radius:999px;padding:6px 14px;}
+  .desc{margin:0;color:var(--ink-soft);white-space:pre-line;}
+  .chiffres{display:flex;gap:24px;flex-wrap:wrap;font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);}
+  .chiffres strong{display:block;font-family:var(--font-display);font-size:26px;color:var(--ink);line-height:1.1;font-variant-numeric:tabular-nums;}
+  /* talon séparé par une ligne pointillée de ticket */
+  .talon{
+    position:relative;padding:24px;border-left:2px dashed var(--line);background:var(--bg);
+    display:flex;flex-direction:column;gap:14px;
+  }
+  .talon::before,.talon::after{
+    content:"";position:absolute;left:-13px;width:24px;height:24px;border-radius:50%;background:var(--bg);border:1px solid var(--line);
+  }
+  .talon::before{top:-13px;} .talon::after{bottom:-13px;}
+  .talon h3{font-size:22px;font-weight:800;}
+  .etape{display:flex;gap:12px;align-items:flex-start;}
+  .etape .num{
+    flex-shrink:0;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);
+    font-weight:800;display:flex;align-items:center;justify-content:center;font-size:14px;
+  }
+  .etape.fait .num{background:var(--ok);}
+  .etape-corps{flex:1;min-width:0;display:flex;flex-direction:column;gap:8px;}
+  .etape-corps p{margin:0;font-size:14.5px;color:var(--ink-soft);}
+  .etape-titre{font-weight:800;}
+  .champs{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:10px;}
+  label.l{font-weight:800;font-size:13px;display:block;margin-bottom:4px;}
+  input[type=text],input[type=email],input[type=tel]{
+    width:100%;font:inherit;font-size:16px;color:var(--ink);background:var(--surface);
+    border:1.5px solid var(--line);border-radius:10px;padding:10px 12px;
+  }
+  input:focus{outline:none;border-color:var(--sky-deep);}
+  .case{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer;}
+  .case input{width:18px;height:18px;margin-top:2px;accent-color:var(--ink);flex-shrink:0;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:800;font-size:15px;
+    padding:12px 20px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none;
+  }
+  .btn:hover{border-color:var(--sky-deep);}
+  .btn-main{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .btn-main:hover{background:var(--sky-deep);border-color:var(--sky-deep);}
+  .btn:disabled{opacity:.55;cursor:not-allowed;}
+  .btn-lien{background:none;border:none;padding:0;color:var(--sky-deep);font:inherit;font-weight:700;text-decoration:underline;cursor:pointer;}
+  .msg{border-radius:12px;padding:12px 14px;font-weight:700;margin:0;}
+  .msg.ok{background:var(--ok-bg);color:var(--ok);}
+  .msg.err{background:var(--err-bg);color:var(--err);}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+  .participe{display:flex;flex-direction:column;align-items:flex-start;gap:10px;background:var(--ok-bg);color:var(--ok);border-radius:14px;padding:18px;}
+  .participe strong{font-family:var(--font-display);font-size:22px;}
+  .participe p{margin:0;color:var(--ink-soft);}
+
+  .reglement{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:20px;font-size:14px;color:var(--ink-soft);}
+  .reglement h4{font-family:var(--font-display);font-size:18px;color:var(--ink);margin:0 0 8px;}
+  .reglement p{margin:0 0 8px;}
+
+  /* Jeux terminés */
+  .section-titre{font-size:28px;font-weight:800;margin:24px 0 18px;}
+  .passes{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+  .passe{background:var(--surface);border:1px solid var(--line);border-radius:14px;overflow:hidden;display:flex;flex-direction:column;}
+  .passe .billet-photo{aspect-ratio:16/9;}
+  .passe-infos{padding:16px;display:flex;flex-direction:column;gap:6px;}
+  .passe h3{font-size:19px;font-weight:700;}
+  .gagnants{font-weight:800;color:var(--gold);}
+  .quand{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);}
+  .etat{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:28px;max-width:620px;}
+  .etat h2{font-size:24px;font-weight:800;margin-bottom:6px;}
+  .etat p{margin:0;color:var(--ink-soft);}
+
+  @media (max-width:860px){
+    .billet{grid-template-columns:minmax(0,1fr);}
+    .talon{border-left:none;border-top:2px dashed var(--line);}
+    .talon::before{top:-13px;left:-13px;} .talon::after{top:-13px;bottom:auto;left:auto;right:-13px;}
+    .passes{grid-template-columns:repeat(2,minmax(0,1fr));}
+  }
+  @media (max-width:560px){
+    .champs{grid-template-columns:minmax(0,1fr);}
+    .passes{grid-template-columns:minmax(0,1fr);}
+    .billet-infos,.talon{padding:18px;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="actus.html">Actus</a>
+    <a href="jeux.html" aria-current="page">Jeux</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">L'Objectif Châlonnais</p>
+    <h1>Jeux concours</h1>
+    <p>Places de spectacle, repas, cadeaux de nos partenaires : participez gratuitement et croisez les doigts pour le tirage au sort.</p>
+  </div>
+
+  <div id="en-cours"></div>
+  <div class="etat" id="etat" hidden></div>
+
+  <section id="bloc-passes" hidden>
+    <h2 class="section-titre">Jeux terminés</h2>
+    <div class="passes" id="passes"></div>
+  </section>
+</main>
+
+<script src="config.js"></script>
+<script src="actus-rendu.js"></script>
+<script src="app.js"></script>
+<script src="push.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const esc = A.esc;
+  const DEJA_KEY = 'oc-jeux-participations';
+  const cfg = window.OC_CONFIG || {};
+
+  function lireDeja(){ try{ return JSON.parse(localStorage.getItem(DEJA_KEY) || '[]'); }catch(e){ return []; } }
+  function noterDeja(id){ try{ const l = lireDeja(); if(!l.includes(id)){ l.push(id); localStorage.setItem(DEJA_KEY, JSON.stringify(l)); } }catch(e){} }
+
+  function finTexte(iso){
+    const d = new Date(iso);
+    return `${A.dateLongue(iso)} à ${d.toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' })}`;
+  }
+  function resteTexte(iso){
+    const ms = new Date(iso) - new Date();
+    if(ms <= 0) return 'Terminé';
+    const j = Math.floor(ms / 86400000), h = Math.floor(ms % 86400000 / 3600000), m = Math.floor(ms % 3600000 / 60000);
+    if(j >= 1) return `${j} j ${h} h`;
+    if(h >= 1) return `${h} h ${m} min`;
+    return `${m} min`;
+  }
+
+  function reglementHtml(j){
+    const contact = cfg.contact || 'lobjectifchalonnais@gmail.com';
+    return `<div class="reglement" id="reglement-${j.id}" hidden>
+      <h4>Règlement du jeu « ${esc(j.titre)} »</h4>
+      <p><strong>Organisateur.</strong> L'Objectif Châlonnais, association loi 1901, Châlons-en-Champagne.</p>
+      <p><strong>Participation.</strong> Jeu gratuit et sans obligation d'achat, ouvert à toute personne physique majeure résidant en France. Une seule participation par personne (même e-mail ou même téléphone). Pour participer, il faut avoir activé les alertes de L'Objectif Châlonnais sur son appareil et remplir le formulaire avant le ${esc(finTexte(j.date_fin))}.</p>
+      <p><strong>Lot${j.nb_gagnants > 1 ? 's' : ''}.</strong> ${esc(j.lot || 'Voir la description du jeu.')} ${j.nb_gagnants > 1 ? `${j.nb_gagnants} gagnants seront tirés au sort.` : 'Un gagnant sera tiré au sort.'} Les lots ne sont ni échangeables ni remboursables.</p>
+      <p><strong>Tirage et résultats.</strong> Le tirage au sort a lieu après la clôture parmi les participations valides. Le prénom et l'initiale du nom des gagnants sont publiés sur cette page et sur nos réseaux. Les gagnants sont contactés par e-mail ou téléphone ; sans réponse sous 15 jours, le lot est remis en jeu.</p>
+      <p><strong>Données personnelles.</strong> Vos coordonnées servent uniquement à l'organisation de ce jeu et au contact des gagnants. Elles ne sont ni vendues ni transmises, et sont effacées au plus tard 3 mois après le tirage. Pour toute question ou pour exercer vos droits : ${esc(contact)}.</p>
+      ${j.reglement ? `<p><strong>Conditions particulières.</strong> ${esc(j.reglement)}</p>` : ''}
+      <p>Ce jeu n'est ni organisé ni parrainé par Meta, Instagram, TikTok ou YouTube.</p>
+    </div>`;
+  }
+
+  function billet(j, nb){
+    const deja = lireDeja().includes(j.id);
+    return `<article class="billet" id="jeu-${esc(j.slug)}" data-id="${j.id}">
+      <div class="billet-gauche">
+        ${j.miniature || j.photo ? `<div class="billet-photo"><img src="${esc(j.photo || j.miniature)}" alt="${esc(j.lot || j.titre)}"></div>` : ''}
+        <div class="billet-infos">
+          <p class="eyebrow">Jeu en cours</p>
+          <h2>${esc(j.titre)}</h2>
+          ${j.lot ? `<span class="lot">🎁 ${esc(j.lot)}</span>` : ''}
+          ${j.description ? `<p class="desc">${esc(j.description)}</p>` : ''}
+          <div class="chiffres">
+            <span><strong data-reste="${esc(j.date_fin)}">${resteTexte(j.date_fin)}</strong>avant la fin</span>
+            <span><strong>${nb == null ? '–' : nb}</strong>participant${nb > 1 ? 's' : ''}</span>
+            <span><strong>${j.nb_gagnants}</strong>gagnant${j.nb_gagnants > 1 ? 's' : ''}</span>
+          </div>
+          <p class="quand">Fin du jeu le ${esc(finTexte(j.date_fin))}</p>
+        </div>
+      </div>
+      <div class="talon">
+        ${deja ? participeHtml() : formulaireHtml(j)}
+      </div>
+    </article>
+    ${reglementHtml(j)}`;
+  }
+  function participeHtml(){
+    return `<div class="participe"><strong>Vous participez !</strong>
+      <p>Bonne chance pour le tirage au sort. Les gagnants seront annoncés ici et par une alerte.</p></div>`;
+  }
+  function formulaireHtml(j){
+    return `<h3>Je participe</h3>
+      <div class="etape" data-etape="alertes">
+        <span class="num">1</span>
+        <div class="etape-corps">
+          <span class="etape-titre">Activer les alertes</span>
+          <p class="alertes-info">Condition pour participer : recevoir les alertes de L'Objectif Châlonnais.</p>
+          <button class="btn btn-alertes" type="button">Activer les alertes</button>
+        </div>
+      </div>
+      <form class="etape form-jeu" novalidate>
+        <span class="num">2</span>
+        <div class="etape-corps">
+          <span class="etape-titre">Vos coordonnées</span>
+          <div class="champs">
+            <div><label class="l" for="prenom-${j.id}">Prénom</label><input id="prenom-${j.id}" name="prenom" type="text" autocomplete="given-name" maxlength="40" required></div>
+            <div><label class="l" for="nom-${j.id}">Nom</label><input id="nom-${j.id}" name="nom" type="text" autocomplete="family-name" maxlength="60" required></div>
+            <div><label class="l" for="email-${j.id}">E-mail</label><input id="email-${j.id}" name="email" type="email" autocomplete="email" maxlength="254" required placeholder="prenom@exemple.fr"></div>
+            <div><label class="l" for="tel-${j.id}">Téléphone</label><input id="tel-${j.id}" name="tel" type="tel" autocomplete="tel" maxlength="20" required placeholder="06 12 34 56 78"></div>
+          </div>
+          <label class="case"><input type="checkbox" name="reglement"> <span>J'ai lu et j'accepte le <button class="btn-lien btn-reglement" type="button">règlement du jeu</button>.</span></label>
+          <div class="hp" aria-hidden="true"><label>Site web <input name="site" type="text" tabindex="-1" autocomplete="off"></label></div>
+          <button class="btn btn-main btn-participer" type="submit">Valider ma participation</button>
+          <p class="msg" role="status" hidden></p>
+        </div>
+      </form>`;
+  }
+
+  // ---------- Condition : alertes activées ----------
+  async function majAlertes(el){
+    const etape = el.querySelector('[data-etape="alertes"]');
+    if(!etape) return null;
+    const btn = etape.querySelector('.btn-alertes');
+    const info = etape.querySelector('.alertes-info');
+    const OA = window.OCAlertes;
+    if(!OA || !OA.disponible){
+      btn.hidden = true;
+      info.textContent = OA && OA.iphoneSansAppli
+        ? 'Sur iPhone, les alertes ne fonctionnent que dans l\'application : touchez Partager puis « Sur l\'écran d\'accueil », ouvrez l\'appli L\'Objectif et revenez sur cette page pour participer.'
+        : 'Ce navigateur ne permet pas de recevoir nos alertes. Participez depuis votre téléphone (Chrome sur Android, ou l\'application sur iPhone).';
+      return null;
+    }
+    const sub = await OA.abonnement();
+    if(sub){
+      etape.classList.add('fait');
+      etape.querySelector('.num').textContent = '✓';
+      btn.hidden = true;
+      info.textContent = 'Alertes activées sur cet appareil. Merci !';
+      return sub;
+    }
+    if(Notification.permission === 'denied'){
+      btn.hidden = true;
+      info.textContent = 'Les alertes sont bloquées pour ce site. Autorisez-les dans les réglages de votre téléphone, puis rechargez la page.';
+      return null;
+    }
+    btn.hidden = false;
+    btn.onclick = async ()=>{
+      btn.disabled = true;
+      try{
+        const res = await OA.activer();
+        if(res === 'refuse') info.textContent = 'Vous avez refusé les alertes : elles sont nécessaires pour participer. Vous pourrez les autoriser dans les réglages.';
+      }catch(e){
+        info.textContent = 'L\'activation n\'a pas abouti, réessayez dans un instant.';
+      }finally{
+        btn.disabled = false;
+        majAlertes(el);
+      }
+    };
+    return null;
+  }
+
+  function brancher(el, j){
+    majAlertes(el);
+    const f = el.querySelector('.form-jeu');
+    const regl = document.getElementById('reglement-' + j.id);
+    el.querySelectorAll('.btn-reglement').forEach(b=> b.onclick = ()=>{ regl.hidden = !regl.hidden; if(!regl.hidden) regl.scrollIntoView({ behavior:'smooth', block:'nearest' }); });
+    if(!f) return;
+    const ouvert = Date.now();
+    const msg = f.querySelector('.msg');
+    const dire = (t, k)=>{ msg.textContent = t; msg.className = 'msg ' + k; msg.hidden = false; };
+    f.addEventListener('submit', async (e)=>{
+      e.preventDefault();
+      if(f.site.value || Date.now() - ouvert < 2000) return;
+      const sub = await majAlertes(el);
+      if(!sub){ dire('Activez d\'abord les alertes (étape 1).', 'err'); return; }
+      const d = { prenom: f.prenom.value.trim(), nom: f.nom.value.trim(), email: f.email.value.trim(), tel: f.tel.value.trim() };
+      if(!d.prenom || !d.nom){ dire('Indiquez votre prénom et votre nom.', 'err'); return; }
+      if(!/^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(d.email)){ dire('Cette adresse e-mail ne semble pas valide.', 'err'); f.email.focus(); return; }
+      if(!/^(?:\+33|0033|0)[1-9]\d{8}$/.test(d.tel.replace(/[\s.\-()]/g,''))){ dire('Numéro de téléphone invalide (10 chiffres, par exemple 06 12 34 56 78).', 'err'); f.tel.focus(); return; }
+      if(!f.reglement.checked){ dire('Cochez la case pour accepter le règlement.', 'err'); return; }
+      const b = f.querySelector('.btn-participer');
+      b.disabled = true; b.textContent = 'Envoi…';
+      try{
+        // s'assure que cet appareil figure bien parmi les abonnés (sans effet s'il y est déjà)
+        if(window.OCAlertes.enregistrer) await window.OCAlertes.enregistrer(sub);
+        const res = await A.rpc('oc_jeu_participer', {
+          p_jeu_id: j.id, p_prenom: d.prenom, p_nom: d.nom, p_email: d.email, p_telephone: d.tel,
+          p_endpoint: sub.endpoint, p_reglement: true
+        });
+        noterDeja(j.id);
+        el.querySelector('.talon').innerHTML = participeHtml();
+        const compteur = el.querySelectorAll('.chiffres strong')[1];
+        if(compteur && res.total) compteur.textContent = res.total;
+      }catch(err){
+        if(/déjà/.test(err.message)) noterDeja(j.id);
+        dire(/fetch|^erreur \d/i.test(err.message) ? 'Envoi impossible : vérifiez votre connexion et réessayez.' : err.message, 'err');
+        b.disabled = false; b.textContent = 'Valider ma participation';
+      }
+    });
+  }
+
+  function passe(j){
+    return `<article class="passe">
+      ${j.miniature ? `<div class="billet-photo"><img src="${esc(j.miniature)}" alt="" loading="lazy"></div>` : ''}
+      <div class="passe-infos">
+        <span class="quand">${j.tire_le ? 'Tirage du ' + esc(A.dateLongue(j.tire_le)) : 'Terminé le ' + esc(A.dateLongue(j.date_fin))}</span>
+        <h3>${esc(j.titre)}</h3>
+        ${j.lot ? `<span>🎁 ${esc(j.lot)}</span>` : ''}
+        ${j.gagnants && j.gagnants.length
+          ? `<span class="gagnants">🏆 ${j.gagnants.length > 1 ? 'Gagnants' : 'Gagnant(e)'} : ${j.gagnants.map(esc).join(', ')}</span>`
+          : `<span class="quand">Tirage au sort à venir</span>`}
+      </div>
+    </article>`;
+  }
+
+  async function charger(){
+    if(!A.configure){ etat('Les jeux arrivent bientôt', 'Revenez vite : notre premier jeu concours se prépare.'); return; }
+    let jeux = [];
+    try{
+      const r = await fetch(`${cfg.supabaseUrl.replace(/\/+$/,'')}/rest/v1/jeux?select=id,slug,titre,lot,description,reglement,photo,miniature,date_fin,nb_gagnants,gagnants,tire_le&order=date_fin.desc&limit=40`, {
+        headers: Object.assign({ apikey: cfg.supabaseCle }, cfg.supabaseCle.startsWith('eyJ') ? { Authorization: 'Bearer ' + cfg.supabaseCle } : {})
+      });
+      if(!r.ok) throw new Error(r.status);
+      jeux = await r.json();
+    }catch(e){
+      etat('Impossible d\'afficher les jeux', 'La connexion a échoué. Rechargez la page dans quelques instants.'); return;
+    }
+    const maintenant = new Date();
+    const enCours = jeux.filter(j=> !j.tire_le && new Date(j.date_fin) > maintenant).sort((a,b)=> new Date(a.date_fin) - new Date(b.date_fin));
+    const passes = jeux.filter(j=> !enCours.includes(j));
+    const zone = $('en-cours');
+    if(!enCours.length){
+      etat('Pas de jeu en cours pour le moment', 'Activez nos alertes depuis l\'accueil pour être prévenu(e) du prochain jeu concours.');
+    }
+    for(const j of enCours){
+      let nb = null;
+      try{ nb = await A.rpc('oc_jeu_nb_participants', { p_jeu_id: j.id }); }catch(e){}
+      zone.insertAdjacentHTML('beforeend', billet(j, nb));
+      brancher(document.getElementById('jeu-' + j.slug), j);
+    }
+    // ancrage #jeu
+    const h = decodeURIComponent(location.hash.slice(1) || '');
+    const cible = h && (document.getElementById('jeu-' + h) || document.getElementById(h));
+    if(cible) cible.scrollIntoView();
+    if(passes.length){
+      $('passes').innerHTML = passes.map(passe).join('');
+      $('bloc-passes').hidden = false;
+    }
+  }
+  function etat(t, p){ const e = $('etat'); e.innerHTML = '<h2></h2><p></p>'; e.querySelector('h2').textContent = t; e.querySelector('p').textContent = p; e.hidden = false; }
+
+  // compte à rebours
+  setInterval(()=> document.querySelectorAll('[data-reste]').forEach(s=> s.textContent = resteTexte(s.dataset.reste)), 30000);
+  charger();
+})();
+</script>
+</body>
+</html>
