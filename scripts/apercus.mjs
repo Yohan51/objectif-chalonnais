@@ -28,6 +28,11 @@ if(!SUPABASE || !CLE){ console.log('Supabase non configuré dans config.js : rie
 // Adresse publique du site
 function adresseSite(){
   if(process.env.SITE_URL) return process.env.SITE_URL.replace(/\/?$/, '/');
+  // Nom de domaine personnalisé (fichier CNAME créé par GitHub Pages)
+  try{
+    const domaine = fs.readFileSync(path.join(racine, 'CNAME'), 'utf8').trim();
+    if(domaine) return `https://${domaine}/`;
+  }catch(e){}
   const depot = process.env.GITHUB_REPOSITORY || '';
   const [proprio, nom] = depot.split('/');
   if(proprio && nom){

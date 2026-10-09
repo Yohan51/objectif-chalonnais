@@ -29,7 +29,7 @@
 1. Sur GitHub, crée un dépôt (par ex. `objectif-chalonnais`).
 2. Dépose tous les fichiers du dossier à la racine du dépôt (bouton *Add file → Upload files*).
 3. *Settings → Pages* : source *Deploy from a branch*, branche `main`, dossier `/ (root)`.
-4. Le site sera en ligne à l'adresse `https://yohan51.github.io/objectif-chalonnais/` après une minute ou deux.
+4. Le site est en ligne à l'adresse `https://lobjectifchalonnais.fr/` (domaine relié dans *Settings → Pages → Custom domain*, DNS chez IONOS : 4 enregistrements A vers 185.199.108.153 / 109.153 / 110.153 / 111.153 et un CNAME `www` vers `yohan51.github.io`).
 
 Plus tard, tu pourras brancher un nom de domaine à vous (ex. `lobjectifchalonnais.fr`) dans la même page *Settings → Pages*.
 
@@ -138,16 +138,17 @@ notify pgrst, 'reload schema';
 2. **Secrets** : *Edge Functions* → *Secrets* → ajoute :
    - `VAPID_PUBLIC_KEY` et `VAPID_PRIVATE_KEY` (les deux clés données par Claude ; la clé privée ne doit jamais être publiée sur GitHub)
    - `VAPID_SUBJECT` : `mailto:lobjectifchalonnais@gmail.com`
-   - `CODE_ENVOI` : un code de ton choix, que tu taperas pour envoyer une alerte
 
-3. **Fonction d'envoi** : *Edge Functions* → *Deploy a new function* → *Via Editor*. Nom : `envoyer-notification`. Remplace tout le code par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*.
+3. **Code** : *SQL Editor* → colle `supabase/alertes-code.sql` → *Run*. Le code demandé pour envoyer une alerte est ton **code modérateur**.
 
-4. Dans les réglages de la fonction (*Details*), **désactive « Enforce JWT verification »** (ou « Verify JWT ») et enregistre. C'est ton code d'envoi qui protège la fonction.
+4. **Fonction d'envoi** : *Edge Functions* → *Deploy a new function* → *Via Editor*. Nom : `envoyer-notification`. Remplace tout le code par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*.
+
+5. Dans les réglages de la fonction (*Details*), **désactive « Enforce JWT verification »** (ou « Verify JWT ») et enregistre. C'est ton code modérateur qui protège la fonction.
 
 ### Envoyer une alerte
 
-1. Ouvre `…/objectif-chalonnais/envoyer.html` (garde cette adresse en favori, elle n'est pas dans le menu).
-2. Tape ton code, un titre, un message, et choisis ce qui s'ouvre au toucher : une page du site, votre compte TikTok, Instagram ou YouTube (liens repris de `config.js`), ou une vidéo précise (colle son lien de partage).
+1. Ouvre `https://lobjectifchalonnais.fr/envoyer.html` (garde cette adresse en favori, elle n'est pas dans le menu).
+2. Tape ton code modérateur, un titre, un message, et choisis ce qui s'ouvre au toucher : une page du site, votre compte TikTok, Instagram ou YouTube (liens repris de `config.js`), ou une vidéo précise (colle son lien de partage).
 3. *M'envoyer un test* pour vérifier sur ton téléphone, puis *Envoyer à tous*.
 
 Les visiteurs s'abonnent avec le bouton « Recevoir les alertes » de l'accueil. Sur iPhone, ils doivent d'abord installer l'application.
@@ -201,7 +202,7 @@ select oc_private.restaurer(123);
 
 ### Écrire un article
 
-1. Ouvre `…/objectif-chalonnais/rediger.html` (garde l'adresse en favori, elle n'est pas dans le menu) et tape le **code modérateur**.
+1. Ouvre `https://lobjectifchalonnais.fr/rediger.html` (garde l'adresse en favori, elle n'est pas dans le menu) et tape le **code modérateur**.
 2. *Nouvel article* : titre, rubrique, chapô (le résumé affiché dans la liste), photo, texte.
 3. Mise en forme du texte : une ligne vide entre deux paragraphes, `## ` en début de ligne pour un intertitre, `- ` pour une liste, `**texte**` pour du gras. Les boutons au-dessus du texte le font pour toi. Les liens `https://…` deviennent cliquables.
 4. *Vidéo ou lien* : un lien YouTube affiche la vidéo dans l'article ; un lien TikTok, Instagram ou autre affiche un bouton.
@@ -218,7 +219,7 @@ Le bouton *Partager* d'un article donne un lien en `…/a/nom-de-l-article.html`
 
 Ces pages sont fabriquées par un robot GitHub toutes les 15 minutes (onglet *Actions* → *Aperçus des actus*). Pour l'installer, une seule fois : sur GitHub, *Add file* → *Create new file*, nom `.github/workflows/apercus.yml`, colle le contenu du fichier, puis *Commit changes*. Pour lancer le robot tout de suite : *Actions* → *Aperçus des actus* → *Run workflow*.
 
-Si tu passes un jour à un nom de domaine à toi, ajoute-le dans *Settings* → *Secrets and variables* → *Actions* → onglet *Variables* : nom `SITE_URL`, valeur `https://ton-domaine.fr/`.
+Le robot lit automatiquement le nom de domaine dans le fichier `CNAME` du dépôt (créé par GitHub quand on règle *Settings → Pages → Custom domain*). Ne supprime pas ce fichier.
 
 ## Bon à savoir
 
