@@ -391,6 +391,8 @@
         </div>
       </div>
       <label class="check"><input type="checkbox" id="fPublie"> Visible sur le site (sinon : brouillon)</label>
+      <label class="check" style="margin-top:8px;"><input type="checkbox" id="fAlerte" checked> 🔔 Alerte automatique aux abonnés : à la publication du jeu, puis des gagnants (une fois chacune)</label>
+      <p class="hint" id="fAlerteInfo" style="margin:4px 0 0 24px;" hidden></p>
       <button class="go" type="submit" id="btnEnregistrer">Enregistrer le jeu</button>
       <div id="formMsg" class="msg" hidden></div>
       <div class="row" id="formDanger" data-admin hidden>
@@ -702,6 +704,8 @@ Sophie Bernard
     $('fReglement').value = d.reglement || '';
     $('fNb').value = d.nb_gagnants || 1;
     $('fPublie').checked = jeuEdite ? !!d.publie : true;
+    $('fAlerte').checked = d.alerte_auto !== false;
+    majInfoAlerte(d);
     if(d.date_fin) $('fFin').value = versLocal(d.date_fin);
     else { const f = new Date(); f.setDate(f.getDate() + 7); f.setHours(20, 0, 0, 0); $('fFin').value = versLocal(f.toISOString()); }
     photo = d.photo ? { etat:'gardee', grande:'', mini:'' } : { etat:'aucune', grande:'', mini:'' };
@@ -755,6 +759,13 @@ Sophie Bernard
   });
   $('btnRetirerPhoto').onclick = ()=>{ photo = { etat:'aucune', grande:'', mini:'' }; afficherPhoto(); $('photoInfo').textContent = ''; };
 
+  function majInfoAlerte(d){
+    const infos = [];
+    if(d.alerte_jeu_le) infos.push('jeu annoncé le ' + dateCourte(d.alerte_jeu_le));
+    if(d.alerte_gagnants_le) infos.push('résultats annoncés le ' + dateCourte(d.alerte_gagnants_le));
+    $('fAlerteInfo').textContent = infos.length ? '🔔 Déjà fait : ' + infos.join(' · ') + '.' : '';
+    $('fAlerteInfo').hidden = !infos.length;
+  }
   function lienAlerte(titre, message, lien){
     return 'envoyer.html?' + new URLSearchParams({ titre, message, lien }).toString();
   }
@@ -777,7 +788,8 @@ Sophie Bernard
       slug: jeuEdite ? jeuEdite.slug : A.slugifier(titre),
       titre, lot: $('fLot').value.trim(), description: $('fDescription').value.trim(),
       reglement: $('fReglement').value.trim(), date_fin: fin.toISOString(), nb_gagnants: nb,
-      publie: $('fPublie').checked
+      publie: $('fPublie').checked,
+      alerte_auto: $('fAlerte').checked
     };
     if(photo.etat === 'gardee') donnees.garder_photo = true;
     else if(photo.etat === 'nouvelle'){ donnees.photo = photo.grande; donnees.miniature = photo.mini; }
@@ -790,11 +802,21 @@ Sophie Bernard
         : 'Brouillon enregistré (pas encore visible sur le site).';
       if(donnees.publie && fin > new Date()){
         const msg = (donnees.lot ? `À gagner : ${donnees.lot}. ` : '') + `Participez avant ${texteFin(donnees.date_fin)} !`;
-        html += ` <a href="${esc(lienAlerte('Nouveau jeu concours 🎁', msg.slice(0, 180), './' + lienPublic))}">Annoncer ce jeu par une alerte</a>.`;
+        const lienMain = lienAlerte('Nouveau jeu concours 🎁', msg.slice(0, 180), './' + lienPublic);
+        if(donnees.alerte_auto && !(jeuEdite && jeuEdite.alerte_jeu_le)){
+          b.textContent = 'Envoi de l\'alerte…';
+          const al = await OCEquipe.alertesAuto();
+          const t = OCEquipe.texteAlerte(al);
+          if(t) html += ' ' + esc(t);
+          if(al.erreur) html += ` <a href="${esc(lienMain)}">Envoyer l'alerte à la main</a>.`;
+        }else if(!donnees.alerte_auto){
+          html += ` <a href="${esc(lienMain)}">Annoncer ce jeu par une alerte</a>.`;
+        }
       }
       formMsg(html, 'ok');
       await rafraichir();
       jeuEdite = (await A.rpc('oc_jeu_lire', { p_code: code, p_id: r.id })).jeu;
+      majInfoAlerte(jeuEdite);
       $('formTitre').textContent = 'Modifier le jeu'; $('formDanger').hidden = false;
       if(photo.etat === 'nouvelle') photo = { etat:'gardee', grande:'', mini:'' };
     }catch(err){
@@ -1254,11 +1276,19 @@ Sophie Bernard
       const r = await A.rpc('oc_jeu_publier_gagnants', { p_code: code, p_jeu_id: lastSite.id, p_gagnants: lastWinners.map(t => t.id) });
       publie = true;
       m.className = 'msg ok';
-      m.innerHTML = `Publié : ${esc((r.gagnants || []).join(', '))}. <a href="jeux.html" target="_blank" rel="noopener">Voir la page</a>`;
+      m.innerHTML = `Publié : ${esc((r.gagnants || []).join(', ').replace(/\.$/, ''))}. <a href="jeux.html" target="_blank" rel="noopener">Voir la page</a>`;
       m.hidden = false;
       const liste = (r.gagnants || []).join(', ');
       const msg = `Félicitations à ${liste} ! ${lastSite.lot ? 'Lot : ' + lastSite.lot + '. ' : ''}Merci à tous pour votre participation.`;
       $('lienAlerteResultat').href = lienAlerte('Résultat du jeu concours 🏆', msg.slice(0, 180), './jeux.html#' + lastSite.slug);
+      $('lienAlerteResultat').style.display = '';
+      if(lastSite.alerte_auto !== false && !lastSite.alerte_gagnants_le){
+        b.textContent = 'Envoi de l\'alerte…';
+        const al = await OCEquipe.alertesAuto();
+        const t = OCEquipe.texteAlerte(al);
+        if(t) m.innerHTML += '<br>' + esc(t);
+        if(!al.erreur && al.alertes) $('lienAlerteResultat').style.display = 'none';   // déjà annoncé automatiquement
+      }
       $('apres').hidden = false;
       await rafraichir();
       lastSite = jeux.find(j => j.id === lastSite.id) || lastSite;

@@ -31,6 +31,18 @@ create table if not exists public.actus (
 );
 create index if not exists actus_publie_idx on public.actus (publie, publie_le desc);
 
+-- Alerte automatique à la publication (une seule fois par article).
+-- À la création de ces colonnes, les articles déjà en ligne sont marqués
+-- « alerte envoyée » pour ne pas être annoncés une seconde fois.
+do $$ begin
+  if not exists (select 1 from information_schema.columns
+                 where table_schema = 'public' and table_name = 'actus' and column_name = 'alerte_le') then
+    alter table public.actus add column alerte_le timestamptz;
+    update public.actus set alerte_le = now() where publie and publie_le is not null and publie_le <= now();
+  end if;
+end $$;
+alter table public.actus add column if not exists alerte_auto boolean not null default true;
+
 alter table public.actus enable row level security;
 drop policy if exists "actus publiees" on public.actus;
 create policy "actus publiees" on public.actus for select
@@ -104,7 +116,7 @@ declare
   msg text := oc_private.controle_code(p_code);
   v_id bigint; v_slug text; base_slug text; n int := 1;
   v_publie boolean; v_date timestamptz; v_lien text;
-  garder_photo boolean;
+  garder_photo boolean; v_alerte boolean;
 begin
   if msg is not null then return jsonb_build_object('erreur', msg); end if;
   if jsonb_typeof(p_actu) <> 'object' then return jsonb_build_object('erreur', 'Article illisible.'); end if;
@@ -130,15 +142,16 @@ begin
   v_lien := nullif(btrim(coalesce(p_actu ->> 'lien', '')), '');
   -- photo : "garder" = ne pas renvoyer l'image à chaque modification
   garder_photo := coalesce((p_actu ->> 'garder_photo')::boolean, false);
+  v_alerte := coalesce((p_actu ->> 'alerte_auto')::boolean, true);
 
   begin
     if v_id is null then
       insert into public.actus (slug, titre, chapo, contenu, categorie, auteur, photo, miniature, legende,
-                                lien, lien_libelle, publie, publie_le)
+                                lien, lien_libelle, publie, publie_le, alerte_auto)
       values (v_slug, btrim(p_actu ->> 'titre'), coalesce(p_actu ->> 'chapo', ''), coalesce(p_actu ->> 'contenu', ''),
               coalesce(nullif(p_actu ->> 'categorie', ''), 'actu'), coalesce(p_actu ->> 'auteur', ''),
               nullif(p_actu ->> 'photo', ''), nullif(p_actu ->> 'miniature', ''), coalesce(p_actu ->> 'legende', ''),
-              v_lien, coalesce(p_actu ->> 'lien_libelle', ''), v_publie, v_date)
+              v_lien, coalesce(p_actu ->> 'lien_libelle', ''), v_publie, v_date, v_alerte)
       returning id into v_id;
     else
       update public.actus a set
@@ -155,6 +168,7 @@ begin
         lien_libelle = coalesce(p_actu ->> 'lien_libelle', ''),
         publie = v_publie,
         publie_le = v_date,
+        alerte_auto = v_alerte,
         modifie_le = now()
       where a.id = v_id;
       if not found then return jsonb_build_object('erreur', 'Article introuvable.'); end if;
@@ -166,7 +180,8 @@ begin
       return jsonb_build_object('erreur', 'Le titre est obligatoire.');
   end;
 
-  return jsonb_build_object('id', v_id, 'slug', v_slug, 'publie', v_publie, 'publie_le', v_date);
+  return jsonb_build_object('id', v_id, 'slug', v_slug, 'publie', v_publie, 'publie_le', v_date,
+    'alerte_auto', v_alerte, 'alerte_le', (select a.alerte_le from public.actus a where a.id = v_id));
 end $$;
 
 -- ---------- Supprimer un article ----------

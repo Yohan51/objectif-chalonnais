@@ -354,6 +354,21 @@ Les boutons interdits n'apparaissent pas chez les membres, et la base de donnée
 - *Nouveau code* : si un code a circulé, l'ancien cesse aussitôt de fonctionner.
 - La liste indique quand chaque membre a utilisé son accès pour la dernière fois.
 
+## 16. Alertes automatiques à la publication
+
+Quand tu publies un article (*Publier maintenant*), une alerte part **toute seule** vers tous les abonnés : le titre de l'article, son chapô (ou le début du texte) et le lien vers l'article. Même chose pour les jeux : une alerte « Nouveau jeu concours 🎁 » quand le jeu est publié, puis « Résultat du jeu concours 🏆 » quand tu publies les gagnants.
+
+- **Une seule fois** : modifier ensuite l'article ou le jeu ne renvoie rien. La page indique quand l'alerte est partie.
+- **Articles programmés** : l'alerte part à l'heure prévue, envoyée par le robot GitHub (dans les 15 minutes qui suivent).
+- **Pas d'alerte pour une publication ?** Décoche la case 🔔 avant d'enregistrer. Tu peux toujours envoyer une alerte personnalisée depuis la page *Alertes*.
+- Un article en ligne depuis plus d'un jour n'est plus annoncé automatiquement (pour éviter d'annoncer de vieilles nouvelles par erreur).
+
+### Installation (une seule fois)
+
+1. **Supabase → SQL Editor** : exécute à nouveau, dans cet ordre, `supabase/actus.sql`, `supabase/jeux.sql`, `supabase/alertes-code.sql`, puis `supabase/membres.sql`. Les articles et jeux déjà en ligne sont marqués « déjà annoncés » : personne ne recevra d'alerte pour eux.
+2. **Supabase → Edge Functions → envoyer-notification → Code** : remplace tout le code par le contenu du fichier `supabase/envoyer-notification.ts`, puis *Deploy*. (Les secrets ne changent pas.)
+3. **GitHub** : rien à faire, le robot qui fabrique les aperçus envoie aussi les alertes des articles programmés.
+
 ## Bon à savoir
 
 - **Modération** : lien *Espace modérateur* en bas de la page des bons plans, avec le code choisi à la section 7.

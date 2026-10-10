@@ -139,6 +139,10 @@
     .photo-zone{grid-template-columns:minmax(0,1fr);}
     .card{padding:16px;}
   }
+  .alerte-auto{ margin-top:10px; padding-top:10px; border-top:1px dashed var(--line); }
+  .alerte-auto .hint{ margin:4px 0 0 26px; }
+  .alerte-auto.faite label{ display:none; }
+  .alerte-auto.faite .hint{ margin-left:0; font-weight:700; }
 </style>
 </head>
 <body>
@@ -257,6 +261,10 @@
           <label class="choix"><input type="radio" name="pub" value="maintenant" id="p-maintenant"> Publier maintenant</label>
           <label class="choix"><input type="radio" name="pub" value="programmer" id="p-programmer"> Programmer la publication</label>
           <input id="f-date" type="datetime-local" hidden aria-label="Date et heure de publication">
+          <div class="alerte-auto" id="alerte-zone">
+            <label class="choix"><input type="checkbox" id="f-alerte" checked> 🔔 Envoyer une alerte aux abonnés dès la publication</label>
+            <p class="hint" id="alerte-info">L'alerte part une seule fois : quand vous publiez, ou à l'heure programmée. Les modifications suivantes ne renvoient rien.</p>
+          </div>
         </fieldset>
 
         <div class="actions">
@@ -387,7 +395,24 @@
     $('p-maintenant').checked = !!a.publie && !futur;
     $('p-programmer').checked = !!futur;
     $('f-date').value = futur ? versLocal(a.publie_le) : '';
+    $('f-alerte').checked = a.alerte_auto !== false;
+    majAlerte(a);
     majCompteurs();
+  }
+  // Zone « alerte automatique » selon l'état de l'article
+  function majAlerte(a){
+    const zone = $('alerte-zone'), info = $('alerte-info');
+    zone.hidden = false; zone.classList.remove('faite');
+    if(a && a.alerte_le){
+      zone.classList.add('faite');
+      info.textContent = `🔔 Alerte envoyée aux abonnés le ${A.dateLongue(a.alerte_le)} à ${new Date(a.alerte_le).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}.`;
+    }else if(a && a.publie && a.publie_le && new Date(a.publie_le) < new Date(Date.now() - 864e5)){
+      // en ligne depuis plus d'un jour sans alerte : plus d'envoi automatique
+      zone.classList.add('faite');
+      info.textContent = 'Article en ligne depuis plus d\'un jour : pour l\'annoncer, utilisez « Annoncer par une alerte » après l\'enregistrement.';
+    }else{
+      info.textContent = 'L\'alerte part une seule fois : quand vous publiez, ou à l\'heure programmée. Les modifications suivantes ne renvoient rien.';
+    }
   }
   function versLocal(iso){
     const d = new Date(iso); const p = n=> String(n).padStart(2,'0');
@@ -583,6 +608,7 @@
       slug: courant ? courant.slug : A.slugifier(a.titre),
       publie: mode !== 'brouillon',
       publie_le,
+      alerte_auto: $('f-alerte').checked,
       garder_photo: photo.etat === 'gardee',
       photo: photo.etat === 'nouvelle' ? photo.grande : '',
       miniature: photo.etat === 'nouvelle' ? photo.mini : ''
@@ -594,14 +620,25 @@
       const lienArticle = 'actus.html#' + encodeURIComponent(res.slug);
       const enLigne = res.publie && new Date(res.publie_le) <= new Date();
       const liens = [];
+      // Alerte automatique : seulement si l'article vient d'être mis en ligne et n'a pas encore été annoncé
+      let alerte = null;
+      if(enLigne && res.alerte_auto !== false && !res.alerte_le){
+        $('btn-enregistrer').textContent = 'Envoi de l\'alerte…';
+        alerte = await OCEquipe.alertesAuto();
+      }
       if(enLigne){
         liens.push(['Voir l\'article', lienArticle]);
-        const p = new URLSearchParams({ titre: a.titre.slice(0, 60), message: (a.chapo || '').slice(0, 180), lien: './' + lienArticle });
-        liens.push(['Annoncer par une alerte', 'envoyer.html?' + p.toString()]);
+        if(!alerte || alerte.erreur){
+          const p = new URLSearchParams({ titre: a.titre.slice(0, 60), message: (a.chapo || '').slice(0, 180), lien: './' + lienArticle });
+          liens.push([alerte ? 'Envoyer l\'alerte à la main' : 'Annoncer par une alerte', 'envoyer.html?' + p.toString()]);
+        }
       }
-      const texte = !res.publie ? 'Brouillon enregistré. Il reste invisible pour le public.'
+      const programme = res.publie && !enLigne;
+      let texte = !res.publie ? 'Brouillon enregistré. Il reste invisible pour le public.'
         : enLigne ? 'Article publié ! Il est en ligne sur la page Actus et sur l\'accueil. Son aperçu avec photo pour WhatsApp et Facebook sera prêt d\'ici 15 à 20 minutes.'
         : `Article programmé : il sera publié le ${A.dateLongue(res.publie_le)} à ${new Date(res.publie_le).toLocaleTimeString('fr-FR',{hour:'2-digit',minute:'2-digit'})}.`;
+      if(alerte) texte += ' ' + OCEquipe.texteAlerte(alerte);
+      if(programme && res.alerte_auto !== false && !res.alerte_le) texte += ' 🔔 L\'alerte partira automatiquement à ce moment-là (dans les 15 minutes qui suivent).';
       await rafraichirListe();
       await ouvrir(res.id);
       montrerResultat('ok', texte, liens);

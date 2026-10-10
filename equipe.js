@@ -72,6 +72,36 @@
     }
     return q;
   }
+  // Alertes automatiques : envoie les alertes des publications pas encore annoncées.
+  // Renvoie { alertes, envoyes, … } ou { erreur, aMettreAJour }.
+  async function alertesAuto(){
+    const cfg = window.OC_CONFIG || {};
+    const base = (cfg.supabaseUrl || '').replace(/\/+$/, ''), cle = cfg.supabaseCle || '';
+    if(!base || !cle) return { erreur: 'Supabase non configuré.' };
+    const h = { apikey: cle, 'Content-Type': 'application/json' }; if(cle.startsWith('eyJ')) h.Authorization = 'Bearer ' + cle;
+    try{
+      const ctl = new AbortController(); const t = setTimeout(()=> ctl.abort(), 25000);
+      const r = await fetch(`${base}/functions/v1/envoyer-notification`, {
+        method: 'POST', headers: h, signal: ctl.signal, body: JSON.stringify({ auto: true, code: lire() || '' })
+      });
+      clearTimeout(t);
+      const j = await r.json().catch(()=> ({}));
+      // ancienne version de la fonction d'envoi (sans mode automatique)
+      if(j && j.erreur && /titre est obligatoire/i.test(j.erreur)) return { erreur: j.erreur, aMettreAJour: true };
+      if(!r.ok || (j && j.erreur)) return { erreur: (j && j.erreur) || ('Erreur ' + r.status), aMettreAJour: /alertes-code\.sql/.test((j && j.erreur) || '') };
+      return j;
+    }catch(e){ return { erreur: 'Connexion impossible.' }; }
+  }
+  // Phrase à afficher après une publication
+  function texteAlerte(res){
+    if(!res) return '';
+    if(res.aMettreAJour) return '⚠️ Alerte non envoyée : la fonction d\'envoi doit être mise à jour dans Supabase (voir LISEZMOI, partie 16).';
+    if(res.erreur) return '⚠️ Alerte non confirmée (' + res.erreur + '). Si elle n\'est pas partie, le robot l\'enverra dans les 15 minutes.';
+    if(!res.alertes) return '';
+    const n = res.envoyes || 0;
+    return n ? `🔔 Alerte envoyée à ${n} abonné${n > 1 ? 's' : ''}.` : '🔔 Alerte prête, mais aucun abonné pour l\'instant.';
+  }
+
   function oublier(){
     try{
       sessionStorage.removeItem('oc-equipe-qui');
@@ -102,5 +132,5 @@
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
-  window.OCEquipe = { code: lire, memoriser, oublier, souvenu, qui, adapter };
+  window.OCEquipe = { code: lire, memoriser, oublier, souvenu, qui, adapter, alertesAuto, texteAlerte };
 })();

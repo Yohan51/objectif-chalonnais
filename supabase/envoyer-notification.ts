@@ -8,6 +8,12 @@
 // Le code demandé pour envoyer est le CODE MODÉRATEUR (vérifié par la base,
 // voir supabase/alertes-code.sql). L'ancien secret CODE_ENVOI, s'il existe
 // encore, reste accepté.
+//
+// Mode automatique : { "auto": true } (sans code) envoie les alertes des
+// articles et jeux qui viennent d'être publiés et pas encore annoncés
+// (fonction oc_alertes_a_envoyer, chaque alerte n'est remise qu'une fois).
+// Appelé par les pages de l'équipe juste après une publication, et par le
+// robot GitHub toutes les 15 minutes pour les articles programmés.
 // =====================================================================
 
 const CORS = {
@@ -119,8 +125,35 @@ if (typeof Deno !== "undefined" && Deno.serve) Deno.serve(async (req) => {
   const dbHeaders: Record<string, string> = { apikey: SB_KEY };
   if (SB_KEY.startsWith("eyJ")) dbHeaders.Authorization = `Bearer ${SB_KEY}`;
 
-  let data: { code?: string; titre?: string; message?: string; lien?: string; endpoint?: string };
+  let data: { code?: string; titre?: string; message?: string; lien?: string; endpoint?: string; auto?: boolean };
   try { data = await req.json(); } catch { return json({ erreur: "Requête illisible." }, 400); }
+
+  const lireAbonnes = async (): Promise<Sub[] | null> => {
+    const r = await fetch(`${SB_URL}/rest/v1/push_subscriptions?select=endpoint,p256dh,auth`, { headers: dbHeaders });
+    return r.ok ? await r.json() : null;
+  };
+
+  // ---------- Mode automatique : publications pas encore annoncées ----------
+  if (data.auto === true) {
+    const a = await fetch(`${SB_URL}/rest/v1/rpc/oc_alertes_a_envoyer`, {
+      method: "POST",
+      headers: { ...dbHeaders, "Content-Type": "application/json" },
+      body: "{}",
+    });
+    if (!a.ok) return json({ erreur: "Alertes automatiques indisponibles : exécute alertes-code.sql dans Supabase." }, 500);
+    const alertes: { titre: string; message: string; lien: string }[] = await a.json();
+    if (!alertes.length) return json({ alertes: 0, envoyes: 0, echecs: 0, supprimes: 0 });
+    let abonnes = await lireAbonnes();
+    if (!abonnes) return json({ erreur: "Lecture des abonnés impossible." }, 500);
+    const total = { alertes: alertes.length, titres: alertes.map((x) => x.titre), envoyes: 0, echecs: 0, supprimes: 0 };
+    for (const al of alertes) {
+      const payload = JSON.stringify({ titre: (al.titre || "").slice(0, 80), message: (al.message || "").slice(0, 240), lien: al.lien || "./" });
+      const r = await envoyerA(abonnes, payload);
+      total.envoyes += r.envoyes; total.echecs += r.echecs; total.supprimes += r.supprimes;
+      abonnes = abonnes.filter((s) => !r.morts.has(s.endpoint));
+    }
+    return json(total);
+  }
 
   // Vérification du code modérateur par la base (8 essais ratés = blocage 15 minutes)
   const code = (data.code || "").trim();
@@ -146,37 +179,43 @@ if (typeof Deno !== "undefined" && Deno.serve) Deno.serve(async (req) => {
     subs = [{ ...(await (await fetch(`${SB_URL}/rest/v1/push_subscriptions?select=endpoint,p256dh,auth&endpoint=eq.${encodeURIComponent(data.endpoint)}`, { headers: dbHeaders })).json())[0] }]
       .filter((s) => s.endpoint);
   } else {
-    const r = await fetch(`${SB_URL}/rest/v1/push_subscriptions?select=endpoint,p256dh,auth`, { headers: dbHeaders });
-    if (!r.ok) return json({ erreur: `Lecture des abonnés impossible (${r.status}).` }, 500);
-    subs = await r.json();
+    const r = await lireAbonnes();
+    if (!r) return json({ erreur: "Lecture des abonnés impossible." }, 500);
+    subs = r;
   }
   if (!subs.length) return json({ envoyes: 0, echecs: 0, supprimes: 0, note: "Aucun abonné pour l'instant." });
 
   const payload = JSON.stringify({ titre, message, lien: data.lien || "./" });
-  let envoyes = 0, echecs = 0, supprimes = 0;
-
-  const sendOne = async (s: Sub) => {
-    try {
-      const body = await encryptPayload(payload, s.p256dh, s.auth);
-      const res = await fetch(s.endpoint, {
-        method: "POST",
-        headers: {
-          Authorization: await vapidHeader(s.endpoint, VAPID_PUBLIC, VAPID_PRIVATE, SUBJECT),
-          "Content-Encoding": "aes128gcm",
-          "Content-Type": "application/octet-stream",
-          TTL: "86400",
-          Urgency: "normal",
-        },
-        body,
-      });
-      if (res.status === 404 || res.status === 410) {
-        await fetch(`${SB_URL}/rest/v1/push_subscriptions?endpoint=eq.${encodeURIComponent(s.endpoint)}`, { method: "DELETE", headers: dbHeaders });
-        supprimes++;
-      } else if (res.ok) envoyes++;
-      else echecs++;
-    } catch { echecs++; }
-  };
-
-  for (let i = 0; i < subs.length; i += 50) await Promise.all(subs.slice(i, i + 50).map(sendOne));
+  const { envoyes, echecs, supprimes } = await envoyerA(subs, payload);
   return json({ envoyes, echecs, supprimes });
+
+  // Envoi d'un message à une liste d'abonnés (les abonnements expirés sont supprimés)
+  async function envoyerA(liste: Sub[], payload: string) {
+    let envoyes = 0, echecs = 0, supprimes = 0;
+    const morts = new Set<string>();
+    const sendOne = async (s: Sub) => {
+      try {
+        const body = await encryptPayload(payload, s.p256dh, s.auth);
+        const res = await fetch(s.endpoint, {
+          method: "POST",
+          headers: {
+            Authorization: await vapidHeader(s.endpoint, VAPID_PUBLIC, VAPID_PRIVATE, SUBJECT),
+            "Content-Encoding": "aes128gcm",
+            "Content-Type": "application/octet-stream",
+            TTL: "86400",
+            Urgency: "normal",
+          },
+          body,
+        });
+        if (res.status === 404 || res.status === 410) {
+          await fetch(`${SB_URL}/rest/v1/push_subscriptions?endpoint=eq.${encodeURIComponent(s.endpoint)}`, { method: "DELETE", headers: dbHeaders });
+          morts.add(s.endpoint);
+          supprimes++;
+        } else if (res.ok) envoyes++;
+        else echecs++;
+      } catch { echecs++; }
+    };
+    for (let i = 0; i < liste.length; i += 50) await Promise.all(liste.slice(i, i + 50).map(sendOne));
+    return { envoyes, echecs, supprimes, morts };
+  }
 });

@@ -46,6 +46,20 @@ create table if not exists public.participations (
 );
 create index if not exists participations_jeu_idx on public.participations (jeu_id);
 
+-- Alertes automatiques : nouveau jeu publié, puis résultats (une seule fois chacune).
+-- À la création de ces colonnes, les jeux existants sont marqués « déjà annoncés ».
+do $$ begin
+  if not exists (select 1 from information_schema.columns
+                 where table_schema = 'public' and table_name = 'jeux' and column_name = 'alerte_jeu_le') then
+    alter table public.jeux add column alerte_jeu_le timestamptz;
+    alter table public.jeux add column if not exists alerte_gagnants_le timestamptz;
+    update public.jeux set alerte_jeu_le = now() where publie;
+    update public.jeux set alerte_gagnants_le = now() where jsonb_array_length(gagnants) > 0;
+  end if;
+end $$;
+alter table public.jeux add column if not exists alerte_gagnants_le timestamptz;
+alter table public.jeux add column if not exists alerte_auto boolean not null default true;
+
 alter table public.jeux enable row level security;
 alter table public.participations enable row level security;
 drop policy if exists "jeux publies" on public.jeux;
@@ -203,10 +217,11 @@ begin
 
   begin
     if v_id is null then
-      insert into public.jeux (slug, titre, lot, description, reglement, photo, miniature, date_fin, nb_gagnants, publie)
+      insert into public.jeux (slug, titre, lot, description, reglement, photo, miniature, date_fin, nb_gagnants, publie, alerte_auto)
       values (v_slug, btrim(p_jeu ->> 'titre'), coalesce(p_jeu ->> 'lot', ''), coalesce(p_jeu ->> 'description', ''),
               coalesce(p_jeu ->> 'reglement', ''), nullif(p_jeu ->> 'photo', ''), nullif(p_jeu ->> 'miniature', ''),
-              v_fin, coalesce((p_jeu ->> 'nb_gagnants')::int, 1), coalesce((p_jeu ->> 'publie')::boolean, false))
+              v_fin, coalesce((p_jeu ->> 'nb_gagnants')::int, 1), coalesce((p_jeu ->> 'publie')::boolean, false),
+              coalesce((p_jeu ->> 'alerte_auto')::boolean, true))
       returning id into v_id;
     else
       update public.jeux j set
@@ -215,7 +230,8 @@ begin
         photo = case when garder then j.photo else nullif(p_jeu ->> 'photo', '') end,
         miniature = case when garder then j.miniature else nullif(p_jeu ->> 'miniature', '') end,
         date_fin = v_fin, nb_gagnants = coalesce((p_jeu ->> 'nb_gagnants')::int, 1),
-        publie = coalesce((p_jeu ->> 'publie')::boolean, false), modifie_le = now()
+        publie = coalesce((p_jeu ->> 'publie')::boolean, false),
+        alerte_auto = coalesce((p_jeu ->> 'alerte_auto')::boolean, j.alerte_auto), modifie_le = now()
       where j.id = v_id;
       if not found then return jsonb_build_object('erreur', 'Jeu introuvable.'); end if;
     end if;
