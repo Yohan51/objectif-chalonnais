@@ -17,6 +17,7 @@
 | `stats.html`, `compteur.js`, `supabase/compteur.sql` | Compteur de visites anonyme et page des statistiques de l'équipe |
 | `chat.js`, `messages.html`, `supabase/chat.sql` | La bulle « Discuter » (discussion publique et messages à l'équipe) et la page de l'équipe pour répondre et modérer |
 | `equipe.html`, `equipe.js` | L'espace équipe : une seule connexion pour tous les outils de l'équipe |
+| `membres.html`, `supabase/membres.sql` | Gestion des membres de l'équipe : un code personnel par membre, droits limités |
 | `mentions-legales.html` | Mentions légales et politique de confidentialité (lien en bas de chaque page) |
 | `jeux.html` | Les jeux concours : participation des abonnés et gagnants |
 | `tirage.html`, `qrcode.min.js` | Outil de l'équipe : créer les jeux, tirage au sort, certificats (non visible dans le menu) |
@@ -329,6 +330,29 @@ Garde en favori **`https://lobjectifchalonnais.fr/equipe.html`** (lien aussi en 
 - **Rester connecté sur cet appareil** (coché par défaut) : le code est retenu 30 jours sur ce téléphone ou cet ordinateur. Décoche-la sur un ordinateur partagé : tu seras alors déconnecté à la fermeture du navigateur.
 - **Se déconnecter**, depuis n'importe quel outil, déconnecte de tous les outils sur cet appareil.
 - Si tu changes le code modérateur, chaque appareil redemandera simplement le nouveau.
+
+## 15. Les membres de l'équipe
+
+Tu restes l'**administrateur principal** : ton code modérateur donne tous les droits. Chaque membre de l'équipe reçoit son **propre code**, que tu peux suspendre ou retirer à tout moment.
+
+### Installation (une seule fois)
+
+*SQL Editor* → *New query* → colle tout le fichier `supabase/membres.sql` → *Run*. Exécute-le **en dernier**, après les autres fichiers (et à nouveau si tu relances un jour un autre fichier SQL).
+
+### Donner un accès
+
+Espace équipe → case **L'équipe** (visible par toi seul) → prénom, *générer* un code, *Ajouter*. Touche *Copier le message* et envoie-le en privé au membre : il contient le lien et son code. Le membre se connecte sur l'espace équipe avec ce code.
+
+### Ce que peut faire un membre
+
+- **Oui** : écrire, modifier et programmer des actus ; créer et modifier des jeux, faire le tirage, publier les gagnants ; envoyer des alertes ; modérer les bons plans (valider, modifier, supprimer) ; gérer la messagerie (répondre, supprimer, masquer, bannir) ; voir les statistiques.
+- **Non, réservé à toi** : supprimer un article, supprimer un jeu, effacer les coordonnées des participants, gérer les membres.
+
+Les boutons interdits n'apparaissent pas chez les membres, et la base de données refuse de toute façon ces actions s'ils les tentaient.
+
+- *Suspendre* : le membre ne peut plus se connecter, mais reste dans la liste (pratique pour une pause).
+- *Nouveau code* : si un code a circulé, l'ancien cesse aussitôt de fonctionner.
+- La liste indique quand chaque membre a utilisé son accès pour la dernière fois.
 
 ## Bon à savoir
 

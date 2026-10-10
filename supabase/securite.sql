@@ -545,13 +545,35 @@ begin
 end $$;
 
 -- ---------- Code modérateur ----------
-create or replace function oc_private.code_valide(p_code text) returns boolean
+-- Membres de l'équipe (voir membres.sql) : codes personnels créés par l'administrateur
+create table if not exists oc_private.membres (
+  id                bigint generated always as identity primary key,
+  nom               text not null check (char_length(btrim(nom)) between 2 and 40),
+  code_hash         text not null,
+  actif             boolean not null default true,
+  cree_le           timestamptz not null default now(),
+  derniere_activite timestamptz
+);
+
+create or replace function oc_private.est_admin(p_code text) returns boolean
 language sql stable set search_path = '' as $$
   select coalesce((
     select r.code_moderateur is not null
        and coalesce(p_code, '') <> ''
        and extensions.crypt(p_code, r.code_moderateur) = r.code_moderateur
     from oc_private.reglages r where r.id = 1), false)
+$$;
+
+create or replace function oc_private.membre_de(p_code text) returns bigint
+language sql stable set search_path = '' as $$
+  select m.id from oc_private.membres m
+  where m.actif and coalesce(p_code, '') <> '' and extensions.crypt(p_code, m.code_hash) = m.code_hash
+  limit 1
+$$;
+
+create or replace function oc_private.code_valide(p_code text) returns boolean
+language sql stable set search_path = '' as $$
+  select oc_private.est_admin(p_code) or oc_private.membre_de(p_code) is not null
 $$;
 
 create or replace function public.oc_verifier_code(p_code text) returns boolean

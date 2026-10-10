@@ -61,15 +61,30 @@ exception when undefined_object then null; end $$;
 -- ---------- Contrôle du code modérateur (identique à actus.sql) ----------
 create or replace function oc_private.controle_code(p_code text) returns text
 language plpgsql volatile set search_path = '' as $$
-declare v_ip text := oc_private.ip();
+declare v_ip text := oc_private.ip(); v_membre bigint;
 begin
   if (select count(*) from oc_private.ecritures
       where ip = v_ip and type = 'echec' and quand > now() - interval '15 minutes') >= 8 then
     return 'Trop d''essais ratés : patientez 15 minutes.';
   end if;
-  if not oc_private.code_valide(p_code) then
+  if oc_private.est_admin(p_code) then return null; end if;
+  v_membre := oc_private.membre_de(p_code);
+  if v_membre is null then
     insert into oc_private.ecritures (ip, type) values (v_ip, 'echec');
     return 'Code modérateur incorrect.';
+  end if;
+  update oc_private.membres set derniere_activite = now()
+  where id = v_membre and (derniere_activite is null or derniere_activite < now() - interval '5 minutes');
+  return null;
+end $$;
+
+create or replace function oc_private.controle_admin(p_code text) returns text
+language plpgsql volatile set search_path = '' as $$
+declare msg text := oc_private.controle_code(p_code);
+begin
+  if msg is not null then return msg; end if;
+  if not oc_private.est_admin(p_code) then
+    return 'Seul l''administrateur principal peut faire cette suppression.';
   end if;
   return null;
 end $$;
@@ -251,7 +266,7 @@ end $$;
 -- ---------- Équipe : effacer les coordonnées (après remise des lots) ----------
 create or replace function public.oc_jeu_effacer_participants(p_code text, p_jeu_id bigint) returns jsonb
 language plpgsql volatile security definer set search_path = '' as $$
-declare msg text := oc_private.controle_code(p_code); n int;
+declare msg text := oc_private.controle_admin(p_code); n int;
 begin
   if msg is not null then return jsonb_build_object('erreur', msg); end if;
   delete from public.participations where jeu_id = p_jeu_id;
@@ -263,7 +278,7 @@ end $$;
 -- ---------- Équipe : supprimer un jeu ----------
 create or replace function public.oc_jeu_supprimer(p_code text, p_jeu_id bigint) returns jsonb
 language plpgsql volatile security definer set search_path = '' as $$
-declare msg text := oc_private.controle_code(p_code);
+declare msg text := oc_private.controle_admin(p_code);
 begin
   if msg is not null then return jsonb_build_object('erreur', msg); end if;
   delete from public.jeux where id = p_jeu_id;

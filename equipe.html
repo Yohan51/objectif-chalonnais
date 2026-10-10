@@ -123,6 +123,11 @@
         <p>Valider les événements, traiter les signalements.</p>
         <span class="etat" id="e-plans">…</span>
       </a>
+      <a class="outil" href="membres.html" data-admin>
+        <span class="ico" aria-hidden="true">👥</span><h2>L'équipe</h2>
+        <p>Donner un accès aux membres, retirer un accès.</p>
+        <span class="etat" id="e-membres">Réservé à l'administrateur</span>
+      </a>
       <a class="outil" href="stats.html">
         <span class="ico" aria-hidden="true">📈</span><h2>Statistiques</h2>
         <p>Visites du site, jour par jour.</p>
@@ -167,6 +172,10 @@
     $('note-souvenir').textContent = OCEquipe.souvenu()
       ? 'Vous restez connecté sur cet appareil pendant 30 jours. Sur un ordinateur partagé, pensez à vous déconnecter.'
       : 'Vous serez déconnecté à la fermeture du navigateur.';
+    const q = await OCEquipe.adapter();
+    if(q) $('bonjour').textContent = q.role === 'admin'
+      ? 'Administrateur principal · tous les droits.'
+      : `Bonjour ${q.nom} ! Vous pouvez écrire et modifier ; les suppressions d'articles et de jeux sont réservées à l'administrateur.`;
     remplir(r);
   }
   $('vue-login').addEventListener('submit', async (e)=>{
@@ -210,6 +219,14 @@
       badge('b-jeux', aTirer);
       etat('e-jeux', `<b>${enCours} en cours</b>${aTirer ? ` · ${aTirer} à tirer au sort` : ''}`);
     }catch(e){ etat('e-jeux', 'Jeux pas encore installés'); }
+    // Membres (administrateur)
+    if(document.documentElement.dataset.role !== 'membre'){
+      try{
+        const r = await A.rpc('oc_membres_liste', { p_code: code });
+        const actifs = (r.membres || []).filter(m=> m.actif).length;
+        etat('e-membres', `<b>${plur(actifs, 'membre')}</b> avec un accès`);
+      }catch(e){ etat('e-membres', /n'existe|not find|function/i.test(e.message) ? 'À installer (membres.sql)' : 'Réservé à l\'administrateur'); }
+    }
     // Statistiques
     try{
       const r = await A.rpc('oc_stats', { p_code: code });

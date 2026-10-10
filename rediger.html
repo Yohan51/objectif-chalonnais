@@ -263,7 +263,7 @@
           <button class="btn btn-main" type="submit" id="btn-enregistrer">Enregistrer</button>
           <button class="btn" type="button" id="btn-apercu">Aperçu</button>
           <span class="spacer"></span>
-          <button class="btn btn-danger btn-sm" type="button" id="btn-supprimer" hidden>Supprimer l'article</button>
+          <button class="btn btn-danger btn-sm" type="button" id="btn-supprimer" data-admin hidden>Supprimer l'article</button>
         </div>
         <div class="confirm" id="confirm" hidden>
           <p>Supprimer définitivement cet article ? Cette action ne peut pas être annulée.</p>
@@ -312,7 +312,7 @@
   async function connecter(c){
     const res = await A.rpc('oc_actus_redaction', { p_code: c });
     code = c; actus = res.actus || [];
-    OCEquipe.memoriser(c);
+    OCEquipe.memoriser(c); OCEquipe.adapter();
     $('vue-login').hidden = true; $('vue-bureau').hidden = false;
     rendreListe();
     nouveau(true);

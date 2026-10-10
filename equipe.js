@@ -30,6 +30,7 @@
     // sinon (reconnexion automatique) on garde le réglage précédent
     if(garder === undefined) garder = dernierChoix !== null ? dernierChoix : souvenu();
     try{
+      if(sessionStorage.getItem(CLE_SESSION) !== code) sessionStorage.removeItem('oc-equipe-qui');
       sessionStorage.setItem(CLE_SESSION, code);
       if(garder) localStorage.setItem(CLE_DURABLE, JSON.stringify({ c: code, exp: Date.now() + DUREE }));
       else localStorage.removeItem(CLE_DURABLE);
@@ -38,8 +39,42 @@
     }catch(e){}
   }
   function souvenu(){ try{ return !!localStorage.getItem(CLE_DURABLE); }catch(e){ return false; } }
+  // Rôle de la personne connectée : { role: 'admin' | 'membre', nom }
+  async function qui(){
+    const code = lire();
+    if(!code) return null;
+    try{
+      const c = JSON.parse(sessionStorage.getItem('oc-equipe-qui') || 'null');
+      if(c && c.k === code.length + ':' + code.slice(-2)) return c.v;
+    }catch(e){}
+    const cfg = window.OC_CONFIG || {};
+    const base = (cfg.supabaseUrl || '').replace(/\/+$/, ''), cle = cfg.supabaseCle || '';
+    const h = { apikey: cle, 'Content-Type': 'application/json' }; if(cle.startsWith('eyJ')) h.Authorization = 'Bearer ' + cle;
+    let v = { role: 'admin', nom: '' };   // sans membres.sql installé : un seul code, celui de l'administrateur
+    try{
+      const r = await fetch(`${base}/rest/v1/rpc/oc_qui_suis_je`, { method:'POST', headers:h, body: JSON.stringify({ p_code: code }) });
+      if(r.ok){ const j = await r.json(); if(j && j.role) v = { role: j.role, nom: j.nom || '' }; else if(j && j.erreur) return null; }
+    }catch(e){}
+    try{ sessionStorage.setItem('oc-equipe-qui', JSON.stringify({ k: code.length + ':' + code.slice(-2), v })); }catch(e){}
+    return v;
+  }
+  // Masque les éléments réservés à l'administrateur (data-admin) pour les membres
+  async function adapter(){
+    const q = await qui();
+    if(!q) return q;
+    document.documentElement.dataset.role = q.role;
+    if(q.role !== 'admin'){
+      if(!document.getElementById('oc-role-style')){
+        const st = document.createElement('style'); st.id = 'oc-role-style';
+        st.textContent = 'html[data-role="membre"] [data-admin]{display:none !important;}';
+        document.head.appendChild(st);
+      }
+    }
+    return q;
+  }
   function oublier(){
     try{
+      sessionStorage.removeItem('oc-equipe-qui');
       sessionStorage.removeItem(CLE_SESSION);
       localStorage.removeItem(CLE_DURABLE);
       localStorage.removeItem('oc-code-envoi');
@@ -67,5 +102,5 @@
   }
   if(document.readyState === 'loading') document.addEventListener('DOMContentLoaded', init); else init();
 
-  window.OCEquipe = { code: lire, memoriser, oublier, souvenu };
+  window.OCEquipe = { code: lire, memoriser, oublier, souvenu, qui, adapter };
 })();

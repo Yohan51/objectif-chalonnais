@@ -40,6 +40,7 @@
   }
   .wrap{width:100%;max-width:640px;}
   [hidden]{display:none !important;}
+  html:not([data-role="membre"]) .membre-seul{display:none;}
 
   .topbar{display:flex;justify-content:space-between;gap:12px;font-size:13px;margin-bottom:18px;}
   .topbar a, .topbar button{color:var(--sky-dark);background:none;border:none;font:inherit;padding:0;cursor:pointer;text-decoration:underline;}
@@ -392,7 +393,7 @@
       <label class="check"><input type="checkbox" id="fPublie"> Visible sur le site (sinon : brouillon)</label>
       <button class="go" type="submit" id="btnEnregistrer">Enregistrer le jeu</button>
       <div id="formMsg" class="msg" hidden></div>
-      <div class="row" id="formDanger" hidden>
+      <div class="row" id="formDanger" data-admin hidden>
         <button type="button" class="mode-btn danger" id="btnSupprimer">Supprimer ce jeu</button>
       </div>
     </form>
@@ -499,9 +500,10 @@ Sophie Bernard
       <p class="hint">Gagnants publiés sur la page des jeux. Et maintenant :</p>
       <div class="actions" style="margin-top:0;">
         <a id="lienAlerteResultat" href="envoyer.html">Annoncer par une alerte</a>
-        <button type="button" id="effacerBtn">Effacer les coordonnées des participants</button>
+        <button type="button" id="effacerBtn" data-admin>Effacer les coordonnées des participants</button>
       </div>
-      <p class="hint" style="margin-top:10px;">Effacez les coordonnées une fois les lots remis. Sinon, elles le sont automatiquement 3 mois après le tirage.</p>
+      <p class="hint" style="margin-top:10px;" data-admin>Effacez les coordonnées une fois les lots remis. Sinon, elles le sont automatiquement 3 mois après le tirage.</p>
+      <p class="hint membre-seul" style="margin-top:10px;">Les coordonnées des participants seront effacées automatiquement 3 mois après le tirage (ou plus tôt par l'administrateur).</p>
     </div>
   </div>
 
@@ -586,7 +588,7 @@ Sophie Bernard
   // =====================================================================
   async function connecter(c){
     const res = await A.rpc('oc_jeux_equipe', { p_code: c });
-    code = c; OCEquipe.memoriser(c);
+    code = c; OCEquipe.memoriser(c); OCEquipe.adapter();
     jeux = res.jeux || [];
     $('lockOverlay').hidden = true; $('appRoot').hidden = false;
     rendreJeux();

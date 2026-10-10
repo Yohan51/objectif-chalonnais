@@ -1,0 +1,235 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>L'équipe — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --tile:#E3EDF2;
+    --sky:#2E97C7; --err:#C0472F; --ok:#2E7D57; --ok-bg:#E5F4EC; --btn:#183140; --btn-ink:#F4F8FA;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C;
+      --sky:#6CC1EA; --err:#F08A73; --ok:#6FCF97; --ok-bg:#163A2A; --btn:#EAF4F9; --btn-ink:#0F2230; color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;}
+  a{color:var(--sky);}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 20px 64px;}
+  h1,h2{font-family:var(--font-display);line-height:1.1;margin:0;}
+  .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;}
+  .top button{background:none;border:none;color:var(--sky);font:inherit;text-decoration:underline;cursor:pointer;padding:0;}
+  h1{font-size:clamp(30px,5vw,42px);font-weight:800;margin-top:22px;}
+  .sous{color:var(--ink-soft);margin:8px 0 22px;}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;}
+  .carte h2{font-size:22px;font-weight:800;margin-bottom:10px;}
+  .droits{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;font-size:14.5px;}
+  .droits ul{margin:6px 0 0;padding-left:18px;color:var(--ink-soft);}
+  .droits li{margin-bottom:3px;}
+  .droits strong{font-size:15px;}
+  label.l{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:5px;}
+  input[type=text]{width:100%;font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);}
+  input.mono{font-family:var(--font-mono);letter-spacing:.03em;}
+  .ligne{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1.3fr) auto;gap:10px;align-items:end;}
+  .btn{font:inherit;font-weight:800;border:2px solid var(--btn);border-radius:999px;padding:9px 18px;background:var(--btn);color:var(--btn-ink);cursor:pointer;white-space:nowrap;}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn.petit{padding:6px 12px;font-size:13.5px;}
+  .btn.danger{color:var(--err);}
+  .btn:disabled{opacity:.5;}
+  .msg{margin-top:12px;font-size:14px;padding:12px 14px;border-radius:10px;}
+  .msg.ok{background:var(--ok-bg);color:var(--ok);}
+  .msg.err{background:#FBEAE6;color:var(--err);}
+  .msg code{font-family:var(--font-mono);font-size:15px;background:var(--surface);padding:2px 8px;border-radius:6px;color:var(--ink);}
+  .membre{display:flex;justify-content:space-between;align-items:center;gap:12px;flex-wrap:wrap;padding:14px 0;border-bottom:1px solid var(--line);}
+  .membre:last-child{border-bottom:none;}
+  .membre .n{font-weight:800;font-size:17px;}
+  .membre .d{font-family:var(--font-mono);font-size:12px;color:var(--muted);}
+  .membre .a{display:flex;gap:6px;flex-wrap:wrap;}
+  .off .n{opacity:.55;}
+  .tag{font-family:var(--font-mono);font-size:11px;padding:2px 8px;border-radius:999px;margin-left:8px;background:var(--tile);color:var(--ink-soft);vertical-align:2px;}
+  .vide{color:var(--ink-soft);font-size:14.5px;}
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;margin:14px 0 10px;}
+  .err{color:var(--err);font-size:14px;}
+  @media (max-width:640px){ .droits{grid-template-columns:minmax(0,1fr);} .ligne{grid-template-columns:minmax(0,1fr);} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="vue-login" data-equipe-login>
+    <h1>L'équipe</h1>
+    <p>Réservé à l'administrateur principal.</p>
+    <input type="password" id="l-code" placeholder="Code administrateur" autocomplete="current-password">
+    <button class="btn" id="l-btn" type="submit" style="width:100%">Ouvrir</button>
+    <p class="err" id="l-msg" hidden></p>
+  </form>
+
+  <main id="vue-app" hidden>
+    <div class="top">
+      <a href="equipe.html">⌂ Espace équipe</a>
+      <button type="button" id="btn-quitter">Se déconnecter</button>
+    </div>
+    <h1>Les membres de l'équipe</h1>
+    <p class="sous">Chaque membre a son propre code. Vous restez le seul administrateur principal : votre code donne tous les droits et permet de gérer cette liste.</p>
+
+    <section class="carte">
+      <h2>Ce que peut faire un membre</h2>
+      <div class="droits">
+        <div><strong>✅ Autorisé</strong>
+          <ul>
+            <li>Écrire, modifier, programmer des actus</li>
+            <li>Créer et modifier des jeux, faire le tirage, publier les gagnants</li>
+            <li>Envoyer des alertes</li>
+            <li>Bons plans : valider, modifier et supprimer</li>
+            <li>Messagerie : répondre, supprimer, modérer, bannir</li>
+            <li>Voir les statistiques</li>
+          </ul>
+        </div>
+        <div><strong>🚫 Réservé à vous</strong>
+          <ul>
+            <li>Supprimer un article</li>
+            <li>Supprimer un jeu concours</li>
+            <li>Effacer les coordonnées des participants (sinon automatique après 3 mois)</li>
+            <li>Gérer les membres et leurs codes</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section class="carte">
+      <h2>Donner un accès</h2>
+      <form id="f-ajout" class="ligne" novalidate>
+        <div><label class="l" for="f-nom">Prénom</label><input type="text" id="f-nom" maxlength="40" placeholder="Ex. Sophie" autocomplete="off"></div>
+        <div><label class="l" for="f-code">Code personnel <a href="#" id="f-generer" style="font-weight:600">générer</a></label><input type="text" id="f-code" class="mono" maxlength="60" placeholder="8 caractères minimum" autocomplete="off" spellcheck="false"></div>
+        <button class="btn" type="submit" id="f-btn">Ajouter</button>
+      </form>
+      <div class="msg" id="f-msg" hidden></div>
+    </section>
+
+    <section class="carte">
+      <h2>Membres</h2>
+      <div id="liste"><p class="vide">Chargement…</p></div>
+    </section>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="equipe.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  let code = null;
+
+  function genererCode(){
+    const alpha = 'abcdefghjkmnpqrstuvwxyz23456789';
+    const a = new Uint32Array(12); crypto.getRandomValues(a);
+    const s = Array.from(a, n=> alpha[n % alpha.length]).join('');
+    return `objectif-${s.slice(0, 4)}-${s.slice(4, 8)}-${s.slice(8, 12)}`;
+  }
+  function depuis(iso){
+    if(!iso) return 'jamais connecté';
+    const min = Math.round((Date.now() - new Date(iso)) / 60000);
+    if(min < 60) return `actif il y a ${Math.max(1, min)} min`;
+    if(min < 1440) return `actif il y a ${Math.round(min / 60)} h`;
+    return 'actif le ' + new Date(iso).toLocaleDateString('fr-FR', { day:'numeric', month:'long' });
+  }
+  function dire(html, kind){ const m = $('f-msg'); m.innerHTML = html; m.className = 'msg ' + kind; m.hidden = false; }
+
+  async function connecter(c){
+    const r = await A.rpc('oc_membres_liste', { p_code: c });
+    code = c; OCEquipe.memoriser(c);
+    $('vue-login').hidden = true; $('vue-app').hidden = false;
+    afficher(r.membres || []);
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = /function|find/i.test(err.message) ? 'Installez d\'abord supabase/membres.sql dans Supabase.' : err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{ OCEquipe.oublier(); location.reload(); };
+  (async ()=>{
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ $('l-msg').textContent = e.message; $('l-msg').hidden = false; } }
+  })();
+
+  async function recharger(){ afficher((await A.rpc('oc_membres_liste', { p_code: code })).membres || []); }
+
+  function afficher(membres){
+    const l = $('liste');
+    if(!membres.length){ l.innerHTML = '<p class="vide">Aucun membre pour l\'instant. Ajoutez le premier ci-dessus.</p>'; return; }
+    l.innerHTML = '';
+    membres.forEach(m=>{
+      const d = document.createElement('div');
+      d.className = 'membre' + (m.actif ? '' : ' off');
+      d.innerHTML = `<div><div class="n">${esc(m.nom)}${m.actif ? '' : '<span class="tag">accès suspendu</span>'}</div>
+        <div class="d">ajouté le ${new Date(m.cree_le).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' })} · ${depuis(m.derniere_activite)}</div></div>
+        <div class="a">
+          <button type="button" class="btn ghost petit" data-a="code">Nouveau code</button>
+          <button type="button" class="btn ghost petit" data-a="actif">${m.actif ? 'Suspendre' : 'Réactiver'}</button>
+          <button type="button" class="btn ghost petit danger" data-a="suppr">Retirer</button>
+        </div>`;
+      d.querySelector('[data-a="code"]').onclick = async ()=>{
+        const nouveau = genererCode();
+        if(!confirm(`Donner un nouveau code à ${m.nom} ?\nSon ancien code ne fonctionnera plus.`)) return;
+        try{
+          await A.rpc('oc_membre_modifier', { p_code: code, p_id: m.id, p_actif: null, p_nouveau_code: nouveau });
+          dire(`Nouveau code de <strong>${esc(m.nom)}</strong> : <code>${esc(nouveau)}</code> <button type="button" class="btn ghost petit" id="copier">Copier</button><br>Transmettez-le-lui en privé (SMS, de vive voix). Il ne sera plus affiché ensuite.`, 'ok');
+          brancherCopie(nouveau, m.nom); window.scrollTo({ top: 0, behavior: 'smooth' });
+        }catch(e){ dire(esc(e.message), 'err'); }
+      };
+      d.querySelector('[data-a="actif"]').onclick = async ()=>{
+        try{ await A.rpc('oc_membre_modifier', { p_code: code, p_id: m.id, p_actif: !m.actif, p_nouveau_code: null }); recharger(); }catch(e){ alert(e.message); }
+      };
+      d.querySelector('[data-a="suppr"]').onclick = async ()=>{
+        if(!confirm(`Retirer définitivement l'accès de ${m.nom} ?`)) return;
+        try{ await A.rpc('oc_membre_supprimer', { p_code: code, p_id: m.id }); recharger(); }catch(e){ alert(e.message); }
+      };
+      l.append(d);
+    });
+  }
+
+  function brancherCopie(c, nom){
+    const b = $('copier'); if(!b) return;
+    b.onclick = async ()=>{
+      const texte = `Bonjour ${nom} ! Ton accès à l'espace équipe de L'Objectif Châlonnais : ${location.origin}/equipe.html\nTon code personnel : ${c}\n(garde-le pour toi)`;
+      try{ await navigator.clipboard.writeText(texte); b.textContent = 'Copié ✓'; }catch(e){ b.textContent = 'Copiez le code à la main'; }
+    };
+  }
+
+  $('f-generer').onclick = (e)=>{ e.preventDefault(); $('f-code').value = genererCode(); };
+  $('f-ajout').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const nom = $('f-nom').value.trim(); let c = $('f-code').value.trim();
+    if(!c){ c = genererCode(); $('f-code').value = c; }
+    $('f-btn').disabled = true;
+    try{
+      await A.rpc('oc_membre_ajouter', { p_code: code, p_nom: nom, p_code_membre: c });
+      dire(`Accès créé pour <strong>${esc(nom)}</strong>. Son code : <code>${esc(c)}</code> <button type="button" class="btn ghost petit" id="copier">Copier le message</button><br>Envoyez-le-lui en privé, avec le lien de l'espace équipe. Le code ne sera plus affiché ensuite.`, 'ok');
+      brancherCopie(c, nom);
+      $('f-nom').value = ''; $('f-code').value = '';
+      recharger();
+    }catch(err){ dire(esc(err.message), 'err'); }
+    finally{ $('f-btn').disabled = false; }
+  });
+})();
+</script>
+</body>
+</html>
