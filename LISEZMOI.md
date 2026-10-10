@@ -16,6 +16,7 @@
 | `quiz.html` | Le quiz « Connais-tu Châlons ? » |
 | `stats.html`, `compteur.js`, `supabase/compteur.sql` | Compteur de visites anonyme et page des statistiques de l'équipe |
 | `chat.js`, `messages.html`, `supabase/chat.sql` | La bulle « Discuter » (discussion publique et messages à l'équipe) et la page de l'équipe pour répondre et modérer |
+| `equipe.html`, `equipe.js` | L'espace équipe : une seule connexion pour tous les outils de l'équipe |
 | `mentions-legales.html` | Mentions légales et politique de confidentialité (lien en bas de chaque page) |
 | `jeux.html` | Les jeux concours : participation des abonnés et gagnants |
 | `tirage.html`, `qrcode.min.js` | Outil de l'équipe : créer les jeux, tirage au sort, certificats (non visible dans le menu) |
@@ -320,6 +321,14 @@ Pas de notification automatique pour l'instant : passez sur cette page une ou de
 La liste des mots refusés se complète dans Supabase : *Table Editor* → schéma `oc_private` → table `salon_mots` → *Insert row*.
 
 Pour retirer la bulle du site : ajoute `chat: false,` dans `config.js`, après la ligne `contact`.
+
+## 14. L'espace équipe (une seule connexion)
+
+Garde en favori **`https://lobjectifchalonnais.fr/equipe.html`** (lien aussi en bas de l'accueil). Tu te connectes une fois avec le code modérateur, puis tous les outils s'ouvrent sans redemander le code : actus, jeux concours, alertes, messages, statistiques et modération des bons plans. Chaque case indique en direct ce qui t'attend (messages non lus, jeux à tirer au sort, événements à valider…).
+
+- **Rester connecté sur cet appareil** (coché par défaut) : le code est retenu 30 jours sur ce téléphone ou cet ordinateur. Décoche-la sur un ordinateur partagé : tu seras alors déconnecté à la fermeture du navigateur.
+- **Se déconnecter**, depuis n'importe quel outil, déconnecte de tous les outils sur cet appareil.
+- Si tu changes le code modérateur, chaque appareil redemandera simplement le nouveau.
 
 ## Bon à savoir
 

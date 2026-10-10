@@ -83,7 +83,7 @@
 <nav class="oc-nav" aria-label="Navigation principale">
   <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
   <div class="oc-nav-links">
-    <a href="index.html">Accueil</a>
+    <a href="equipe.html">⌂ Espace équipe</a>
     <a href="rediger.html">Rédaction</a>
     <a href="envoyer.html" aria-current="page">Envoyer une alerte</a>
     <a href="tirage.html">Jeux</a>
@@ -100,7 +100,8 @@
   </div>
 
   <form id="form" novalidate>
-    <div class="field">
+    <p class="hint" id="code-connu" hidden>✓ Connecté à l'espace équipe · <a href="#" id="code-changer">changer de code</a></p>
+    <div class="field" id="champ-code">
       <label for="f-code">Code modérateur</label>
       <input id="f-code" type="password" autocomplete="current-password" placeholder="Le même code que pour la carte et la rédaction">
     </div>
@@ -152,6 +153,7 @@
 </main>
 
 <script src="config.js"></script>
+<script src="equipe.js"></script>
 <script src="app.js"></script>
 <script>
 (function(){
@@ -162,7 +164,12 @@
   const CODE_KEY = 'oc-code-envoi';
 
   // Code mémorisé sur cet appareil, ou repris de la rédaction (même onglet)
-  try{ $('f-code').value = sessionStorage.getItem('oc-redaction-code') || localStorage.getItem(CODE_KEY) || ''; }catch(e){}
+  const codeConnu = OCEquipe.code();
+  if(codeConnu){
+    $('f-code').value = codeConnu;
+    $('champ-code').hidden = true; $('code-connu').hidden = false;
+  }
+  $('code-changer').onclick = (e)=>{ e.preventDefault(); $('f-code').value = ''; $('champ-code').hidden = false; $('code-connu').hidden = true; $('f-code').focus(); };
 
   // Réseaux renseignés dans config.js
   const RESEAUX = [['tiktok','Notre compte TikTok'],['instagram','Notre compte Instagram'],['youtube','Notre chaîne YouTube'],['facebook','Notre page Facebook']];
@@ -253,7 +260,7 @@
         status(res.erreur || `L'envoi a échoué (erreur ${r.status}). Vérifie que la fonction est bien déployée dans Supabase.`, 'err');
         return;
       }
-      try{ localStorage.setItem(CODE_KEY, $('f-code').value.trim()); localStorage.setItem('oc-ne-pas-compter', '1'); }catch(e){}
+      OCEquipe.memoriser($('f-code').value.trim(), true);
       if(res.note){ status(res.note); return; }
       let msg = `Alerte envoyée à ${res.envoyes} appareil${res.envoyes>1?'s':''}.`;
       if(res.echecs) msg += ` ${res.echecs} échec${res.echecs>1?'s':''}.`;

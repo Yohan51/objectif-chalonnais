@@ -1002,7 +1002,8 @@
 <footer class="oc-pied">
   <span>© L'Objectif Châlonnais · Association loi 1901</span>
   <a href="mentions-legales.html">Mentions légales et confidentialité</a>
-  <button type="button" class="lien-mod" id="mod-btn">Espace modérateur</button>
+  <button type="button" class="lien-mod" id="mod-btn">Modération</button>
+  <a href="equipe.html">Espace équipe</a>
 </footer>
 
 <div id="overlay">
@@ -1173,6 +1174,7 @@
       <label>Code d'accès</label>
       <input id="pw-input" type="password" placeholder="••••••••">
     </div>
+    <label style="display:flex;align-items:center;gap:8px;font-size:13.5px;margin:2px 0 8px;cursor:pointer;"><input type="checkbox" data-equipe-garder checked style="width:17px;height:17px;margin:0;"> Rester connecté sur cet appareil (30 jours)</label>
     <div id="pw-status" style="font-size:12px;color:var(--brique);min-height:16px;"></div>
     <div class="modal-actions">
       <button class="btn-secondary" id="pw-cancel">Annuler</button>
@@ -1250,6 +1252,7 @@
 <div id="toast"></div>
 
 <script src="config.js"></script>
+<script src="equipe.js"></script>
 <script src="compteur.js" defer></script>
 <script src="storage.js"></script>
 <script>
@@ -2984,7 +2987,25 @@
   const modList = document.getElementById('mod-list');
   const modCount = document.getElementById('mod-count');
 
-  modBtn.onclick = ()=>{
+  function activerModeration(code){
+    window.OC_CODE_MODERATEUR = code;
+    isAdmin = true;
+    adminPill.style.display = 'inline-block';
+    if(detailPinId) renderDetail();
+  }
+  // Déjà connecté dans l'espace équipe : pas besoin de retaper le code
+  async function connexionEquipe(){
+    const c = window.OCEquipe && OCEquipe.code();
+    if(!c) return false;
+    try{
+      const ok = await window.OC_verifierCode(c);
+      if(ok){ activerModeration(c); return true; }
+      if(ok === false) OCEquipe.oublier();   // code changé entre-temps : on l'oublie
+    }catch(e){}
+    return false;
+  }
+  modBtn.onclick = async ()=>{
+    if(!isAdmin && await connexionEquipe()){ showToast('Mode modérateur activé 🛡'); openModPanel(); return; }
     if(isAdmin){
       openModPanel();
     }else{
@@ -3014,13 +3035,11 @@
       return;
     }
     if(valide){
-      window.OC_CODE_MODERATEUR = entered;
+      if(window.OCEquipe) OCEquipe.memoriser(entered, document.querySelector('#password-modal [data-equipe-garder]').checked);
       pwInput.value = '';
-      isAdmin = true;
       passwordOverlay.classList.remove('open');
-      adminPill.style.display = 'inline-block';
+      activerModeration(entered);
       showToast('Mode modérateur activé 🛡');
-      if(detailPinId) renderDetail();
       openModPanel();
     }else{
       pwStatus.textContent = 'Code incorrect. Après plusieurs essais ratés, l\'accès est bloqué 15 minutes.';
@@ -3029,6 +3048,7 @@
   pwInput.onkeydown = (e)=>{ if(e.key==='Enter') document.getElementById('pw-submit').click(); };
 
   document.getElementById('admin-logout').onclick = ()=>{
+    if(window.OCEquipe) OCEquipe.oublier();
     isAdmin = false;
     window.OC_CODE_MODERATEUR = null;
     adminPill.style.display = 'none';
@@ -3389,6 +3409,12 @@
   (async function init(){
     await loadPins();
     await loadReports();
+    if(location.hash === '#moderation'){
+      try{ history.replaceState(null, '', location.pathname + location.search); }catch(e){}
+      modBtn.click();
+    }else if(window.OCEquipe && OCEquipe.code()){
+      connexionEquipe();   // l'équipe voit directement les boutons de modération sur les fiches
+    }
     const match = location.hash.match(/^#pin=(.+)$/);
     if(match){
       const targetId = decodeURIComponent(match[1]);

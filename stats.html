@@ -93,7 +93,7 @@
 <body>
 <div class="wrap">
 
-  <form class="login" id="vue-login">
+  <form class="login" id="vue-login" data-equipe-login>
     <h1>Statistiques</h1>
     <p class="sous">Réservé à l'équipe. Entrez le code modérateur.</p>
     <input type="password" id="l-code" placeholder="Code modérateur" autocomplete="current-password">
@@ -103,7 +103,7 @@
 
   <main id="vue-stats" hidden>
     <div class="top">
-      <nav><a href="index.html">Le site</a><a href="rediger.html">Rédaction</a><a href="envoyer.html">Alertes</a><a href="tirage.html">Jeux</a><a href="messages.html">Messages</a></nav>
+      <nav><a href="equipe.html">⌂ Espace équipe</a><a href="index.html">Le site</a><a href="rediger.html">Rédaction</a><a href="envoyer.html">Alertes</a><a href="tirage.html">Jeux</a><a href="messages.html">Messages</a></nav>
       <button type="button" id="btn-quitter">Se déconnecter</button>
     </div>
     <p class="eyebrow">Fréquentation</p>
@@ -142,6 +142,7 @@
 </div>
 
 <script src="config.js"></script>
+<script src="equipe.js"></script>
 <script src="actus-rendu.js"></script>
 <script>
 (function(){
@@ -155,7 +156,7 @@
 
   async function connecter(c){
     const r = await A.rpc('oc_stats', { p_code: c });
-    try{ sessionStorage.setItem(CODE_KEY, c); localStorage.setItem('oc-ne-pas-compter', '1'); }catch(e){}
+    OCEquipe.memoriser(c);
     donnees = r;
     $('vue-login').hidden = true; $('vue-stats').hidden = false;
     rendre();
@@ -168,10 +169,10 @@
     catch(err){ $('l-msg').textContent = err.message; $('l-msg').hidden = false; }
     finally{ $('l-btn').disabled = false; }
   });
-  $('btn-quitter').onclick = ()=>{ try{ sessionStorage.removeItem(CODE_KEY); }catch(e){} location.reload(); };
+  $('btn-quitter').onclick = ()=>{ OCEquipe.oublier(); location.reload(); };
   (async ()=>{
-    let c = null; try{ c = sessionStorage.getItem(CODE_KEY); }catch(e){}
-    if(c && A.configure){ try{ await connecter(c); }catch(e){} }
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ if(/incorrect/i.test(e.message)) OCEquipe.oublier(); } }
     if($('vue-stats').hidden) $('l-code').focus();
   })();
 

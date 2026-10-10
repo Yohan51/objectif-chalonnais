@@ -146,6 +146,7 @@
 <nav class="oc-nav" aria-label="Navigation principale">
   <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
   <div class="oc-nav-links">
+    <a href="equipe.html">⌂ Espace équipe</a>
     <a href="actus.html">Voir les actus</a>
     <a href="rediger.html" aria-current="page">Rédaction</a>
     <a href="envoyer.html">Alertes</a>
@@ -162,7 +163,7 @@
       <p class="eyebrow">Réservé à l'équipe</p>
       <h1>Rédaction des actus</h1>
     </div>
-    <form id="form-login" novalidate>
+    <form id="form-login" novalidate data-equipe-login>
       <div class="field">
         <label for="l-code">Code modérateur</label>
         <input id="l-code" type="password" autocomplete="current-password" placeholder="Le code de la carte des bons plans">
@@ -283,6 +284,7 @@
 </main>
 
 <script src="config.js"></script>
+<script src="equipe.js"></script>
 <script src="actus-rendu.js"></script>
 <script>
 (function(){
@@ -310,7 +312,7 @@
   async function connecter(c){
     const res = await A.rpc('oc_actus_redaction', { p_code: c });
     code = c; actus = res.actus || [];
-    store.set(CODE_KEY, c); store.set('oc-ne-pas-compter', '1', localStorage);
+    OCEquipe.memoriser(c);
     $('vue-login').hidden = true; $('vue-bureau').hidden = false;
     rendreListe();
     nouveau(true);
@@ -327,7 +329,7 @@
     finally{ $('l-btn').disabled = false; }
   });
   $('btn-quitter').onclick = ()=>{
-    code = null; store.del(CODE_KEY);
+    code = null; OCEquipe.oublier();
     $('vue-bureau').hidden = true; $('vue-login').hidden = false;
   };
 
@@ -630,8 +632,8 @@
   };
 
   // ---------- Reprise de session ----------
-  const enMemoire = store.get(CODE_KEY);
-  if(enMemoire && A.configure){ connecter(enMemoire).catch(()=> store.del(CODE_KEY)); }
+  const enMemoire = OCEquipe.code();
+  if(enMemoire && A.configure){ connecter(enMemoire).catch(e=>{ if(/incorrect/i.test(e.message)) OCEquipe.oublier(); }); }
 })();
 </script>
 </body>

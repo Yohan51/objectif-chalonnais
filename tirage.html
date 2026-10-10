@@ -302,7 +302,7 @@
 
 <!-- ================= Verrou : code modérateur ================= -->
 <div id="lockOverlay">
-  <form class="lock-card" id="lockForm">
+  <form class="lock-card" id="lockForm" data-equipe-login>
     <img src="icons/logo-carre.png" alt="L'Objectif Châlonnais">
     <h1>Accès réservé</h1>
     <p>Jeux concours et tirage au sort. Entrez le code modérateur de l'équipe.</p>
@@ -315,7 +315,7 @@
 <div id="appRoot" hidden>
 
   <div class="topbar">
-    <span><a href="jeux.html" target="_blank" rel="noopener">Voir la page publique des jeux</a> · <a href="rediger.html">Rédaction</a> · <a href="envoyer.html">Alertes</a> · <a href="stats.html">Statistiques</a> · <a href="messages.html">Messages</a></span>
+    <span><a href="equipe.html">⌂ Espace équipe</a> · <a href="jeux.html" target="_blank" rel="noopener">Voir la page publique des jeux</a> · <a href="rediger.html">Rédaction</a> · <a href="envoyer.html">Alertes</a> · <a href="stats.html">Statistiques</a> · <a href="messages.html">Messages</a></span>
     <button type="button" id="btnQuitter">Se déconnecter</button>
   </div>
 
@@ -538,6 +538,7 @@ Sophie Bernard
 </div>
 
 <script src="config.js"></script>
+<script src="equipe.js"></script>
 <script src="actus-rendu.js"></script>
 <script src="qrcode.min.js"></script>
 <script>
@@ -585,10 +586,11 @@ Sophie Bernard
   // =====================================================================
   async function connecter(c){
     const res = await A.rpc('oc_jeux_equipe', { p_code: c });
-    code = c; ss.set(CODE_KEY, c); ls.set('oc-ne-pas-compter', '1');
+    code = c; OCEquipe.memoriser(c);
     jeux = res.jeux || [];
     $('lockOverlay').hidden = true; $('appRoot').hidden = false;
     rendreJeux();
+    if(location.hash === '#nouveau'){ history.replaceState(null, '', location.pathname); ouvrirForm(null); }
   }
   $('lockForm').addEventListener('submit', async (e)=>{
     e.preventDefault();
@@ -601,10 +603,10 @@ Sophie Bernard
     catch(err){ $('lockError').textContent = err.message; $('lockError').hidden = false; $('lockPassword').select(); }
     finally{ $('lockSubmit').disabled = false; }
   });
-  $('btnQuitter').onclick = ()=>{ code = null; ss.del(CODE_KEY); location.reload(); };
+  $('btnQuitter').onclick = ()=>{ code = null; OCEquipe.oublier(); location.reload(); };
   (async ()=>{
-    const c = ss.get(CODE_KEY);
-    if(c && A.configure){ try{ await connecter(c); }catch(e){ ss.del(CODE_KEY); } }
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ if(/incorrect/i.test(e.message)) OCEquipe.oublier(); } }
     if(!code) $('lockPassword').focus();
   })();
 
