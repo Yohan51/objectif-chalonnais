@@ -227,6 +227,13 @@
   .tool-illu svg{width:100%;height:100%;display:block;transition:transform .5s ease;}
   .tool-illu img{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:transform .5s ease;}
   .tool:hover .tool-illu svg, .tool:hover .tool-illu img{transform:scale(1.04);}
+  .illu-bons-plans img{object-position:50% 0%;}
+  .illu-quiz img{object-position:50% 72%;}
+  .illu-jeux .credit{right:auto;left:10px;}
+  .tool-illu .credit{
+    position:absolute;right:10px;bottom:10px;z-index:1;font-family:var(--font-mono);font-size:10.5px;
+    color:#fff;background:rgba(10,24,34,.55);padding:3px 9px;border-radius:999px;letter-spacing:.02em;
+  }
   .illu-bons-plans{--illu-fond:#FDEBE3;}
   .illu-galerie{--illu-fond:#E3F2FA;}
   .illu-jeux{--illu-fond:#FFF3D9;}
@@ -894,10 +901,19 @@
 <script>
 /* Cartes de l'accueil : une photo remplace l'illustration si le fichier existe
    (photos/bons-plans.jpg, photos/galerie.jpg, photos/jeux.jpg, photos/quiz.jpg) */
+const credits = fetch('photos/credits.json').then(r=> r.ok ? r.json() : null).catch(()=> null);
 document.querySelectorAll('[data-illu]').forEach(box=>{
   const img = new Image();
   img.alt = ''; img.decoding = 'async';
-  img.onload = ()=>{ box.querySelector('svg').style.visibility = 'hidden'; box.appendChild(img); };
+  img.onload = ()=>{
+    box.querySelector('svg').style.visibility = 'hidden';
+    box.appendChild(img);
+    if(!img.src.includes('/storage/')) credits.then(c=>{
+      if(c && c[box.dataset.illu] && !box.querySelector('.credit')){
+        const t = document.createElement('span'); t.className = 'credit'; t.textContent = '📷 ' + c[box.dataset.illu]; box.appendChild(t);
+      }
+    });
+  };
   if(box.dataset.illu === 'galerie'){
     // sans photo choisie, la carte prend une photo de la galerie
     img.onerror = ()=>{ if(box.dataset.attente) return; box.dataset.attente = '1'; if(box.dataset.album) img.src = box.dataset.album; };

@@ -5,3 +5,5 @@ bons-plans.jpg, galerie.jpg, jeux.jpg, quiz.jpg : facultatives, elles remplacent
 
 Pour changer une photo, dépose-en une nouvelle avec exactement le même nom.
 Si un fichier est absent, l'accueil garde l'illustration (ou, pour une.jpg, la couverture du dernier album).
+
+credits.json : le nom du photographe affiché en bas de chaque photo des cartes.
