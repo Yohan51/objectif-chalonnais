@@ -116,7 +116,7 @@ Une grande photo occupe toute la largeur du haut de l'accueil, avec le titre par
 
 ### Les illustrations des 4 cartes de l'accueil
 
-Les cartes *Bons plans*, *Galerie*, *Jeux concours* et *Quiz* sont illustrées par des dessins aux couleurs du site. Pour mettre une de tes photos à la place, dépose-la dans le dossier `photos` sous le nom `bons-plans.jpg`, `galerie.jpg`, `jeux.jpg` ou `quiz.jpg` (format paysage, environ 1 200 × 600 pixels, moins de 250 Ko). Pour revenir au dessin, supprime simplement le fichier.
+Les cartes *Bons plans*, *Galerie*, *Jeux concours* et *Quiz* sont illustrées par des dessins aux couleurs du site. Pour mettre une de tes photos à la place, dépose-la dans le dossier `photos` sous le nom `bons-plans.jpg`, `galerie.jpg`, `jeux.jpg` ou `quiz.jpg` (format paysage, environ 1 200 × 600 pixels, moins de 250 Ko). Pour revenir au dessin, supprime simplement le fichier. La carte *Galerie* n'a pas besoin de photo : sans `galerie.jpg`, elle affiche automatiquement une photo de tes derniers albums.
 
 ### Préparer les photos
 

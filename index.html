@@ -865,6 +865,9 @@
       const a0 = pleins[0], p0 = parseAlbum(a0.name);
       const une = { src: publicUrl(a0.name + '/' + a0.photos[0].name), legende: [p0.titre, p0.date].filter(Boolean).join(' · '), href: 'galerie.html#' + encodeURIComponent(a0.name) };
       albumEnUne(une);
+      // Carte « La galerie » : une photo d'album (la 2e plus récente si la 1re est déjà en tête de page)
+      const aCarte = pleins[pleins.length > 1 ? 1 : 0];
+      document.dispatchEvent(new CustomEvent('oc-photo-galerie', { detail: publicUrl(aCarte.name + '/' + aCarte.photos[0].name) }));
       if(fixeOk === false){ try{ localStorage.setItem(CACHE, JSON.stringify(une)); }catch(e){} }
 
       // Bande des derniers albums
@@ -892,8 +895,13 @@
    (photos/bons-plans.jpg, photos/galerie.jpg, photos/jeux.jpg, photos/quiz.jpg) */
 document.querySelectorAll('[data-illu]').forEach(box=>{
   const img = new Image();
-  img.alt = ''; img.decoding = 'async'; img.loading = 'lazy';
+  img.alt = ''; img.decoding = 'async';
   img.onload = ()=>{ box.querySelector('svg').style.visibility = 'hidden'; box.appendChild(img); };
+  if(box.dataset.illu === 'galerie'){
+    // sans photo choisie, la carte prend une photo de la galerie
+    img.onerror = ()=>{ if(box.dataset.attente) return; box.dataset.attente = '1'; if(box.dataset.album) img.src = box.dataset.album; };
+    document.addEventListener('oc-photo-galerie', (e)=>{ box.dataset.album = e.detail; if(box.dataset.attente && !img.src.includes('/storage/')) img.src = e.detail; });
+  }
   img.src = 'photos/' + box.dataset.illu + '.jpg';
 });
 </script>
