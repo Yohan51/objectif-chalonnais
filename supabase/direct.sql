@@ -1,5 +1,5 @@
 -- =====================================================================
--- LES DIRECTS (YouTube) — L'Objectif Châlonnais
+-- LES DIRECTS (YouTube + Facebook) — version 2 — L'Objectif Châlonnais
 -- À exécuter dans Supabase (SQL Editor → New query → Run), après
 -- securite.sql. Peut être relancé sans risque.
 --
@@ -101,4 +101,9 @@ do $$ begin
 exception when undefined_object then null; end $$;
 
 notify pgrst, 'reload schema';
-select 'Directs installés. Pensez à relancer alertes-code.sql pour l''alerte automatique.' as resultat;
+-- Vérification : la version installée accepte bien YouTube ET Facebook
+select case
+  when position('facebook' in pg_get_functiondef('public.oc_direct_lancer(text,text,text,boolean)'::regprocedure)) > 0
+  then 'Directs installés : YouTube + Facebook ✓ (relancez alertes-code.sql si ce n''est pas déjà fait)'
+  else 'ATTENTION : ancienne version encore active, relancez ce fichier en entier'
+end as resultat;
