@@ -279,7 +279,12 @@
     if(etat.video){ f.classList.add('avec-image'); f.style.backgroundImage = `url("https://i.ytimg.com/vi/${encodeURIComponent(etat.video)}/hqdefault_live.jpg")`; }
     f.innerHTML = `<span class="lire" aria-hidden="true"></span><strong>${esc(etat.titre || 'Regarder le direct')}</strong><small>Touchez pour lancer le direct. La vidéo est diffusée par ${etat.fb ? 'Facebook' : 'YouTube'}.</small>`;
     f.setAttribute('aria-label', 'Regarder le direct');
-    f.onclick = lancerLive;
+    // lien Facebook « de partage » (fb.watch, /share/…) : Facebook refuse de l'afficher ailleurs → on ouvre Facebook
+    const fbCourt = etat.fb && !/\/videos\/\d|watch\/\?v=\d/.test(etat.fb);
+    if(fbCourt){
+      f.querySelector('small').textContent = 'Touchez pour regarder le direct sur Facebook (nouvel onglet).';
+      f.onclick = ()=> window.open(etat.fb, '_blank', 'noopener');
+    }else f.onclick = lancerLive;
     $('ecran').append(f);
     if(avecTchat) $('tchat-attente').hidden = false, $('tchat').querySelectorAll('iframe').forEach(n=> n.remove());
   }
