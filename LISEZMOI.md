@@ -438,6 +438,26 @@ L'équipe (tous les membres) traite les envois dans **Espace équipe → Infos r
 
 **Supabase → SQL Editor** : exécute `supabase/agenda.sql`, puis à nouveau `supabase/alertes-code.sql`.
 
+## 22. Être trouvé sur Google
+
+Ce que le site fait tout seul :
+- **Une vraie page par article** : `a/<article>.html` (texte complet, photo, date, auteur, fiche « NewsArticle » lue par Google), fabriquée par le robot GitHub dans le quart d'heure qui suit la publication. C'est aussi le lien partagé sur Facebook et WhatsApp. Sur le site, la page Actus continue d'ouvrir les articles instantanément.
+- **Les archives** : `a/` liste tous les articles.
+- **Le plan du site** : `sitemap.xml`, mis à jour par le robot ; `robots.txt` l'indique à Google.
+- **Les sorties de l'agenda** sont décrites comme « événements » pour Google ; l'accueil présente l'association (nom, adresse, réseaux).
+- Les pages de l'équipe restent invisibles pour Google.
+
+### À faire une fois : Google Search Console
+
+1. Va sur **search.google.com/search-console** (avec le compte Google de l'association) → **Ajouter une propriété** → **Préfixe de l'URL** → `https://lobjectifchalonnais.fr/`.
+2. Méthode de validation **Fichier HTML** : télécharge le petit fichier `google….html` proposé, dépose-le **à la racine** du dépôt GitHub (Add file → Upload files), attends 2 minutes, puis **Valider**. Ne supprime jamais ce fichier.
+3. Menu **Sitemaps** → tape `sitemap.xml` → **Envoyer**.
+4. Pour accélérer les premiers articles : menu **Inspection de l'URL** → colle l'adresse d'un article (`https://lobjectifchalonnais.fr/a/…html`) → **Demander l'indexation**.
+
+Google met de quelques jours à quelques semaines pour tout indexer. La Search Console montre ensuite les recherches qui mènent au site.
+
+Bonus : **Bing Webmaster Tools** (bing.com/webmasters) peut importer la propriété Search Console en un clic ; et une **fiche d'établissement Google** (business.google.com) pour l'association la fait apparaître dans Google Maps.
+
 ## Bon à savoir
 
 - **Modération** : lien *Espace modérateur* en bas de la page des bons plans, avec le code choisi à la section 7.

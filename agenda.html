@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<link rel="canonical" href="https://lobjectifchalonnais.fr/agenda.html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Ce week-end à Châlons — L'Objectif Châlonnais</title>
 <meta name="description" content="Concerts, spectacles, marchés, sport, sorties en famille : l'agenda du week-end à Châlons-en-Champagne, par L'Objectif Châlonnais.">
@@ -324,7 +325,30 @@
   })();
 
   if(!BASE || !CLE){ $('liste').innerHTML = '<p class="vide">L\'agenda arrive bientôt.</p>'; return; }
-  charger().then(afficher).catch(()=>{ $('liste').innerHTML = '<p class="vide">Impossible de charger l\'agenda. Rechargez la page dans un instant.</p>'; });
+  // Fiches « Event » pour Google (les sorties de l'agenda apparaissent dans la recherche d'événements)
+  function fichesGoogle(){
+    const decal = (jour, h)=>{ const d = new Date(`${jour}T${h || '12:00'}:00`); const o = -d.getTimezoneOffset(); return `${o >= 0 ? '+' : '-'}${p2(Math.floor(Math.abs(o) / 60))}:${p2(Math.abs(o) % 60)}`; };
+    const quand = (jour, h)=> h ? `${jour}T${h.slice(0, 5)}:00${decal(jour, h.slice(0, 5))}` : jour;
+    const liste = evts.filter(e=> !e.bonplan).slice(0, 50).map(e=> ({
+      '@type': 'Event', name: e.titre,
+      startDate: quand(e.jour, e.heure),
+      ...(e.jour_fin || e.heure_fin ? { endDate: quand(e.jour_fin || e.jour, e.heure_fin) } : {}),
+      eventStatus: 'https://schema.org/EventScheduled',
+      eventAttendanceMode: 'https://schema.org/OfflineEventAttendanceMode',
+      location: { '@type': 'Place', name: e.lieu || 'Châlons-en-Champagne',
+        address: { '@type': 'PostalAddress', streetAddress: e.lieu || '', addressLocality: 'Châlons-en-Champagne', postalCode: '51000', addressCountry: 'FR' } },
+      ...(e.description ? { description: e.description } : {}),
+      ...(e.photo ? {} : { image: [location.origin + '/icons/partage.jpg'] }),
+      ...(e.lien ? { url: e.lien } : { url: location.origin + location.pathname }),
+      ...(/gratuit/i.test(e.prix || '') ? { isAccessibleForFree: true } : {}),
+      organizer: { '@type': 'Organization', name: 'L\'Objectif Châlonnais', url: location.origin + '/' }
+    }));
+    if(!liste.length) return;
+    const sc = document.createElement('script'); sc.type = 'application/ld+json';
+    sc.textContent = JSON.stringify({ '@context': 'https://schema.org', '@graph': liste });
+    document.head.append(sc);
+  }
+  charger().then(()=>{ afficher(); fichesGoogle(); }).catch(()=>{ $('liste').innerHTML = '<p class="vide">Impossible de charger l\'agenda. Rechargez la page dans un instant.</p>'; });
 })();
 </script>
 <script src="chat.js"></script>

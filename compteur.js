@@ -24,6 +24,7 @@
     return true;
   }
   let page = (location.pathname.split('/').pop() || 'index.html').replace(/\.html$/, '');
+  if(/\/a\/[^/]*$/.test(location.pathname)) page = 'actus';      // pages des articles (dossier a/)
   if(page === 'index' || page === '') page = 'accueil';
   if(aCompter()){
     let nouvelle = true;

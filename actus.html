@@ -2,6 +2,7 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
+<link rel="canonical" href="https://lobjectifchalonnais.fr/actus.html">
 <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
 <title>Actualités — L'Objectif Châlonnais</title>
 <meta property="og:type" content="website">
@@ -200,6 +201,7 @@
       <div class="grille" id="autres-grille"></div>
     </div>
   </article>
+  <p style="text-align:center;margin:28px 0 0;"><a href="a/" style="font-weight:800;">Toutes les actus, depuis le début →</a></p>
   <a class="oc-proposer" href="proposer.html">
     <span class="oc-proposer-ico" aria-hidden="true">📝</span>
     <span><strong>Une info à partager ?</strong> Un événement, une nouveauté dans votre quartier, une photo : envoyez-la à l'équipe.</span>
@@ -233,7 +235,7 @@
     return `<div class="meta"><span class="tag">${A.esc(A.RUBRIQUES[a.categorie] || 'Actualité')}</span><span>${A.dateLongue(a.publie_le)}</span></div>`;
   }
   function carte(a){
-    return `<a class="carte" href="#${encodeURIComponent(a.slug)}">
+    return `<a class="carte" href="a/${encodeURIComponent(a.slug)}.html" data-slug="${A.esc(a.slug)}">
       ${vignette(a.miniature, a.titre)}
       ${meta(a)}
       <h3>${A.esc(a.titre)}</h3>
@@ -241,7 +243,7 @@
     </a>`;
   }
   function une(a){
-    return `<a class="une" href="#${encodeURIComponent(a.slug)}">
+    return `<a class="une" href="a/${encodeURIComponent(a.slug)}.html" data-slug="${A.esc(a.slug)}">
       ${vignette(a.miniature, a.titre)}
       <div>
         ${meta(a)}
@@ -380,6 +382,14 @@
     }
   }
   window.addEventListener('hashchange', route);
+  // Les liens pointent vers la page fixe de l'article (a/…html, lue par Google) ;
+  // sur le site, on reste dans la page Actus (ouverture instantanée).
+  document.addEventListener('click', (e)=>{
+    const l = e.target.closest('a[data-slug]');
+    if(!l || e.defaultPrevented || e.button !== 0 || e.metaKey || e.ctrlKey || e.shiftKey || e.altKey) return;
+    e.preventDefault();
+    location.hash = encodeURIComponent(l.dataset.slug);
+  });
   route();
 })();
 </script>

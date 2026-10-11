@@ -1,0 +1,5 @@
+# L'Objectif Châlonnais — robots.txt
+User-agent: *
+Allow: /
+
+Sitemap: https://lobjectifchalonnais.fr/sitemap.xml
