@@ -427,6 +427,17 @@ L'équipe (tous les membres) traite les envois dans **Espace équipe → Infos r
 - Anti-abus : 4 envois par heure et 12 par jour par connexion, champ piège contre les robots.
 - Les envois sont effacés automatiquement au bout de 6 mois (ce qui a été publié reste dans les actus).
 
+## 21. Agenda « Ce week-end à Châlons »
+
+- **Public** : page `agenda.html` (lien « Agenda » dans le menu) avec deux onglets, *Ce week-end* et *Tout l'agenda*, des filtres par type, un bouton « Ajouter à mon agenda » (fichier calendrier pour téléphone) et le partage. Sur l'accueil, le bloc « Ce week-end à Châlons » montre 4 sorties au plus. Les événements validés dans les bons plans s'y ajoutent automatiquement.
+- **Équipe** : **Espace équipe → Agenda** : ajouter une sortie (titre, type, date, heure, date de fin pour une expo, lieu, prix, lien, photo), modifier, masquer. Supprimer est réservé à l'administrateur. Depuis **Infos reçues**, un événement proposé par un visiteur s'ajoute en un clic (« 📅 Ajouter à l'agenda »).
+- **Alerte du vendredi** : chaque vendredi à 11 h (heure modifiable, ou désactivable dans la page Agenda de l'équipe), une alerte « Ce week-end à Châlons 🎉 » part vers les abonnés avec les premières sorties, s'il y en a au moins une. Elle est envoyée par le robot GitHub (dans le quart d'heure), une seule fois par week-end ; s'il a pris du retard, il rattrape jusqu'au samedi midi.
+- Les sorties passées depuis plus de 6 mois sont effacées automatiquement.
+
+### Installation
+
+**Supabase → SQL Editor** : exécute `supabase/agenda.sql`, puis à nouveau `supabase/alertes-code.sql`.
+
 ## Bon à savoir
 
 - **Modération** : lien *Espace modérateur* en bas de la page des bons plans, avec le code choisi à la section 7.

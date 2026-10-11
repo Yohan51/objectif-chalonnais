@@ -96,6 +96,37 @@ begin
         'lien', './jeux.html#jeu-' || r.slug);
     end loop;
   end if;
+  -- « Ce week-end à Châlons » : le vendredi à partir de l'heure choisie (rattrapage possible jusqu'au samedi midi)
+  if to_regclass('public.agenda') is not null then
+    declare
+      v_local timestamp := oc_private.maintenant_paris();
+      v_jour date := v_local::date;
+      v_ven date := oc_private.vendredi(v_local::date);
+      v_heure int := coalesce((select heure from oc_private.agenda_reglages where id = 1), 11);
+      v_actif boolean := coalesce((select alerte_vendredi from oc_private.agenda_reglages where id = 1), true);
+      v_n int; v_titres text;
+    begin
+      if v_actif and (
+           (extract(isodow from v_local) = 5 and extract(hour from v_local) >= v_heure)
+        or (extract(isodow from v_local) = 6 and extract(hour from v_local) < 12)) then
+        select count(*), string_agg(titre, ', ' order by jour, heure nulls first) filter (where rn <= 3)
+          into v_n, v_titres
+        from (select a.titre, a.jour, a.heure, row_number() over (order by a.jour, a.heure nulls first, a.id) rn
+              from public.agenda a
+              where a.publie and a.jour <= v_ven + 2 and coalesce(a.jour_fin, a.jour) >= greatest(v_ven, v_jour)) x;
+        if v_n > 0 then
+          insert into oc_private.agenda_alertes (vendredi) values (v_ven) on conflict do nothing;
+          if found then
+            res := res || jsonb_build_object(
+              'type', 'weekend', 'titre', 'Ce week-end à Châlons 🎉',
+              'message', oc_private.resume(v_titres || case when v_n > 3 then '… ' || v_n || ' idées de sorties.' else ' : nos idées de sorties.' end, 200),
+              'lien', './agenda.html');
+          end if;
+        end if;
+      end if;
+    end;
+  end if;
+
   -- Direct lancé depuis l'Espace équipe (direct.sql)
   if to_regclass('public.direct') is not null then
     for r in

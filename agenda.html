@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ce week-end à Châlons — L'Objectif Châlonnais</title>
+<meta name="description" content="Concerts, spectacles, marchés, sport, sorties en famille : l'agenda du week-end à Châlons-en-Champagne, par L'Objectif Châlonnais.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="L'Objectif Châlonnais">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Ce week-end à Châlons — L'Objectif Châlonnais">
+<meta property="og:description" content="Concerts, spectacles, marchés, sport, sorties en famille : nos idées de sorties à Châlons.">
+<meta property="og:url" content="https://lobjectifchalonnais.fr/agenda.html">
+<meta property="og:image" content="https://lobjectifchalonnais.fr/icons/partage.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="L'Objectif">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7; --tile:#E3EDF2; --accent:#E8A33D; --accent-bg:#FFF4DE;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+      --accent:#F2C76B; --accent-bg:#3A2E12; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+    --accent:#F2C76B; --accent-bg:#3A2E12; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;}
+  a{color:var(--sky-deep);}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .wrap{max-width:900px;margin:0 auto;padding-inline:20px;padding-block:0 64px;}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.12;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .page-head{padding-block:40px 22px;}
+  .page-head h1{font-size:clamp(34px,5.4vw,54px);font-weight:800;margin-top:8px;}
+  .page-head .dates{font-family:var(--font-display);font-size:clamp(20px,2.6vw,26px);font-weight:700;color:var(--ink-soft);margin-top:4px;}
+  .page-head p{color:var(--ink-soft);max-width:60ch;margin:10px 0 0;}
+
+  .onglets{display:inline-flex;background:var(--tile);border-radius:999px;padding:4px;gap:4px;margin-bottom:14px;}
+  .onglets button{font:inherit;font-weight:800;font-size:15px;border:none;background:transparent;color:var(--ink-soft);padding:9px 18px;border-radius:999px;cursor:pointer;}
+  .onglets button[aria-selected="true"]{background:var(--surface);color:var(--ink);box-shadow:0 1px 4px rgba(15,34,48,.12);}
+  .chips{display:flex;gap:6px;overflow-x:auto;scrollbar-width:none;padding-bottom:4px;margin-bottom:18px;}
+  .chips::-webkit-scrollbar{display:none;}
+  .chips button{font:inherit;font-weight:700;font-size:14px;white-space:nowrap;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 13px;cursor:pointer;}
+  .chips button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+
+  .jour{margin:26px 0 10px;display:flex;align-items:baseline;gap:10px;}
+  .jour h2{font-size:24px;font-weight:800;}
+  .jour .rel{font-family:var(--font-mono);font-size:12px;color:var(--accent);background:var(--accent-bg);border-radius:999px;padding:2px 9px;}
+  .evt{display:grid;grid-template-columns:76px minmax(0,1fr) auto;gap:16px;align-items:start;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:10px;}
+  .evt .h{font-family:var(--font-display);font-size:24px;font-weight:800;line-height:1;text-align:center;padding-top:4px;}
+  .evt .h small{display:block;font-family:var(--font-mono);font-size:11px;font-weight:500;color:var(--ink-soft);margin-top:4px;}
+  .evt h3{font-size:20px;font-weight:800;}
+  .evt .meta{display:flex;gap:6px 12px;flex-wrap:wrap;font-size:14px;color:var(--ink-soft);margin-top:4px;}
+  .evt .meta a{color:inherit;}
+  .evt .desc{margin:8px 0 0;font-size:15px;white-space:pre-line;}
+  .evt .tags{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .tag{font-family:var(--font-mono);font-size:11.5px;border-radius:999px;padding:2px 9px;background:var(--tile);color:var(--ink-soft);}
+  .tag.prix{background:var(--accent-bg);color:var(--accent);font-weight:500;}
+  .tag.bp{background:transparent;border:1px dashed var(--line);}
+  .evt .actions{display:flex;gap:6px;flex-wrap:wrap;margin-top:12px;}
+  .mini{font:inherit;font-weight:800;font-size:13.5px;border:1.5px solid var(--line);background:transparent;color:var(--ink);border-radius:999px;padding:6px 12px;cursor:pointer;text-decoration:none;}
+  .mini:hover{border-color:var(--sky-deep);}
+  .evt .ph{width:120px;height:120px;border-radius:12px;overflow:hidden;background:var(--tile);}
+  .evt .ph img{width:100%;height:100%;object-fit:cover;display:block;}
+  .vide{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px;text-align:center;}
+  .vide .gros{font-size:42px;}
+  .vide h2{font-size:24px;font-weight:800;margin:8px 0 6px;}
+  .vide p{color:var(--ink-soft);margin:0 auto 14px;max-width:46ch;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:800;font-size:15px;padding:11px 18px;border-radius:999px;border:2px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer;text-decoration:none;}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .prevenir{display:flex;align-items:center;gap:12px 18px;flex-wrap:wrap;background:var(--accent-bg);border-radius:16px;padding:16px 18px;margin-top:26px;}
+  .prevenir p{margin:0;flex:1;min-width:220px;}
+  @media (max-width:640px){
+    .wrap{padding-inline:16px;}
+    .evt{grid-template-columns:58px minmax(0,1fr);gap:12px;padding:14px;}
+    .evt .h{font-size:20px;}
+    .evt .ph{grid-column:1 / -1;width:100%;height:auto;aspect-ratio:16/9;order:-1;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="actus.html">Actus</a>
+    <a href="agenda.html" aria-current="page">Agenda</a>
+    <a href="direct.html">Direct</a>
+    <a href="jeux.html">Jeux</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">Agenda des sorties</p>
+    <h1 id="titre">Ce week-end à Châlons</h1>
+    <div class="dates" id="dates"></div>
+    <p>Concerts, spectacles, marchés, sport, sorties en famille : la sélection de l'équipe, et les événements partagés dans les bons plans.</p>
+  </div>
+
+  <div class="onglets" role="tablist">
+    <button type="button" role="tab" aria-selected="true" data-v="weekend">Ce week-end</button>
+    <button type="button" role="tab" aria-selected="false" data-v="avenir">Tout l'agenda</button>
+  </div>
+  <div class="chips" id="chips" role="group" aria-label="Filtrer par type"></div>
+
+  <div id="liste" aria-live="polite"><p class="vide">Chargement…</p></div>
+
+  <div class="prevenir" id="prevenir" hidden>
+    <p><strong>🔔 Chaque vendredi, nos idées de sorties.</strong> Activez les alertes pour recevoir le programme du week-end sur votre téléphone.</p>
+    <button class="btn" type="button" id="btn-alertes">Activer les alertes</button>
+  </div>
+
+  <a class="oc-proposer" href="proposer.html#evenement">
+    <span class="oc-proposer-ico" aria-hidden="true">📅</span>
+    <span><strong>Vous organisez un événement ?</strong> Concert, brocante, match, expo : envoyez-le à l'équipe pour l'agenda.</span>
+    <span class="oc-proposer-go">Proposer →</span>
+  </a>
+</main>
+
+<footer class="oc-pied">
+  <span>© L'Objectif Châlonnais · Association loi 1901</span>
+  <a href="proposer.html">Envoyez-nous votre info</a>
+  <a href="mentions-legales.html">Mentions légales et confidentialité</a>
+</footer>
+
+<script src="config.js"></script>
+<script src="direct.js" defer></script>
+<script src="compteur.js" defer></script>
+<script src="app.js"></script>
+<script src="push.js"></script>
+<script>
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
+  const H = { apikey: CLE, 'Content-Type': 'application/json' }; if(CLE.startsWith('eyJ')) H.Authorization = 'Bearer ' + CLE;
+  const $ = (id)=> document.getElementById(id);
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  const CATS = { concert:['🎵','Concert'], spectacle:['🎭','Spectacle'], sport:['⚽','Sport'], marche:['🧺','Marché, brocante'], famille:['👨‍👩‍👧','En famille'], expo:['🖼️','Expo'], fete:['🎉','Fête'], autre:['✨','Autre'] };
+  const p2 = (n)=> String(n).padStart(2, '0');
+  const iso = (d)=> `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+  const versDate = (s)=> new Date(s + 'T12:00:00');
+  const ajoute = (d, n)=>{ const x = new Date(d); x.setDate(x.getDate() + n); return x; };
+  const heure = (h)=> h ? h.slice(0, 5).replace(/^0/, '').replace(':', 'h').replace(/h00$/, 'h') : '';
+
+  // Week-end : du lundi au jeudi → le prochain ; du vendredi au dimanche → celui-ci
+  const auj = new Date(); auj.setHours(12, 0, 0, 0);
+  const dow = (auj.getDay() + 6) % 7 + 1;           // 1 = lundi … 7 = dimanche
+  const ven = dow <= 4 ? ajoute(auj, 5 - dow) : ajoute(auj, -(dow - 5));
+  const dim = ajoute(ven, 2);
+  const debutWE = iso(dow >= 5 ? auj : ven), finWE = iso(dim);
+  const fmt = (d, o)=> d.toLocaleDateString('fr-FR', o);
+  $('dates').textContent = `du ${fmt(ven, { weekday:'long', day:'numeric' })} au ${fmt(dim, { weekday:'long', day:'numeric', month:'long' })}`;
+
+  let vue = location.hash === '#avenir' ? 'avenir' : 'weekend', filtre = 'tout', evts = [];
+
+  // ---------- Données ----------
+  async function charger(){
+    const [agenda, plans] = await Promise.all([
+      fetch(`${BASE}/rest/v1/rpc/oc_agenda_public`, { method:'POST', headers:H, body: JSON.stringify({ p_jours: 90 }) })
+        .then(r=> r.ok ? r.json() : []).catch(()=> []),
+      fetch(`${BASE}/rest/v1/kv?key=eq.chalons-bons-plans&select=value`, { headers:H })
+        .then(r=> r.ok ? r.json() : []).then(t=> t[0] ? JSON.parse(t[0].value) : []).catch(()=> [])
+    ]);
+    const aujISO = iso(auj);
+    const depuisPlans = (Array.isArray(plans) ? plans : [])
+      .filter(p=> p && p.status === 'published' && typeof p.eventDate === 'string' && p.eventDate >= aujISO && ['weekend', 'month'].includes(p.cat))
+      .map(p=> ({ id: 'bp-' + p.id, titre: p.name || 'Événement', jour: p.eventDate, heure: null, jour_fin: null, lieu: p.address || '', description: p.desc || '',
+                  categorie: 'autre', prix: '', lien: null, photo: null, bonplan: p.id }));
+    // un bon plan déjà repris dans l'agenda (même titre, même jour) n'est pas affiché deux fois
+    const cle = (e)=> (e.titre || '').toLowerCase().replace(/\W+/g, '') + e.jour;
+    const vus = new Set(agenda.map(cle));
+    evts = [...agenda, ...depuisPlans.filter(e=> !vus.has(cle(e)))];
+  }
+
+  // ---------- Affichage ----------
+  function dansVue(e){
+    const fin = e.jour_fin || e.jour;
+    if(vue === 'weekend') return e.jour <= finWE && fin >= debutWE;
+    return fin >= iso(auj);
+  }
+  function chips(){
+    const presentes = new Set(evts.filter(dansVue).map(e=> e.categorie));
+    const z = $('chips'); z.innerHTML = '';
+    const liste = [['tout', ['✦', 'Tout']], ...Object.entries(CATS).filter(([k])=> presentes.has(k))];
+    if(liste.length <= 2){ z.hidden = true; filtre = 'tout'; return; }
+    z.hidden = false;
+    if(filtre !== 'tout' && !presentes.has(filtre)) filtre = 'tout';
+    for(const [k, [ico, nom]] of liste){
+      const b = document.createElement('button'); b.type = 'button';
+      b.textContent = `${ico} ${nom}`; b.setAttribute('aria-pressed', filtre === k ? 'true' : 'false');
+      b.onclick = ()=>{ filtre = k; afficher(); };
+      z.append(b);
+    }
+  }
+  function jourDeRef(e){
+    // un événement sur plusieurs jours s'affiche au premier jour visible
+    const debut = vue === 'weekend' ? debutWE : iso(auj);
+    return e.jour < debut ? debut : e.jour;
+  }
+  function relatif(j){
+    const d = Math.round((versDate(j) - auj) / 864e5);
+    return d === 0 ? 'aujourd\'hui' : d === 1 ? 'demain' : '';
+  }
+  function afficher(){
+    $('titre').textContent = vue === 'weekend' ? 'Ce week-end à Châlons' : 'L\'agenda des sorties';
+    $('dates').hidden = vue !== 'weekend';
+    document.querySelectorAll('.onglets button').forEach(b=> b.setAttribute('aria-selected', b.dataset.v === vue ? 'true' : 'false'));
+    chips();
+    const l = $('liste');
+    const items = evts.filter(dansVue).filter(e=> filtre === 'tout' || e.categorie === filtre)
+      .sort((a, b)=> (jourDeRef(a) + (a.heure || '00')).localeCompare(jourDeRef(b) + (b.heure || '00')));
+    if(!items.length){
+      l.innerHTML = `<div class="vide"><div class="gros" aria-hidden="true">🗓️</div>
+        <h2>${vue === 'weekend' ? 'Le programme du week-end arrive' : 'Pas de sortie annoncée pour le moment'}</h2>
+        <p>L'équipe prépare la sélection. Vous connaissez un événement ? Envoyez-le-nous.</p>
+        ${vue === 'weekend' ? '<button class="btn ghost" type="button" data-v="avenir">Voir tout l\'agenda</button>' : '<a class="btn ghost" href="proposer.html#evenement">Proposer un événement</a>'}</div>`;
+      const b = l.querySelector('[data-v]'); if(b) b.onclick = ()=>{ vue = 'avenir'; afficher(); };
+      return;
+    }
+    let jour = '', html = '';
+    for(const e of items){
+      const j = jourDeRef(e);
+      if(j !== jour){
+        jour = j;
+        const r = relatif(j);
+        const lib = fmt(versDate(j), { weekday:'long', day:'numeric', month:'long' });
+        html += `<div class="jour"><h2>${esc(lib.charAt(0).toUpperCase() + lib.slice(1))}</h2>${r ? `<span class="rel">${r}</span>` : ''}</div>`;
+      }
+      const [ico, nomCat] = CATS[e.categorie] || CATS.autre;
+      const plusieurs = e.jour_fin && e.jour_fin !== e.jour;
+      const periode = plusieurs ? `${e.jour < j ? 'depuis le ' + fmt(versDate(e.jour), { day:'numeric', month:'short' }) + ', ' : ''}jusqu'au ${fmt(versDate(e.jour_fin), { day:'numeric', month:'long' })}` : '';
+      const carte = e.lieu ? `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(e.lieu + ', Châlons-en-Champagne')}` : '';
+      html += `<article class="evt" data-id="${esc(e.id)}">
+        <div class="h">${e.heure ? esc(heure(e.heure)) : (plusieurs ? '⟷' : '☀︎')}<small>${e.heure ? (e.heure_fin ? 'à ' + esc(heure(e.heure_fin)) : '') : (plusieurs ? 'plusieurs jours' : 'journée')}</small></div>
+        <div>
+          <h3>${esc(e.titre)}</h3>
+          <div class="meta">${e.lieu ? `<span>📍 <a href="${esc(carte)}" target="_blank" rel="noopener">${esc(e.lieu)}</a></span>` : ''}${periode ? `<span>🗓️ ${esc(periode)}</span>` : ''}</div>
+          ${e.description ? `<p class="desc">${esc(e.description)}</p>` : ''}
+          <div class="tags"><span class="tag">${ico} ${esc(nomCat)}</span>${e.prix ? `<span class="tag prix">${esc(e.prix)}</span>` : ''}${e.bonplan ? '<span class="tag bp">Bon plan partagé par la communauté</span>' : ''}</div>
+          <div class="actions">
+            ${e.lien ? `<a class="mini" href="${esc(e.lien)}" target="_blank" rel="noopener">Infos et billets ↗</a>` : ''}
+            ${e.bonplan ? `<a class="mini" href="bons-plans.html#pin=${encodeURIComponent(e.bonplan)}">Voir le bon plan</a>` : ''}
+            <button class="mini" type="button" data-ics>📅 Ajouter à mon agenda</button>
+            ${navigator.share ? '<button class="mini" type="button" data-partage>Partager</button>' : ''}
+          </div>
+        </div>
+        ${e.photo ? `<div class="ph"><img src="${e.photo}" alt="" loading="lazy" decoding="async"></div>` : ''}
+      </article>`;
+    }
+    l.innerHTML = html;
+    l.querySelectorAll('.evt').forEach(el=>{
+      const e = items.find(x=> String(x.id) === el.dataset.id);
+      el.querySelector('[data-ics]').onclick = ()=> ics(e);
+      const p = el.querySelector('[data-partage]');
+      if(p) p.onclick = ()=> navigator.share({ title: e.titre, text: `${e.titre} — ${fmt(versDate(e.jour), { weekday:'long', day:'numeric', month:'long' })}${e.heure ? ' à ' + heure(e.heure) : ''}${e.lieu ? ', ' + e.lieu : ''}`, url: location.origin + location.pathname + '#avenir' }).catch(()=>{});
+    });
+  }
+
+  // ---------- Fichier calendrier (.ics) ----------
+  function ics(e){
+    const d = (s)=> s.replace(/-/g, '');
+    const t = (h)=> h.slice(0, 5).replace(':', '') + '00';
+    const echappe = (s)=> String(s || '').replace(/\\/g, '\\\\').replace(/\n/g, '\\n').replace(/[,;]/g, m=> '\\' + m);
+    let dtDebut, dtFin;
+    if(e.heure){
+      dtDebut = `DTSTART;TZID=Europe/Paris:${d(e.jour)}T${t(e.heure)}`;
+      dtFin = e.heure_fin ? `DTEND;TZID=Europe/Paris:${d(e.jour_fin || e.jour)}T${t(e.heure_fin)}` : `DURATION:PT2H`;
+    }else{
+      dtDebut = `DTSTART;VALUE=DATE:${d(e.jour)}`;
+      dtFin = `DTEND;VALUE=DATE:${d(iso(ajoute(versDate(e.jour_fin || e.jour), 1)))}`;
+    }
+    const contenu = ['BEGIN:VCALENDAR', 'VERSION:2.0', 'PRODID:-//L Objectif Chalonnais//Agenda//FR', 'CALSCALE:GREGORIAN', 'BEGIN:VEVENT',
+      `UID:agenda-${e.id}@lobjectifchalonnais.fr`, `DTSTAMP:${new Date().toISOString().replace(/[-:]/g, '').replace(/\.\d+/, '')}`,
+      dtDebut, dtFin, `SUMMARY:${echappe(e.titre)}`,
+      e.lieu ? `LOCATION:${echappe(e.lieu + ', Châlons-en-Champagne')}` : '',
+      `DESCRIPTION:${echappe((e.description ? e.description + '\n\n' : '') + (e.lien || 'https://lobjectifchalonnais.fr/agenda.html'))}`,
+      'END:VEVENT', 'END:VCALENDAR'].filter(Boolean).join('\r\n');
+    const a = document.createElement('a');
+    a.href = URL.createObjectURL(new Blob([contenu], { type: 'text/calendar;charset=utf-8' }));
+    a.download = (e.titre || 'sortie').normalize('NFD').replace(/[\u0300-\u036f]/g, '').replace(/[^\w]+/g, '-').slice(0, 40) + '.ics';
+    document.body.append(a); a.click(); a.remove();
+    setTimeout(()=> URL.revokeObjectURL(a.href), 5000);
+  }
+
+  document.querySelectorAll('.onglets button').forEach(b=> b.onclick = ()=>{ vue = b.dataset.v; history.replaceState(null, '', vue === 'avenir' ? '#avenir' : location.pathname); afficher(); });
+
+  // ---------- Alertes du vendredi ----------
+  (async ()=>{
+    const OA = window.OCAlertes;
+    if(!OA || !OA.disponible) return;
+    if(await OA.abonnement()) return;
+    if(typeof Notification !== 'undefined' && Notification.permission === 'denied') return;
+    $('prevenir').hidden = false;
+    $('btn-alertes').onclick = async ()=>{
+      const b = $('btn-alertes'); b.disabled = true;
+      try{ await OA.activer(); if(await OA.abonnement()) $('prevenir').innerHTML = '<p><strong>C\'est noté !</strong> Rendez-vous vendredi pour le programme du week-end. 🎉</p>'; }
+      catch(e){} finally{ b.disabled = false; }
+    };
+  })();
+
+  if(!BASE || !CLE){ $('liste').innerHTML = '<p class="vide">L\'agenda arrive bientôt.</p>'; return; }
+  charger().then(afficher).catch(()=>{ $('liste').innerHTML = '<p class="vide">Impossible de charger l\'agenda. Rechargez la page dans un instant.</p>'; });
+})();
+</script>
+<script src="chat.js"></script>
+</body>
+</html>

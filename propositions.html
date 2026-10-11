@@ -189,6 +189,7 @@
       <input class="note" type="text" maxlength="500" placeholder="Note interne (ex. « Sophie s'en occupe »)" value="${esc(x.note || '')}">
       <div class="actions">
         <button type="button" class="btn" data-a="article">📰 En faire un article</button>
+        ${x.type === 'evenement' ? '<button type="button" class="btn" data-a="agenda">📅 Ajouter à l\'agenda</button>' : ''}
         <button type="button" class="btn ghost" data-a="traitee">${x.statut === 'traitee' ? '↩︎ Remettre à traiter' : '✓ Marquer traitée'}</button>
         <button type="button" class="btn danger" data-a="suppr">Supprimer</button>
       </div>`;
@@ -205,6 +206,13 @@
       })); }catch(e){ alert('Impossible de préparer l\'article (photo trop lourde ?).'); return; }
       await A.rpc('oc_proposition_classer', { p_code: code, p_id: x.id, p_statut: 'traitee', p_note: note.value || 'Article en préparation' }).catch(()=>{});
       location.href = 'rediger.html#depuis-proposition';
+    };
+    const bAg = det.querySelector('[data-a=agenda]');
+    if(bAg) bAg.onclick = async ()=>{
+      try{ sessionStorage.setItem('oc-agenda-depuis', JSON.stringify({ titre: x.titre, date: x.date_evenement || '', lieu: x.lieu || '', description: x.texte || '', photo: (x.photos || [])[0] || '' })); }
+      catch(e){ alert('Impossible de préparer la sortie (photo trop lourde ?).'); return; }
+      await A.rpc('oc_proposition_classer', { p_code: code, p_id: x.id, p_statut: 'traitee', p_note: note.value || 'Ajoutée à l\'agenda' }).catch(()=>{});
+      location.href = 'agenda-equipe.html';
     };
     det.querySelector('[data-a=traitee]').onclick = async ()=>{
       const st = x.statut === 'traitee' ? 'vue' : 'traitee';

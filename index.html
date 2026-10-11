@@ -305,6 +305,15 @@
   }
   .tool .go{margin-top:auto;padding-top:8px;font-weight:800;color:var(--sky-deep);}
   .section-head{margin-bottom:28px;}
+  .we-liste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+  .we{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;text-decoration:none;color:var(--ink);}
+  .we:hover{border-color:var(--sky-deep);}
+  .we-date{flex-shrink:0;width:58px;text-align:center;border-radius:12px;background:var(--bg);padding:6px 0;line-height:1.1;}
+  .we-date b{display:block;font-family:var(--font-display);font-size:24px;}
+  .we-date span{font-family:var(--font-mono);font-size:11px;text-transform:uppercase;color:var(--ink-soft);}
+  .we strong{display:block;font-size:16.5px;line-height:1.3;}
+  .we small{color:var(--ink-soft);font-size:13.5px;}
+  @media (max-width:700px){ .we-liste{grid-template-columns:minmax(0,1fr);} }
   .section-head h2{font-size:clamp(30px,4vw,40px);font-weight:800;}
 
   /* ---------- Dernières actus ---------- */
@@ -423,6 +432,7 @@
   <div class="oc-nav-links">
     <a href="index.html" aria-current="page">Accueil</a>
     <a href="actus.html">Actus</a>
+    <a href="agenda.html">Agenda</a>
     <a href="direct.html">Direct</a>
     <a href="jeux.html">Jeux</a>
     <a href="bons-plans.html">Bons plans</a>
@@ -464,6 +474,19 @@
   <div class="wrap">
     <a class="oc-prochain" id="oc-prochain-direct" href="direct.html" hidden></a>
   </div>
+
+  <section id="ce-weekend" hidden>
+    <div class="wrap">
+      <div class="section-head actus-head">
+        <div>
+          <p class="eyebrow" id="we-dates">Agenda</p>
+          <h2>Ce week-end à Châlons</h2>
+        </div>
+        <a class="btn btn-ghost" href="agenda.html">Tout le programme →</a>
+      </div>
+      <div class="we-liste" id="we-liste"></div>
+    </div>
+  </section>
 
   <section id="derniers-albums" hidden>
     <div class="wrap">
@@ -792,6 +815,36 @@
       </a>`).join('');
     document.getElementById('dernieres-actus').hidden = false;
   }catch(e){}
+})();
+</script>
+<script>
+/* « Ce week-end à Châlons » : 4 sorties au plus, lien vers l'agenda */
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
+  if(!BASE || !CLE) return;
+  const H = { apikey: CLE, 'Content-Type': 'application/json' }; if(CLE.startsWith('eyJ')) H.Authorization = 'Bearer ' + CLE;
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  const p2 = (n)=> String(n).padStart(2, '0'), iso = (d)=> `${d.getFullYear()}-${p2(d.getMonth() + 1)}-${p2(d.getDate())}`;
+  const auj = new Date(); auj.setHours(12, 0, 0, 0);
+  const dow = (auj.getDay() + 6) % 7 + 1;
+  const ven = new Date(auj); ven.setDate(auj.getDate() + (dow <= 4 ? 5 - dow : -(dow - 5)));
+  const dim = new Date(ven); dim.setDate(ven.getDate() + 2);
+  const debut = iso(dow >= 5 ? auj : ven), fin = iso(dim);
+  fetch(`${BASE}/rest/v1/rpc/oc_agenda_public`, { method:'POST', headers:H, body: JSON.stringify({ p_jours: 10 }) })
+    .then(r=> r.ok ? r.json() : []).then(l=>{
+      const items = (l || []).filter(e=> e.jour <= fin && (e.jour_fin || e.jour) >= debut)
+        .sort((a, b)=> ((a.jour < debut ? debut : a.jour) + (a.heure || '')).localeCompare((b.jour < debut ? debut : b.jour) + (b.heure || '')));
+      if(!items.length) return;
+      document.getElementById('we-dates').textContent = `Du ${ven.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric' })} au ${dim.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' })}`;
+      document.getElementById('we-liste').innerHTML = items.slice(0, 4).map(e=>{
+        const j = new Date((e.jour < debut ? debut : e.jour) + 'T12:00:00');
+        const h = e.heure ? e.heure.slice(0, 5).replace(/^0/, '').replace(':', 'h').replace(/h00$/, 'h') : (e.jour_fin && e.jour_fin !== e.jour ? 'tout le week-end' : 'toute la journée');
+        return `<a class="we" href="agenda.html"><span class="we-date"><b>${j.getDate()}</b><span>${esc(j.toLocaleDateString('fr-FR', { weekday:'short' }).replace('.', ''))}</span></span>
+          <span><strong>${esc(e.titre)}</strong><small>${esc(h)}${e.lieu ? ' · ' + esc(e.lieu) : ''}${e.prix ? ' · ' + esc(e.prix) : ''}</small></span></a>`;
+      }).join('') + (items.length > 4 ? `<a class="we" href="agenda.html" style="justify-content:center;font-weight:800;color:var(--sky-deep)">+ ${items.length - 4} autre${items.length - 4 > 1 ? 's' : ''} idée${items.length - 4 > 1 ? 's' : ''} de sortie →</a>` : '');
+      document.getElementById('ce-weekend').hidden = false;
+    }).catch(()=>{});
 })();
 </script>
 <script>

@@ -106,6 +106,11 @@
         <p>Créer un jeu, faire le tirage au sort, publier les gagnants.</p>
         <span class="etat" id="e-jeux">…</span>
       </a>
+      <a class="outil" href="agenda-equipe.html">
+        <span class="ico" aria-hidden="true">📅</span><h2>Agenda</h2>
+        <p>Les sorties du week-end, l'alerte du vendredi.</p>
+        <span class="etat" id="e-agenda">…</span>
+      </a>
       <a class="outil" href="propositions.html">
         <span class="badge" id="b-propositions" hidden></span>
         <span class="ico" aria-hidden="true">📝</span><h2>Infos reçues</h2>
@@ -158,6 +163,7 @@
         <a class="btn" href="rediger.html">+ Nouvel article</a>
         <a class="btn ghost" href="tirage.html#nouveau">+ Nouveau jeu</a>
         <a class="btn ghost" href="envoyer.html">+ Nouvelle alerte</a>
+        <a class="btn ghost" href="agenda-equipe.html">📅 Nouvelle sortie</a>
         <a class="btn ghost" href="photos-equipe.html">📸 Nouvel album</a>
         <a class="btn ghost" href="direct-equipe.html">🔴 Lancer un direct</a>
       </div>
@@ -254,6 +260,15 @@
       const sem = j.slice(-7).reduce((s, d)=> s + d.visites, 0);
       etat('e-stats', `<b>${plur(auj, 'visite')}</b> aujourd'hui · ${sem.toLocaleString('fr-FR')} sur 7 jours`);
     }catch(e){ etat('e-stats', 'Compteur pas encore installé'); }
+    // Agenda
+    try{
+      const r = await A.rpc('oc_agenda_equipe', { p_code: code });
+      const fin = new Date(r.vendredi + 'T12:00'); fin.setDate(fin.getDate() + 2);
+      const f = fin.toISOString().slice(0, 10);
+      const we = (r.evenements || []).filter(e=> e.publie && e.jour <= f && (e.jour_fin || e.jour) >= r.vendredi).length;
+      const avenir = (r.evenements || []).filter(e=> e.publie && (e.jour_fin || e.jour) >= new Date().toISOString().slice(0, 10)).length;
+      etat('e-agenda', `<b>${plur(we, 'sortie')}</b> ce week-end · ${avenir} à venir`);
+    }catch(e){ etat('e-agenda', /function|find/i.test(e.message) ? 'À installer (agenda.sql)' : '—'); }
     // Infos reçues
     try{
       const r = await A.rpc('oc_propositions_liste', { p_code: code });
