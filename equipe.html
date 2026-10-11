@@ -111,6 +111,11 @@
         <p>Les sorties du week-end, l'alerte du vendredi.</p>
         <span class="etat" id="e-agenda">…</span>
       </a>
+      <a class="outil" href="partenaires-equipe.html">
+        <span class="ico" aria-hidden="true">🤝</span><h2>Partenaires</h2>
+        <p>Les fiches de la page « Nos partenaires » et du bandeau de l'accueil.</p>
+        <span class="etat" id="e-partenaires">…</span>
+      </a>
       <a class="outil" href="propositions.html">
         <span class="badge" id="b-propositions" hidden></span>
         <span class="ico" aria-hidden="true">📝</span><h2>Infos reçues</h2>
@@ -260,6 +265,12 @@
       const sem = j.slice(-7).reduce((s, d)=> s + d.visites, 0);
       etat('e-stats', `<b>${plur(auj, 'visite')}</b> aujourd'hui · ${sem.toLocaleString('fr-FR')} sur 7 jours`);
     }catch(e){ etat('e-stats', 'Compteur pas encore installé'); }
+    // Partenaires
+    try{
+      const r = await A.rpc('oc_partenaires_equipe', { p_code: code });
+      const actifs = (r.partenaires || []).filter(p=> p.actif).length;
+      etat('e-partenaires', `<b>${plur(actifs, 'partenaire')}</b> visible${actifs > 1 ? 's' : ''}`);
+    }catch(e){ etat('e-partenaires', /function|find/i.test(e.message) ? 'À installer (partenaires.sql)' : '—'); }
     // Agenda
     try{
       const r = await A.rpc('oc_agenda_equipe', { p_code: code });

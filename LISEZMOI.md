@@ -458,6 +458,12 @@ Google met de quelques jours à quelques semaines pour tout indexer. La Search C
 
 Bonus : **Bing Webmaster Tools** (bing.com/webmasters) peut importer la propriété Search Console en un clic ; et une **fiche d'établissement Google** (business.google.com) pour l'association la fait apparaître dans Google Maps.
 
+## 23. Nos partenaires
+
+- **Public** : page `partenaires.html` (lien « Nos partenaires » en bas de toutes les pages) : partenaires principaux en grand, partenaires, puis « Ils nous soutiennent aussi » ; logo, activité, présentation, avantage pour les lecteurs (🎁), adresse (itinéraire), téléphone, site et réseaux. En bas, l'encadré **« Devenez partenaire »** (boutons Écrire / Appeler, d'après `contact` et `telephone` de config.js). Sur l'accueil, le bandeau **« Merci à nos partenaires »** montre jusqu'à 12 logos.
+- **Équipe** : **Espace équipe → Partenaires** : ajouter, modifier, choisir la place (principal / partenaire / soutien) et l'ordre, masquer. Supprimer est réservé à l'administrateur.
+- Installation : **Supabase → SQL Editor** → exécute `supabase/partenaires.sql`.
+
 ## Bon à savoir
 
 - **Modération** : lien *Espace modérateur* en bas de la page des bons plans, avec le code choisi à la section 7.

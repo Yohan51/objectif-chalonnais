@@ -306,6 +306,10 @@
   }
   .tool .go{margin-top:auto;padding-top:8px;font-weight:800;color:var(--sky-deep);}
   .section-head{margin-bottom:28px;}
+  .logos-partenaires{display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:12px;}
+  .logo-pa{display:flex;flex-direction:column;align-items:center;justify-content:center;gap:6px;background:#fff;border:1px solid var(--line);border-radius:14px;padding:14px;aspect-ratio:3/2;text-decoration:none;color:#183140;font-weight:800;font-size:14px;text-align:center;transition:transform .15s ease;}
+  .logo-pa:hover{transform:translateY(-2px);}
+  .logo-pa img{max-width:100%;max-height:70%;object-fit:contain;}
   .we-liste{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
   .we{display:flex;gap:14px;align-items:center;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:14px 16px;text-decoration:none;color:var(--ink);}
   .we:hover{border-color:var(--sky-deep);}
@@ -699,6 +703,18 @@
       </div>
     </div>
   </section>
+  <section id="merci-partenaires" hidden>
+    <div class="wrap">
+      <div class="section-head actus-head">
+        <div>
+          <p class="eyebrow">Ils nous soutiennent</p>
+          <h2>Merci à nos partenaires</h2>
+        </div>
+        <a class="btn btn-ghost" href="partenaires.html">Tous nos partenaires →</a>
+      </div>
+      <div class="logos-partenaires" id="logos-partenaires"></div>
+    </div>
+  </section>
 </main>
 
 <div class="oc-install" id="install-banner" hidden role="dialog" aria-label="Installer l'application">
@@ -712,6 +728,8 @@
   <div class="wrap">
     <span>© L'Objectif Châlonnais · Association loi 1901</span>
     <a href="#nous-suivre">Nous suivre</a>
+    <a href="partenaires.html">Nos partenaires</a>
+    <a href="proposer.html">Envoyez-nous votre info</a>
     <a href="#" id="install-link">Installer l'application</a>
     <a href="mentions-legales.html">Mentions légales et confidentialité</a>
     <a href="equipe.html">Espace équipe</a>
@@ -827,6 +845,24 @@
       </a>`).join('');
     document.getElementById('dernieres-actus').hidden = false;
   }catch(e){}
+})();
+</script>
+<script>
+/* Bandeau « Merci à nos partenaires » (12 au plus, dans l'ordre choisi par l'équipe) */
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
+  if(!BASE || !CLE) return;
+  const H = { apikey: CLE, 'Content-Type': 'application/json' }; if(CLE.startsWith('eyJ')) H.Authorization = 'Bearer ' + CLE;
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  fetch(`${BASE}/rest/v1/rpc/oc_partenaires_public`, { method:'POST', headers:H, body:'{}' })
+    .then(r=> r.ok ? r.json() : []).then(l=>{
+      l = (l || []).filter(p=> p.niveau !== 'soutien' || p.logo).slice(0, 12);
+      if(!l.length) return;
+      document.getElementById('logos-partenaires').innerHTML = l.map(p=>
+        `<a class="logo-pa" href="partenaires.html" title="${esc(p.nom)}">${p.logo ? `<img src="${p.logo}" alt="${esc(p.nom)}" loading="lazy">` : esc(p.nom)}</a>`).join('');
+      document.getElementById('merci-partenaires').hidden = false;
+    }).catch(()=>{});
 })();
 </script>
 <script>
