@@ -2,6 +2,7 @@
 # Toutes les 15 minutes :
 #  - envoie l'alerte des articles programmés dont l'heure est arrivée ;
 #  - met à jour la liste des dernières vidéos YouTube (page Direct) ;
+#  - fabrique les versions légères des photos de la galerie (affichage rapide) ;
 #  - fabrique les pages de partage des articles publiés
 #    (titre, résumé et photo visibles dans WhatsApp, Facebook, Messenger…).
 # On peut aussi le lancer à la main : onglet Actions → Aperçus des actus → Run workflow.
@@ -36,6 +37,14 @@ jobs:
 
       - name: Récupérer les dernières vidéos YouTube
         run: node scripts/videos.mjs
+        continue-on-error: true
+
+      - name: Galerie rapide (versions légères des photos)
+        run: |
+          if [ -n "$SUPABASE_SERVICE_KEY" ]; then npm install --no-save --no-audit --no-fund --silent sharp@0.33.5; fi
+          node scripts/vignettes.mjs
+        env:
+          SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
         continue-on-error: true
 
       - name: Fabriquer les pages de partage
