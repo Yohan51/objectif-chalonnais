@@ -1694,11 +1694,20 @@
 
   function fbUrl(raw){
     if(!raw) return null;
-    let v = raw.trim();
+    let v = String(raw).trim();
     if(!v) return null;
-    if(/^https?:\/\//i.test(v)) return v;
+    // Adresse complète : acceptée seulement si c'est bien un domaine Facebook
+    if(/^https?:\/\//i.test(v)){
+      try{
+        const u = new URL(v);
+        if(!/(^|\.)(facebook\.com|fb\.com|fb\.me|fb\.watch)$/i.test(u.hostname)) return null;
+        u.protocol = 'https:';
+        return u.toString();
+      }catch(e){ return null; }
+    }
+    // Sinon : un simple pseudo (lettres, chiffres, point, tiret), jamais un autre schéma
     v = v.replace(/^@/, '');
-    return `https://facebook.com/${v}`;
+    return /^[A-Za-z0-9._\-\/]{1,120}$/.test(v) ? 'https://facebook.com/' + v : null;
   }
 
   function fbLink(raw){
