@@ -3,9 +3,9 @@
      est en ligne, la dernière version enregistrée quand on est hors ligne.
    - Polices et bibliothèque de carte : gardées en mémoire.
    - Base de données, photos et fonds de carte : jamais mis en cache ici. */
-const VERSION = 'oc-v25';
+const VERSION = 'oc-v26';
 const SHELL = [
-  './', './index.html', './actus.html', './bons-plans.html', './galerie.html', './quiz.html', './jeux.html', './direct.html', './offline.html',
+  './', './index.html', './actus.html', './bons-plans.html', './galerie.html', './quiz.html', './jeux.html', './direct.html', './proposer.html', './offline.html',
   './site.css', './config.js', './storage.js', './app.js', './push.js', './actus-rendu.js', './compteur.js', './chat.js', './direct.js', './galerie-donnees.js', './logo.png',
   './icons/icon-192.png', './manifest.webmanifest'
 ];

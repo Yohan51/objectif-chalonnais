@@ -417,6 +417,16 @@ Ensuite, rien à faire : quand tu ajoutes un album dans Supabase (dossier `AAAA-
 - Les versions rapides de la galerie (partie 18) sont fabriquées par le robot dans le quart d'heure.
 - Place disponible : le stockage gratuit de Supabase est limité (1 Go). Compte environ 1,5 Mo par photo (photo + versions rapides). Le tableau de bord Supabase (*Storage*) indique la place utilisée.
 
+## 20. « Envoyez-nous votre info »
+
+Les visiteurs proposent une info, un événement ou des photos (3 au plus) sur la page `proposer.html` : lien sur l'accueil (bloc « Derrière l'objectif »), en bas des actus et en bas de chaque page. Les photos sont allégées dans le téléphone, la position GPS est retirée. **Rien n'est publié automatiquement.**
+
+L'équipe (tous les membres) traite les envois dans **Espace équipe → Infos reçues** : lire, télécharger les photos, répondre par e-mail ou téléphone, laisser une note interne, marquer « traitée », supprimer, ou **📰 En faire un article** : la rédaction s'ouvre avec un brouillon déjà rempli (titre, texte, date, lieu, photo, remerciement), à relire avant de publier.
+
+- Installation : **Supabase → SQL Editor** → exécute `supabase/propositions.sql`.
+- Anti-abus : 4 envois par heure et 12 par jour par connexion, champ piège contre les robots.
+- Les envois sont effacés automatiquement au bout de 6 mois (ce qui a été publié reste dans les actus).
+
 ## Bon à savoir
 
 - **Modération** : lien *Espace modérateur* en bas de la page des bons plans, avec le code choisi à la section 7.

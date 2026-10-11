@@ -106,6 +106,12 @@
         <p>Créer un jeu, faire le tirage au sort, publier les gagnants.</p>
         <span class="etat" id="e-jeux">…</span>
       </a>
+      <a class="outil" href="propositions.html">
+        <span class="badge" id="b-propositions" hidden></span>
+        <span class="ico" aria-hidden="true">📝</span><h2>Infos reçues</h2>
+        <p>Ce que les visiteurs proposent : infos, événements, photos.</p>
+        <span class="etat" id="e-propositions">…</span>
+      </a>
       <a class="outil" href="photos-equipe.html">
         <span class="ico" aria-hidden="true">📸</span><h2>Ajouter des photos</h2>
         <p>Créer un album depuis le téléphone, ajouter des photos à un album.</p>
@@ -248,6 +254,13 @@
       const sem = j.slice(-7).reduce((s, d)=> s + d.visites, 0);
       etat('e-stats', `<b>${plur(auj, 'visite')}</b> aujourd'hui · ${sem.toLocaleString('fr-FR')} sur 7 jours`);
     }catch(e){ etat('e-stats', 'Compteur pas encore installé'); }
+    // Infos reçues
+    try{
+      const r = await A.rpc('oc_propositions_liste', { p_code: code });
+      const ouvertes = (r.propositions || []).filter(p=> p.statut !== 'traitee').length;
+      badge('b-propositions', r.nouvelles || 0);
+      etat('e-propositions', `<b>${plur(r.nouvelles || 0, 'nouvelle')}</b> · ${ouvertes} à traiter`);
+    }catch(e){ etat('e-propositions', /function|find/i.test(e.message) ? 'À installer (propositions.sql)' : '—'); }
     // Direct (données publiques)
     try{
       const base = (cfg.supabaseUrl || '').replace(/\/+$/, ''), cle = cfg.supabaseCle || '';

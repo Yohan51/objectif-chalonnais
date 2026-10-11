@@ -150,3 +150,14 @@
 .oc-prochain-ico{font-size:20px;}
 @media (prefers-reduced-motion: reduce){ .oc-nav-links a.oc-live::before,.oc-live-pastille::before{animation:none;} }
 .oc-nav-links a.oc-live[aria-current="page"]{color:#FBFAF6;}
+
+/* Encart « Envoyez-nous votre info » */
+.oc-proposer{
+  display:flex;align-items:center;gap:14px;flex-wrap:wrap;text-decoration:none;
+  background:var(--surface,#fff);color:var(--ink,#183140);border:1px solid var(--line,#D7E3EA);border-radius:16px;
+  padding:16px 18px;margin:28px 0 8px;font-size:15px;line-height:1.45;
+}
+.oc-proposer:hover{border-color:var(--sky-deep,#2E97C7);}
+.oc-proposer > span:nth-child(2){flex:1;min-width:200px;}
+.oc-proposer-ico{font-size:26px;}
+.oc-proposer-go{font-weight:800;color:var(--sky-deep,#2E97C7);white-space:nowrap;}

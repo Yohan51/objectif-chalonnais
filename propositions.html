@@ -1,0 +1,222 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Infos reçues — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --tile:#E3EDF2;
+    --sky:#2E97C7; --err:#C0472F; --err-bg:#FBEAE6; --ok:#2E7D57; --ok-bg:#E5F4EC; --btn:#183140; --btn-ink:#F4F8FA; --neuf:#C8231E;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C;
+      --sky:#6CC1EA; --err:#F08A73; --err-bg:#3D211B; --ok:#6FCF97; --ok-bg:#163A2A; --btn:#EAF4F9; --btn-ink:#0F2230; --neuf:#F0675F; color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;}
+  a{color:var(--sky);}
+  .wrap{max-width:820px;margin:0 auto;padding:24px 20px 64px;}
+  h1,h2{font-family:var(--font-display);line-height:1.1;margin:0;}
+  .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;}
+  .top button{background:none;border:none;color:var(--sky);font:inherit;text-decoration:underline;cursor:pointer;padding:0;}
+  h1{font-size:clamp(30px,5vw,42px);font-weight:800;margin-top:22px;}
+  .sous{color:var(--ink-soft);margin:8px 0 18px;}
+  .filtres{display:flex;gap:6px;flex-wrap:wrap;margin-bottom:14px;}
+  .filtres button{font:inherit;font-weight:800;font-size:14px;border:1.5px solid var(--line);background:var(--surface);color:var(--ink);border-radius:999px;padding:7px 14px;cursor:pointer;}
+  .filtres button[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .item{background:var(--surface);border:1px solid var(--line);border-radius:14px;margin-bottom:10px;overflow:hidden;}
+  .item.nouvelle{border-left:4px solid var(--neuf);}
+  .tete{display:flex;gap:12px;align-items:flex-start;width:100%;text-align:left;background:none;border:none;font:inherit;color:inherit;padding:14px 16px;cursor:pointer;}
+  .tete .ico{font-size:22px;line-height:1.2;}
+  .tete .t{flex:1;min-width:0;}
+  .tete strong{display:block;font-size:16.5px;}
+  .tete .x{color:var(--ink-soft);font-size:14px;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .tete .m{font-family:var(--font-mono);font-size:11.5px;color:var(--muted);margin-top:4px;}
+  .pill{font-family:var(--font-mono);font-size:11px;padding:2px 8px;border-radius:999px;white-space:nowrap;background:var(--tile);color:var(--ink-soft);}
+  .pill.nouvelle{background:var(--neuf);color:#fff;}
+  .pill.traitee{background:var(--ok-bg);color:var(--ok);}
+  .detail{padding:0 16px 16px;border-top:1px solid var(--line);}
+  .detail .texte{white-space:pre-wrap;margin:14px 0;}
+  .fiche{display:grid;grid-template-columns:auto 1fr;gap:4px 14px;font-size:14.5px;margin:10px 0;}
+  .fiche dt{color:var(--ink-soft);font-weight:700;}
+  .fiche dd{margin:0;word-break:break-word;}
+  .photos{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0;}
+  .photos a{display:block;width:150px;height:150px;border-radius:10px;overflow:hidden;background:var(--tile);}
+  .photos img{width:100%;height:100%;object-fit:cover;display:block;}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:12px;}
+  .btn{font:inherit;font-weight:800;font-size:14px;border:2px solid var(--btn);border-radius:999px;padding:8px 14px;background:var(--btn);color:var(--btn-ink);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;gap:6px;}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn.danger{background:transparent;color:var(--err);border-color:var(--line);}
+  .note{width:100%;font:inherit;font-size:14px;padding:9px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);margin-top:10px;}
+  .vide{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;color:var(--ink-soft);}
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;margin:14px 0 10px;}
+  .err{color:var(--err);font-size:14px;}
+  .lien-public{font-size:14px;background:var(--surface);border:1px dashed var(--line);border-radius:12px;padding:12px 14px;margin-bottom:16px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="vue-login" data-equipe-login>
+    <h1>Infos reçues</h1>
+    <p>Espace réservé à l'équipe.</p>
+    <input type="password" id="l-code" placeholder="Code de l'équipe" autocomplete="current-password">
+    <button class="btn" id="l-btn" type="submit" style="width:100%;justify-content:center">Ouvrir</button>
+    <p class="err" id="l-msg" hidden></p>
+  </form>
+
+  <main id="vue-app" hidden>
+    <div class="top">
+      <a href="equipe.html">⌂ Espace équipe</a>
+      <button type="button" id="btn-quitter">Se déconnecter</button>
+    </div>
+    <h1>Infos reçues</h1>
+    <p class="sous">Ce que les visiteurs vous envoient depuis « Envoyez-nous votre info ». Rien n'est publié sans vous. Effacement automatique au bout de 6 mois.</p>
+    <p class="lien-public">Le formulaire public : <a href="proposer.html" target="_blank" rel="noopener">lobjectifchalonnais.fr/proposer.html</a> — à partager sur Facebook et en story.</p>
+    <div class="filtres" role="group" aria-label="Filtrer">
+      <button type="button" data-f="ouvertes" aria-pressed="true">À traiter</button>
+      <button type="button" data-f="toutes" aria-pressed="false">Toutes</button>
+      <button type="button" data-f="traitee" aria-pressed="false">Traitées</button>
+    </div>
+    <div id="liste"><p class="vide">Chargement…</p></div>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="equipe.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  const ICO = { info: '📰', evenement: '📅', photo: '📷' };
+  const TYPE = { info: 'Info', evenement: 'Événement', photo: 'Photos' };
+  const STATUT = { nouvelle: 'nouvelle', vue: 'à traiter', traitee: 'traitée' };
+  let code = null, toutes = [], filtre = 'ouvertes', ouverte = null;
+
+  function quand(iso){
+    const d = new Date(iso), min = Math.round((Date.now() - d) / 60000);
+    if(min < 60) return `il y a ${Math.max(1, min)} min`;
+    if(min < 1440) return `il y a ${Math.round(min / 60)} h`;
+    return d.toLocaleDateString('fr-FR', { day: 'numeric', month: 'long' }) + ' à ' + d.toLocaleTimeString('fr-FR', { hour: '2-digit', minute: '2-digit' });
+  }
+
+  async function connecter(c){
+    const r = await A.rpc('oc_propositions_liste', { p_code: c });
+    code = c; OCEquipe.memoriser(c);
+    $('vue-login').hidden = true; $('vue-app').hidden = false;
+    toutes = r.propositions || []; afficher();
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = /function|find/i.test(err.message) ? 'Installez d\'abord supabase/propositions.sql dans Supabase.' : err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{ OCEquipe.oublier(); location.reload(); };
+  (async ()=>{
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ $('l-msg').textContent = /function|find/i.test(e.message) ? 'Installez d\'abord supabase/propositions.sql dans Supabase.' : e.message; $('l-msg').hidden = false; if(/incorrect/i.test(e.message)) OCEquipe.oublier(); } }
+    if(!code) $('l-code').focus();
+  })();
+  async function recharger(){ try{ toutes = (await A.rpc('oc_propositions_liste', { p_code: code })).propositions || []; afficher(); }catch(e){} }
+
+  document.querySelectorAll('.filtres button').forEach(b=> b.onclick = ()=>{
+    filtre = b.dataset.f;
+    document.querySelectorAll('.filtres button').forEach(x=> x.setAttribute('aria-pressed', x === b ? 'true' : 'false'));
+    afficher();
+  });
+
+  function afficher(){
+    const l = $('liste');
+    const items = toutes.filter(p=> filtre === 'toutes' ? true : filtre === 'traitee' ? p.statut === 'traitee' : p.statut !== 'traitee');
+    if(!items.length){ l.innerHTML = `<p class="vide">${filtre === 'ouvertes' ? 'Rien à traiter pour l\'instant. 👌' : 'Aucune info ici.'}</p>`; return; }
+    l.innerHTML = '';
+    for(const p of items){
+      const d = document.createElement('article');
+      d.className = 'item' + (p.statut === 'nouvelle' ? ' nouvelle' : '');
+      d.innerHTML = `<button type="button" class="tete" aria-expanded="false">
+          <span class="ico" aria-hidden="true">${ICO[p.type] || '📰'}</span>
+          <span class="t"><strong>${esc(p.titre)}</strong><span class="x">${esc(p.extrait)}</span>
+          <span class="m">${esc(TYPE[p.type] || 'Info')} · ${esc(quand(p.cree_le))}${p.nom ? ' · ' + esc(p.nom) : ''}${p.nb_photos ? ` · ${p.nb_photos} photo${p.nb_photos > 1 ? 's' : ''}` : ''}</span></span>
+          <span class="pill ${p.statut}">${STATUT[p.statut]}</span>
+        </button><div class="detail" hidden></div>`;
+      d.querySelector('.tete').onclick = ()=> basculer(d, p);
+      l.append(d);
+      if(ouverte === p.id) basculer(d, p);
+    }
+  }
+
+  async function basculer(el, p){
+    const det = el.querySelector('.detail'), tete = el.querySelector('.tete');
+    if(!det.hidden){ det.hidden = true; tete.setAttribute('aria-expanded', 'false'); ouverte = null; return; }
+    ouverte = p.id;
+    det.hidden = false; tete.setAttribute('aria-expanded', 'true');
+    det.innerHTML = '<p class="sous">Chargement…</p>';
+    let x;
+    try{ x = (await A.rpc('oc_proposition_lire', { p_code: code, p_id: p.id })).proposition; }
+    catch(e){ det.innerHTML = `<p class="err">${esc(e.message)}</p>`; return; }
+    if(p.statut === 'nouvelle'){ p.statut = 'vue'; el.classList.remove('nouvelle'); const pl = el.querySelector('.pill'); pl.className = 'pill vue'; pl.textContent = STATUT.vue; }
+    const contact = x.contact || '';
+    const mail = /^[^@\s]+@[^@\s]+\.[^@\s]+$/.test(contact) ? contact : '';
+    const tel = !mail && /^[+\d][\d\s.-]{7,}$/.test(contact) ? contact.replace(/[^\d+]/g, '') : '';
+    det.innerHTML = `
+      <div class="texte">${esc(x.texte) || '<em>(pas de texte)</em>'}</div>
+      ${x.photos && x.photos.length ? `<div class="photos">${x.photos.map((ph, i)=> `<a href="${ph}" download="info-${x.id}-photo-${i + 1}.jpg" title="Télécharger la photo ${i + 1}"><img src="${ph}" alt="Photo ${i + 1}"></a>`).join('')}</div><p class="sous" style="margin:0;font-size:13px;">Touchez une photo pour la télécharger.</p>` : ''}
+      <dl class="fiche">
+        ${x.date_evenement ? `<dt>Date</dt><dd>${esc(new Date(x.date_evenement + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' }))}</dd>` : ''}
+        ${x.lieu ? `<dt>Lieu</dt><dd>${esc(x.lieu)}</dd>` : ''}
+        <dt>De</dt><dd>${esc(x.nom || 'anonyme')}</dd>
+        <dt>Contact</dt><dd>${contact ? (mail ? `<a href="mailto:${esc(mail)}?subject=${encodeURIComponent('Votre info : ' + x.titre)}">${esc(mail)}</a>` : tel ? `<a href="tel:${esc(tel)}">${esc(contact)}</a>` : esc(contact)) : '—'}</dd>
+        <dt>Reçue</dt><dd>${esc(quand(x.cree_le))}</dd>
+      </dl>
+      <input class="note" type="text" maxlength="500" placeholder="Note interne (ex. « Sophie s'en occupe »)" value="${esc(x.note || '')}">
+      <div class="actions">
+        <button type="button" class="btn" data-a="article">📰 En faire un article</button>
+        <button type="button" class="btn ghost" data-a="traitee">${x.statut === 'traitee' ? '↩︎ Remettre à traiter' : '✓ Marquer traitée'}</button>
+        <button type="button" class="btn danger" data-a="suppr">Supprimer</button>
+      </div>`;
+    const note = det.querySelector('.note');
+    note.addEventListener('change', ()=> A.rpc('oc_proposition_classer', { p_code: code, p_id: x.id, p_statut: null, p_note: note.value }).catch(()=>{}));
+    det.querySelector('[data-a=article]').onclick = async ()=>{
+      // brouillon pré-rempli dans la rédaction (la photo suit si elle existe)
+      const lignes = [x.texte];
+      if(x.date_evenement || x.lieu) lignes.push('', [x.date_evenement ? '📅 ' + new Date(x.date_evenement + 'T12:00').toLocaleDateString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long' }) : '', x.lieu ? '📍 ' + x.lieu : ''].filter(Boolean).join(' · '));
+      if(x.nom) lignes.push('', `Merci à ${x.nom} pour l'info !`);
+      try{ sessionStorage.setItem('oc-depuis-proposition', JSON.stringify({
+        titre: x.titre, categorie: x.type === 'evenement' ? 'evenement' : 'actu',
+        contenu: lignes.join('\n').trim(), photo: (x.photos || [])[0] || ''
+      })); }catch(e){ alert('Impossible de préparer l\'article (photo trop lourde ?).'); return; }
+      await A.rpc('oc_proposition_classer', { p_code: code, p_id: x.id, p_statut: 'traitee', p_note: note.value || 'Article en préparation' }).catch(()=>{});
+      location.href = 'rediger.html#depuis-proposition';
+    };
+    det.querySelector('[data-a=traitee]').onclick = async ()=>{
+      const st = x.statut === 'traitee' ? 'vue' : 'traitee';
+      try{ await A.rpc('oc_proposition_classer', { p_code: code, p_id: x.id, p_statut: st, p_note: note.value }); ouverte = null; await recharger(); }catch(e){ alert(e.message); }
+    };
+    det.querySelector('[data-a=suppr]').onclick = async ()=>{
+      if(!confirm('Supprimer définitivement cette info (et ses photos) ?')) return;
+      try{ await A.rpc('oc_proposition_supprimer', { p_code: code, p_id: x.id }); ouverte = null; await recharger(); }catch(e){ alert(e.message); }
+    };
+  }
+  setInterval(()=>{ if(code && !document.hidden && ouverte === null) recharger(); }, 60000);
+})();
+</script>
+</body>
+</html>

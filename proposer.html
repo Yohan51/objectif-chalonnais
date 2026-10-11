@@ -1,0 +1,271 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Envoyez-nous votre info — L'Objectif Châlonnais</title>
+<meta name="description" content="Une info, un événement, une photo à partager à Châlons-en-Champagne ? Envoyez-la à l'équipe de L'Objectif Châlonnais.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="L'Objectif Châlonnais">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Envoyez-nous votre info — L'Objectif Châlonnais">
+<meta property="og:description" content="Une info, un événement, une photo à partager à Châlons ? Envoyez-la-nous.">
+<meta property="og:url" content="https://lobjectifchalonnais.fr/proposer.html">
+<meta property="og:image" content="https://lobjectifchalonnais.fr/icons/partage.jpg">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="L'Objectif">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7; --tile:#E3EDF2;
+    --ok:#2E7D57; --ok-bg:#E5F4EC; --err:#C0472F; --err-bg:#FBEAE6;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+      --ok:#6FCF97; --ok-bg:#163A2A; --err:#F08A73; --err-bg:#3D211B; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+    --ok:#6FCF97; --ok-bg:#163A2A; --err:#F08A73; --err-bg:#3D211B; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;}
+  a{color:var(--sky-deep);}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .wrap{max-width:760px;margin:0 auto;padding-inline:20px;padding-block:0 64px;}
+  h1,h2{font-family:var(--font-display);line-height:1.12;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .page-head{padding-block:40px 24px;}
+  .page-head h1{font-size:clamp(34px,5vw,50px);font-weight:800;margin-top:8px;}
+  .page-head p{color:var(--ink-soft);max-width:58ch;margin:10px 0 0;}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:24px;}
+  .types{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-bottom:6px;}
+  .types label{display:flex;flex-direction:column;align-items:center;gap:4px;padding:14px 8px;border:2px solid var(--line);border-radius:14px;font-weight:800;cursor:pointer;text-align:center;font-size:15px;}
+  .types label span{font-size:24px;line-height:1;}
+  .types input{position:absolute;opacity:0;pointer-events:none;}
+  .types label:has(input:checked){border-color:var(--ink);background:var(--tile);}
+  .types label:has(input:focus-visible){outline:3px solid var(--sky);outline-offset:2px;}
+  label.l{display:block;font-size:14px;font-weight:800;margin:18px 0 6px;}
+  label.l small{font-weight:600;color:var(--ink-soft);}
+  input[type=text],input[type=date],textarea{width:100%;font:inherit;padding:12px 14px;border:1.5px solid var(--line);border-radius:12px;background:var(--bg);color:var(--ink);}
+  textarea{min-height:150px;resize:vertical;}
+  input:focus,textarea:focus{outline:none;border-color:var(--sky-deep);}
+  .ligne2{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);gap:12px;}
+  .hint{font-size:13px;color:var(--ink-soft);margin:6px 0 0;}
+  .photos{display:flex;gap:10px;flex-wrap:wrap;align-items:center;}
+  .ph{position:relative;width:96px;height:96px;border-radius:12px;overflow:hidden;background:var(--tile);}
+  .ph img{width:100%;height:100%;object-fit:cover;display:block;}
+  .ph button{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(15,34,48,.75);color:#fff;cursor:pointer;font-size:15px;line-height:1;}
+  .ajout{width:96px;height:96px;border-radius:12px;border:2px dashed var(--line);display:flex;flex-direction:column;align-items:center;justify-content:center;gap:2px;cursor:pointer;color:var(--ink-soft);font-size:12.5px;font-weight:700;text-align:center;}
+  .ajout:hover{border-color:var(--sky-deep);}
+  .ajout b{font-size:26px;line-height:1;color:var(--ink);}
+  .case{display:flex;gap:10px;align-items:flex-start;font-size:14px;cursor:pointer;margin-top:20px;}
+  .case input{width:18px;height:18px;margin-top:2px;accent-color:var(--ink);flex-shrink:0;}
+  .btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:800;font-size:16px;padding:14px 22px;border-radius:999px;border:2px solid var(--ink);background:var(--ink);color:var(--bg);cursor:pointer;text-decoration:none;}
+  .btn:hover{background:var(--sky-deep);border-color:var(--sky-deep);}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn:disabled{opacity:.55;cursor:not-allowed;}
+  .envoyer{width:100%;margin-top:22px;}
+  .msg{border-radius:12px;padding:12px 14px;font-weight:700;margin:14px 0 0;}
+  .msg.err{background:var(--err-bg);color:var(--err);}
+  .merci{text-align:center;padding:40px 24px;}
+  .merci .gros{font-size:54px;line-height:1;}
+  .merci h2{font-size:30px;font-weight:800;margin:14px 0 8px;}
+  .merci p{color:var(--ink-soft);max-width:44ch;margin:0 auto 22px;}
+  .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden;}
+  .discret{font-size:13px;color:var(--ink-soft);margin-top:18px;}
+  @media (max-width:560px){ .ligne2{grid-template-columns:minmax(0,1fr);} .carte{padding:18px;} .wrap{padding-inline:16px;} }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="actus.html">Actus</a>
+    <a href="direct.html">Direct</a>
+    <a href="jeux.html">Jeux</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="page-head">
+    <p class="eyebrow">Participez</p>
+    <h1>Envoyez-nous votre info</h1>
+    <p>Il se passe quelque chose dans votre rue, votre club, votre commerce ? Un événement à annoncer, une belle photo de Châlons ? Racontez-nous : l'équipe lit tout, vérifie et publie ce qui intéresse le plus grand nombre.</p>
+  </div>
+
+  <form class="carte" id="form" novalidate>
+    <div class="types" role="radiogroup" aria-label="Type d'envoi">
+      <label><input type="radio" name="type" value="info" checked><span aria-hidden="true">📰</span>Une info</label>
+      <label><input type="radio" name="type" value="evenement"><span aria-hidden="true">📅</span>Un événement</label>
+      <label><input type="radio" name="type" value="photo"><span aria-hidden="true">📷</span>Des photos</label>
+    </div>
+
+    <label class="l" for="f-titre">Titre</label>
+    <input type="text" id="f-titre" maxlength="120" placeholder="Ex. Une nouvelle boulangerie ouvre rue de Marne" autocomplete="off">
+
+    <label class="l" for="f-texte" id="l-texte">Racontez-nous</label>
+    <textarea id="f-texte" maxlength="4000" placeholder="Quoi, où, quand, qui ? Tous les détails utiles."></textarea>
+
+    <div class="ligne2" id="bloc-evenement" hidden>
+      <div><label class="l" for="f-date">Date de l'événement</label><input type="date" id="f-date"></div>
+      <div><label class="l" for="f-lieu">Lieu</label><input type="text" id="f-lieu" maxlength="120" placeholder="Ex. Place Foch"></div>
+    </div>
+
+    <label class="l">Photos <small>— facultatif, 3 au plus</small></label>
+    <div class="photos" id="photos">
+      <label class="ajout" id="ajout"><b>+</b>Ajouter<input type="file" id="f-photos" accept="image/*" multiple hidden></label>
+    </div>
+    <p class="hint" id="photo-info">Les photos sont allégées avant l'envoi et leur position GPS est retirée.</p>
+
+    <div class="ligne2">
+      <div><label class="l" for="f-nom">Votre prénom <small>— facultatif</small></label><input type="text" id="f-nom" maxlength="60" autocomplete="given-name"></div>
+      <div><label class="l" for="f-contact">E-mail ou téléphone <small>— facultatif</small></label><input type="text" id="f-contact" maxlength="120" autocomplete="email" inputmode="email"></div>
+    </div>
+    <p class="hint">Pour que l'équipe puisse vous recontacter si besoin. Jamais publié.</p>
+
+    <div class="hp" aria-hidden="true"><label>Site web <input type="text" id="f-site" tabindex="-1" autocomplete="off"></label></div>
+
+    <label class="case"><input type="checkbox" id="f-accord"> <span>J'autorise L'Objectif Châlonnais à utiliser cette info et ces photos (dont je suis l'auteur ou que j'ai le droit de partager) dans ses publications, avec mention de mon prénom si je l'ai indiqué.</span></label>
+
+    <button class="btn envoyer" type="submit" id="btn">Envoyer à l'équipe</button>
+    <p class="msg err" id="msg" hidden></p>
+    <p class="discret">Rien n'est publié automatiquement. Vos coordonnées ne servent qu'à vous recontacter et sont effacées au bout de 6 mois. <a href="mentions-legales.html#confidentialite">Confidentialité</a></p>
+  </form>
+
+  <section class="carte merci" id="merci" hidden>
+    <div class="gros" aria-hidden="true">🙌</div>
+    <h2>Merci, c'est bien reçu !</h2>
+    <p>L'équipe va lire votre message. Si elle le publie, vous le retrouverez dans les actus — et si vous avez activé les alertes, vous serez prévenu.</p>
+    <button class="btn ghost" type="button" id="encore">Envoyer une autre info</button>
+  </section>
+</main>
+
+<footer class="oc-pied">
+  <span>© L'Objectif Châlonnais · Association loi 1901</span>
+  <a href="mentions-legales.html">Mentions légales et confidentialité</a>
+</footer>
+
+<script src="config.js"></script>
+<script src="direct.js" defer></script>
+<script src="compteur.js" defer></script>
+<script>
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
+  const $ = (id)=> document.getElementById(id);
+  let photos = [];   // data URL JPEG
+
+  // ---------- Type d'envoi ----------
+  const typeChoisi = ()=> document.querySelector('input[name=type]:checked').value;
+  function majType(){
+    const t = typeChoisi();
+    $('bloc-evenement').hidden = t !== 'evenement';
+    $('l-texte').textContent = t === 'photo' ? 'Quelques mots sur vos photos' : t === 'evenement' ? 'Présentez l\'événement' : 'Racontez-nous';
+    $('f-titre').placeholder = t === 'photo' ? 'Ex. Coucher de soleil sur le Jard' : t === 'evenement' ? 'Ex. Brocante de la rue de Marne' : 'Ex. Une nouvelle boulangerie ouvre rue de Marne';
+  }
+  document.querySelectorAll('input[name=type]').forEach(r=> r.addEventListener('change', majType));
+  if(/^#(evenement|photo|info)$/.test(location.hash)){ document.querySelector(`input[name=type][value=${location.hash.slice(1)}]`).checked = true; majType(); }
+
+  // ---------- Photos (allégées dans le navigateur) ----------
+  async function decoder(f){
+    if('createImageBitmap' in window){ try{ return await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){} }
+    return new Promise((ok, ko)=>{
+      const u = URL.createObjectURL(f), img = new Image();
+      img.onload = ()=>{ URL.revokeObjectURL(u); ok(img); };
+      img.onerror = ()=>{ URL.revokeObjectURL(u); ko(new Error('illisible')); };
+      img.src = u;
+    });
+  }
+  function reduire(img, maxDim){
+    const w0 = img.width || img.naturalWidth, h0 = img.height || img.naturalHeight;
+    const r = Math.min(1, maxDim / Math.max(w0, h0));
+    const c = document.createElement('canvas'); c.width = Math.round(w0 * r); c.height = Math.round(h0 * r);
+    const ctx = c.getContext('2d'); ctx.fillStyle = '#fff'; ctx.fillRect(0, 0, c.width, c.height); ctx.drawImage(img, 0, 0, c.width, c.height);
+    let q = 0.82, d = c.toDataURL('image/jpeg', q);
+    while(d.length > 440000 && q > 0.45){ q -= 0.08; d = c.toDataURL('image/jpeg', q); }
+    if(d.length > 440000 && maxDim > 900) return reduire(img, Math.round(maxDim * 0.8));
+    return d;
+  }
+  function afficherPhotos(){
+    const z = $('photos');
+    z.querySelectorAll('.ph').forEach(n=> n.remove());
+    photos.forEach((d, i)=>{
+      const e = document.createElement('div'); e.className = 'ph';
+      e.innerHTML = `<img src="${d}" alt="Photo ${i + 1}"><button type="button" aria-label="Retirer la photo ${i + 1}">×</button>`;
+      e.querySelector('button').onclick = ()=>{ photos.splice(i, 1); afficherPhotos(); };
+      z.insertBefore(e, $('ajout'));
+    });
+    $('ajout').hidden = photos.length >= 3;
+  }
+  $('f-photos').addEventListener('change', async (e)=>{
+    const fichiers = [...e.target.files].slice(0, 3 - photos.length);
+    e.target.value = '';
+    $('photo-info').textContent = 'Préparation des photos…';
+    for(const f of fichiers){
+      try{ const img = await decoder(f); photos.push(reduire(img, 1600)); if(img.close) img.close(); afficherPhotos(); }
+      catch(err){ $('photo-info').textContent = 'Une photo n\'a pas pu être lue (format non pris en charge).'; continue; }
+    }
+    if(!/n'a pas pu/.test($('photo-info').textContent)) $('photo-info').textContent = 'Les photos sont allégées avant l\'envoi et leur position GPS est retirée.';
+  });
+
+  // ---------- Envoi ----------
+  function erreur(t, champ){ $('msg').textContent = t; $('msg').hidden = false; if(champ) $(champ).focus(); }
+  $('form').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    $('msg').hidden = true;
+    const titre = $('f-titre').value.trim(), texte = $('f-texte').value.trim();
+    if(titre.length < 3) return erreur('Donnez un titre à votre info.', 'f-titre');
+    if(texte.length < 10 && !photos.length) return erreur('Racontez-nous en quelques mots, ou joignez une photo.', 'f-texte');
+    if(!$('f-accord').checked) return erreur('Merci de cocher la case d\'accord avant d\'envoyer.', 'f-accord');
+    if(!BASE || !CLE) return erreur('Le site n\'est pas encore relié à sa base de données.');
+    const b = $('btn'); b.disabled = true; b.textContent = 'Envoi…';
+    try{
+      const h = { apikey: CLE, 'Content-Type': 'application/json' }; if(CLE.startsWith('eyJ')) h.Authorization = 'Bearer ' + CLE;
+      const r = await fetch(`${BASE}/rest/v1/rpc/oc_proposer`, { method: 'POST', headers: h, body: JSON.stringify({ p: {
+        type: typeChoisi(), titre, texte,
+        date_evenement: typeChoisi() === 'evenement' ? $('f-date').value : '',
+        lieu: typeChoisi() === 'evenement' ? $('f-lieu').value.trim() : '',
+        nom: $('f-nom').value.trim(), contact: $('f-contact').value.trim(),
+        photos, accord: $('f-accord').checked, site: $('f-site').value
+      } }) });
+      const j = await r.json().catch(()=> null);
+      if(!r.ok) throw new Error(r.status === 404 ? 'L\'envoi n\'est pas encore activé sur le site.' : 'L\'envoi a échoué. Vérifiez votre connexion et réessayez.');
+      if(j && j.erreur) throw new Error(j.erreur);
+      $('form').hidden = true; $('merci').hidden = false;
+      window.scrollTo({ top: 0, behavior: 'smooth' });
+    }catch(err){ erreur(err.message || 'L\'envoi a échoué.'); }
+    finally{ b.disabled = false; b.textContent = 'Envoyer à l\'équipe'; }
+  });
+  $('encore').onclick = ()=>{
+    ['f-titre', 'f-texte', 'f-date', 'f-lieu'].forEach(id=> $(id).value = '');
+    photos = []; afficherPhotos(); $('f-accord').checked = false;
+    $('merci').hidden = true; $('form').hidden = false; $('f-titre').focus();
+  };
+})();
+</script>
+<script src="app.js"></script>
+<script src="chat.js"></script>
+</body>
+</html>

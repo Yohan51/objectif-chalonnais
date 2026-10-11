@@ -324,6 +324,24 @@
     $('vue-login').hidden = true; $('vue-bureau').hidden = false;
     rendreListe();
     nouveau(true);
+    depuisProposition();
+  }
+  // Brouillon préparé depuis « Infos reçues » (propositions.html)
+  async function depuisProposition(){
+    let d = null;
+    try{ d = JSON.parse(sessionStorage.getItem('oc-depuis-proposition') || 'null'); }catch(e){}
+    if(!d) return;
+    try{ sessionStorage.removeItem('oc-depuis-proposition'); }catch(e){}
+    nouveau(false);
+    remplir({ titre: d.titre || '', categorie: A.RUBRIQUES[d.categorie] ? d.categorie : 'actu', contenu: d.contenu || '', publie: false });
+    if(d.photo){
+      try{
+        const img = await new Promise((ok, ko)=>{ const i = new Image(); i.onload = ()=> ok(i); i.onerror = ko; i.src = d.photo; });
+        photo = { etat: 'nouvelle', grande: reduire(img, 1600, 0.82, 560000), mini: reduire(img, 640, 0.78, 110000) };
+        afficherPhoto();
+      }catch(e){}
+    }
+    montrerResultat('ok', 'Brouillon préparé à partir de l\'info reçue : relisez, ajoutez un chapô, vérifiez la photo, puis publiez.');
   }
   $('form-login').addEventListener('submit', async (e)=>{
     e.preventDefault();
