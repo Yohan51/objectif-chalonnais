@@ -16,7 +16,7 @@ window.OC_CONFIG = {
 
   // ---------- Contact ----------
   contact: 'lobjectifchalonnais@gmail.com',
-   telephone: '06 87 86 15 42',
+   telephone: '06 79 07 67 97',
   rna: 'W511006024',
 
   // ---------- Soutenir l'association ----------
