@@ -106,7 +106,7 @@
         <label class="l" for="f-lien">Lien du direct, YouTube ou Facebook <span style="font-weight:600">(conseillé)</span></label>
         <input type="url" id="f-lien" inputmode="url" placeholder="https://youtube.com/live/…  ou  https://www.facebook.com/…/videos/…" autocomplete="off" spellcheck="false">
         <p class="hint"><b>YouTube</b> : pendant le direct, <b>Partager → Copier le lien</b> (le site affiche aussi le tchat). Sans lien, le site montre le direct en cours de la chaîne YouTube.<br>
-        <b>Facebook</b> : une fois le direct lancé, ouvrez la vidéo sur la page, <b>⋯ → Copier le lien</b> (de préférence depuis un ordinateur : lien en <i>facebook.com/…/videos/…</i>). Le direct doit être <b>public</b>.</p>
+        <b>Facebook</b> (le plus sûr, depuis un ordinateur) : ouvrez le direct sur la page, <b>⋯ → Intégrer</b>, copiez le code et collez-le tel quel ici. Sinon, un lien en <i>facebook.com/…/videos/123…</i>. Le direct doit être <b>public</b> et l'intégration autorisée (réglage « Autoriser l'intégration » dans Live Producer, activé par défaut).</p>
         <p class="hint" id="f-lien-type" hidden></p>
         <label class="case"><input type="checkbox" id="f-alerte" checked> 🔔 Prévenir les abonnés par une alerte</label>
         <div class="actions">
@@ -157,9 +157,12 @@
 
   // Lien collé → identifiant YouTube, lien Facebook, '' (vide) ou null (non reconnu)
   function lienDirect(t){
-    t = (t || '').trim();
+    t = (t || '').trim().replace(/&amp;/g, '&');
     if(!t) return '';
     if(/^[A-Za-z0-9_-]{11}$/.test(t)) return t;
+    // code d'intégration collé (<iframe src="…">) : on prend l'adresse du lecteur
+    const src = t.match(/src=["']([^"']+)["']/i);
+    if(src) t = src[1];
     // texte copié avec le lien (« Regardez notre direct https://… ») : on garde le lien
     const m0 = t.match(/https?:\/\/\S+/i) || t.match(/(?:www\.|m\.)?(?:youtube\.com|youtu\.be|facebook\.com|fb\.watch)\/\S*/i);
     if(m0) t = m0[0];
@@ -170,7 +173,17 @@
     if(/(^|\.)facebook\.com$|(^|\.)fb\.watch$|(^|\.)fb\.com$/.test(hote)){
       u.protocol = 'https:';
       if(/^(m|web|mbasic|touch)\.facebook\.com$|^fb\.com$|^facebook\.com$/.test(hote)) u.hostname = 'www.facebook.com';
-      ['mibextid', 'rdid', 'share_url', 'ref', 'fs', '__tn__', '__cft__[0]', 'sfnsn', 'extid'].forEach(k=> u.searchParams.delete(k));
+      // lecteur intégré Facebook : l'adresse de la vidéo est dans « href »
+      if(/^\/plugins\/(video|post)\.php/.test(u.pathname) && u.searchParams.get('href')) return lienDirect(u.searchParams.get('href'));
+      // facebook.com/watch/?v=123, /watch/live/?v=123, /video.php?v=123
+      const vid = u.searchParams.get('v') || u.searchParams.get('video_id');
+      if(/^\/(watch|watch\/live|video\.php|reel)/.test(u.pathname) && /^\d{6,}$/.test(vid || '')) return `https://www.facebook.com/watch/?v=${vid}`;
+      // facebook.com/<page>/videos/<titre>/<numéro>/ → facebook.com/<page>/videos/<numéro>/
+      const mv = u.pathname.match(/^\/([^/]+)\/videos\/(?:[^/]+\/)?(\d{6,})\/?/);
+      if(mv) return `https://www.facebook.com/${mv[1]}/videos/${mv[2]}/`;
+      const mr = u.pathname.match(/^\/reel\/(\d{6,})/);
+      if(mr) return `https://www.facebook.com/watch/?v=${mr[1]}`;
+      u.search = ''; u.hash = '';
       return u.toString().slice(0, 500);
     }
     if(!/(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)youtube-nocookie\.com$/.test(hote)) return null;
@@ -187,7 +200,7 @@
     const v = lienDirect($('f-lien').value), i = $('f-lien-type');
     i.hidden = !$('f-lien').value.trim();
     i.textContent = v === null ? '⚠️ Lien non reconnu' : v === '' ? '✓ Lien de la chaîne YouTube : le site affichera le direct en cours de la chaîne (sans le tchat)' : /^https:/.test(v)
-      ? (/fb\.watch|\/share\//.test(v) ? '⚠️ Lien Facebook raccourci : il peut ne pas s\'afficher sur le site. Préférez le lien complet en facebook.com/…/videos/…' : '✓ Direct Facebook')
+      ? (/\/videos\/\d|watch\/\?v=\d/.test(v) ? '✓ Direct Facebook' : '⚠️ Lien Facebook « de partage » : Facebook refuse souvent de l\'afficher sur un autre site. Utilisez plutôt le code d\'intégration (voir ci-dessous) ou un lien en facebook.com/…/videos/123…')
       : '✓ Direct YouTube';
   });
   function versLocal(iso){
@@ -269,9 +282,9 @@
       dire('msg-direct', esc(texte), 'ok');
     }catch(err){
       const m = err.message || '';
-      const aJour = /^Lien YouTube non reconnu/.test(m) || /lien_fb/.test(m);     // ancienne version de direct.sql
+      const aJour = /^Lien YouTube non reconnu/.test(m) || /lien_fb.*(exist|existe)/i.test(m);     // ancienne version de direct.sql
       dire('msg-direct', esc(/function|find/i.test(m) ? 'Exécutez d\'abord supabase/direct.sql dans Supabase.'
-        : aJour ? 'La base n\'accepte pas encore les liens Facebook : exécutez à nouveau supabase/direct.sql dans Supabase (SQL Editor), puis réessayez.'
+        : aJour ? 'La base n\'accepte pas encore les liens Facebook : dans Supabase (SQL Editor), exécutez le fichier direct.sql « version 2 » (le résultat doit afficher « YouTube + Facebook ✓ »), puis réessayez. Détail : ' + m
         : m), 'err');
     }
     finally{ b.disabled = false; afficher(etat || {}); }

@@ -266,9 +266,9 @@
     $('tchat').hidden = !avecTchat;
     if(avecTchat) $('tchat-lien').href = `https://www.youtube.com/live_chat?v=${encodeURIComponent(etat.video)}`;
     $('titre-lecture').textContent = etat.titre || 'L\'Objectif Châlonnais en direct';
-    $('meta-lecture').textContent = (etat.debut ? `En direct depuis ${heure(etat.debut)}` : 'En direct') + (etat.fb ? ' · sur Facebook' : '');
+    $('meta-lecture').textContent = (etat.debut ? `En direct depuis ${heure(etat.debut)}` : 'En direct') + (etat.fb ? ' · sur Facebook · la vidéo ne s\'affiche pas ? Ouvrez-la sur Facebook' : '');
     $('actions-lecture').innerHTML = etat.fb
-      ? boutonYT(lienLive(), '💬 Commenter sur Facebook')
+      ? boutonYT(lienLive(), '▶ Regarder et commenter sur Facebook')
       : boutonYT(lienLive(), 'Ouvrir sur YouTube');
     $('sous-ecran').hidden = false;
     if(lecture && lecture.type === 'live' && lecture.id === cleLive()) return;   // déjà en lecture : on ne coupe pas
