@@ -386,10 +386,36 @@ Les directs se font sur la **chaîne YouTube** (les replays y restent), et se re
 3. À la fin : **Terminer le direct**. (Oubli ? Le bandeau disparaît tout seul au bout de 8 heures.)
 
 - **Sans lien**, le site affiche le direct en cours de la chaîne, mais sans le tchat. Avec le lien, le tchat YouTube s'affiche à côté.
+- **Direct Facebook** : lance le direct sur la page Facebook (en **public**), puis copie le lien de la vidéo (⋯ → *Copier le lien*, idéalement depuis un ordinateur pour avoir un lien en `facebook.com/…/videos/…`) et colle-le dans la régie à la place du lien YouTube. Le direct se regarde alors sur le site et l'alerte part de la même façon. Les commentaires restent sur Facebook (bouton « Commenter sur Facebook »). Facebook ne prévient pas le site tout seul : c'est le bouton *On est en direct* qui déclenche tout.
 - **Coupure réseau** : relancer moins de 30 minutes après n'envoie pas de deuxième alerte.
 - **Annoncer le prochain direct** : même page, date et sujet. L'annonce s'affiche sur l'accueil et la page Direct, et disparaît quand le direct commence.
 - Membres et administrateur peuvent tous lancer un direct.
 - Autre chaîne YouTube ? Ajoute `youtubeChaineId: 'UC…'` dans `config.js`.
+
+## 18. Galerie rapide (versions légères des photos)
+
+Les photos d'appareil pèsent souvent 4 à 10 Mo chacune : trop lourd pour une grille de 30 photos sur téléphone. Le robot GitHub fabrique donc, pour chaque photo, deux versions légères (WebP) rangées dans le dossier `_vignettes` du stockage : une petite pour les grilles, une grande pour la visionneuse. **Les originaux ne sont jamais modifiés.** Il écrit aussi `data/galerie.json`, la liste des albums, pour que la galerie s'ouvre en une seule requête.
+
+### Installation (une seule fois)
+
+1. **Supabase → Project Settings → API Keys** : copie la clé **secrète** (`sb_secret_…`, ou l'ancienne `service_role`). C'est la même que celle mise dans la fonction d'envoi des alertes.
+2. **GitHub → ton dépôt → Settings → Secrets and variables → Actions → New repository secret** : nom `SUPABASE_SERVICE_KEY`, valeur : la clé copiée. Elle reste invisible, même si le dépôt est public.
+3. Remplace le contenu de `.github/workflows/apercus.yml` par la nouvelle version.
+4. Lance le robot une fois à la main (**Actions → Aperçus des actus → Run workflow**). Il traite jusqu'à 200 photos par passage, puis continue toutes les 15 minutes jusqu'à ce que tout soit fait.
+
+Ensuite, rien à faire : quand tu ajoutes un album dans Supabase (dossier `AAAA-MM-JJ Titre`), ses versions légères sont prêtes dans le quart d'heure. En attendant, le site affiche les originaux. Ne supprime pas le dossier `_vignettes`.
+
+## 19. Ajouter des photos depuis le téléphone
+
+**Espace équipe → Ajouter des photos** (tous les membres) : choisir *Nouvel album* (date + titre, accents permis) ou un *Album existant*, sélectionner les photos dans la pellicule, puis *Envoyer*. Les photos sont réduites à 2560 px dans le téléphone (≈ 1 Mo chacune au lieu de 4 à 10 Mo), la position GPS est retirée, puis elles vont directement dans le stockage de la galerie. Une alerte « Nouvel album » peut partir à la fin.
+
+### Installation (une seule fois)
+
+**Supabase → Edge Functions → envoyer-notification → Code** : remplace tout par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*. (La même fonction envoie les alertes et délivre, après vérification du code de l'équipe, des liens d'envoi à usage unique vers le stockage.)
+
+- Le dossier de l'album est nommé sans accents (le stockage les refuse) ; le vrai titre est gardé dans un petit fichier `_album.json` et affiché partout sur le site.
+- Les versions rapides de la galerie (partie 18) sont fabriquées par le robot dans le quart d'heure.
+- Place disponible : le stockage gratuit de Supabase est limité (1 Go). Compte environ 1,5 Mo par photo (photo + versions rapides). Le tableau de bord Supabase (*Storage*) indique la place utilisée.
 
 ## Bon à savoir
 

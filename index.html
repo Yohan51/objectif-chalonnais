@@ -684,6 +684,7 @@
 </footer>
 
 <script src="config.js"></script>
+<script src="galerie-donnees.js"></script>
 <script src="direct.js" defer></script>
 <script src="compteur.js" defer></script>
 <script src="storage.js"></script>
@@ -801,7 +802,7 @@
   const BUCKET = cfg.galerieBucket || 'galerie';
   const IMG = /\.(jpe?g|png|webp|avif)$/i;
   const NB = 6, NB_LUS = 10;
-  const CACHE = 'oc-une-v2';
+  const CACHE = 'oc-une-v3';
   const MOIS = ['janvier','février','mars','avril','mai','juin','juillet','août','septembre','octobre','novembre','décembre'];
   const headers = { apikey: CLE, 'Content-Type': 'application/json' };
   if(CLE.startsWith('eyJ')) headers.Authorization = 'Bearer ' + CLE;
@@ -871,14 +872,12 @@
   if(!URL_BASE || !CLE) return;
   (async ()=>{
     try{
-      const racine = await list('');
-      const albums = racine.filter(isFolder).map(o=> o.name).sort().reverse().slice(0, NB_LUS);
+      const G = window.OCGalerie;
+      const albums = (await G.albums()).slice(0, NB_LUS);
       if(!albums.length) return;
       const details = await Promise.all(albums.map(async name=>{
-        try{
-          const photos = (await list(name + '/')).filter(o=> !isFolder(o) && IMG.test(o.name));
-          return { name, photos };
-        }catch(e){ return { name, photos: [] }; }
+        try{ return { name, photos: await G.photos(name) }; }
+        catch(e){ return { name, photos: [] }; }
       }));
       let pleins = details.filter(a=> a.photos.length);
       if(!pleins.length) return;
@@ -887,11 +886,12 @@
 
       // Couverture de l'album le plus récent : photo de tête si aucune photo n'a été choisie
       const a0 = pleins[0], p0 = parseAlbum(a0.name);
-      const une = { src: publicUrl(a0.name + '/' + a0.photos[0].name), legende: [p0.titre, p0.date].filter(Boolean).join(' · '), href: 'galerie.html#' + encodeURIComponent(a0.name) };
+      const t0 = await G.titre(a0.name).catch(()=> null);
+      const une = { src: G.url(a0.name, a0.photos[0], 'g'), legende: [t0 || p0.titre, p0.date].filter(Boolean).join(' · '), href: 'galerie.html#' + encodeURIComponent(a0.name) };
       albumEnUne(une);
       // Carte « La galerie » : une photo d'album (la 2e plus récente si la 1re est déjà en tête de page)
       const aCarte = pleins[pleins.length > 1 ? 1 : 0];
-      document.dispatchEvent(new CustomEvent('oc-photo-galerie', { detail: publicUrl(aCarte.name + '/' + aCarte.photos[0].name) }));
+      document.dispatchEvent(new CustomEvent('oc-photo-galerie', { detail: G.url(aCarte.name, aCarte.photos[0], 'm') }));
       if(fixeOk === false){ try{ localStorage.setItem(CACHE, JSON.stringify(une)); }catch(e){} }
 
       // Bande des derniers albums
@@ -903,11 +903,12 @@
         el.className = 'alb';
         el.href = 'galerie.html#' + encodeURIComponent(a.name);
         el.innerHTML = '<div class="alb-cover"><img loading="lazy" decoding="async" alt=""><span class="alb-n"></span></div><h3></h3><span class="d"></span>';
-        el.querySelector('img').src = publicUrl(a.name + '/' + a.photos[0].name);
+        el.querySelector('img').src = G.url(a.name, a.photos[0], 'm');
         el.querySelector('.alb-n').textContent = a.photos.length + ' photo' + (a.photos.length > 1 ? 's' : '');
         el.querySelector('h3').textContent = titre;
         el.querySelector('.d').textContent = date;
         bande.appendChild(el);
+        G.titre(a.name).then(t=>{ if(t) el.querySelector('h3').textContent = t; });
       });
       document.getElementById('derniers-albums').hidden = false;
     }catch(e){ /* galerie indisponible : l'accueil reste tel quel */ }

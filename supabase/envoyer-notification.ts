@@ -14,6 +14,11 @@
 // (fonction oc_alertes_a_envoyer, chaque alerte n'est remise qu'une fois).
 // Appelé par les pages de l'équipe juste après une publication, et par le
 // robot GitHub toutes les 15 minutes pour les articles programmés.
+//
+// Mode photos : { "action": "televerser", "code": "…", "chemins": [...] }
+// (page « Ajouter des photos » de l'Espace équipe) : après vérification du
+// code de l'équipe, renvoie des liens d'envoi à usage unique vers le stockage
+// de la galerie. Les photos vont directement du téléphone au stockage.
 // =====================================================================
 
 const CORS = {
@@ -125,7 +130,7 @@ if (typeof Deno !== "undefined" && Deno.serve) Deno.serve(async (req) => {
   const dbHeaders: Record<string, string> = { apikey: SB_KEY };
   if (SB_KEY.startsWith("eyJ")) dbHeaders.Authorization = `Bearer ${SB_KEY}`;
 
-  let data: { code?: string; titre?: string; message?: string; lien?: string; endpoint?: string; auto?: boolean };
+  let data: { code?: string; titre?: string; message?: string; lien?: string; endpoint?: string; auto?: boolean; action?: string; chemins?: string[] };
   try { data = await req.json(); } catch { return json({ erreur: "Requête illisible." }, 400); }
 
   const lireAbonnes = async (): Promise<Sub[] | null> => {
@@ -169,6 +174,32 @@ if (typeof Deno !== "undefined" && Deno.serve) Deno.serve(async (req) => {
     codeOk = (await v.json()) === true;
   }
   if (!codeOk) return json({ erreur: "Code modérateur incorrect (après 8 essais ratés, l'accès est bloqué 15 minutes)." }, 403);
+
+  // ---------- Mode photos : liens d'envoi vers la galerie ----------
+  if (data.action === "televerser") {
+    const BUCKET = env("GALERIE_BUCKET") || "galerie";
+    const chemins = Array.isArray(data.chemins) ? data.chemins.slice(0, 30) : [];
+    // « 2026-10-04 Foire de Chalons/p-20261004-153012-ab12.jpg » ou « …/_album.json »
+    // (un seul niveau de dossier, jamais _vignettes ni un dossier caché)
+    const valide = (c: string) =>
+      typeof c === "string" && c.length <= 200 &&
+      /^[A-Za-z0-9][A-Za-z0-9 _'()&,.+!@=;:$-]{0,99}\/([A-Za-z0-9][A-Za-z0-9._-]{0,99}\.(jpe?g|png|webp)|_album\.json)$/i.test(c) &&
+      !c.includes("..");
+    if (!chemins.length || !chemins.every(valide)) return json({ erreur: "Nom d'album ou de photo non valide." }, 400);
+    const urls: { chemin: string; url: string }[] = [];
+    for (const c of chemins) {
+      const enc = c.split("/").map(encodeURIComponent).join("/");
+      const r = await fetch(`${SB_URL}/storage/v1/object/upload/sign/${BUCKET}/${enc}`, {
+        method: "POST",
+        headers: { ...dbHeaders, "Content-Type": "application/json", "x-upsert": c.endsWith("_album.json") ? "true" : "false" },
+        body: "{}",
+      });
+      if (!r.ok) return json({ erreur: `Stockage indisponible (${r.status}) : ${(await r.text()).slice(0, 160)}` }, 500);
+      const j = await r.json();
+      urls.push({ chemin: c, url: `${SB_URL}/storage/v1${j.url}` });
+    }
+    return json({ urls });
+  }
 
   const titre = (data.titre || "").trim().slice(0, 80);
   const message = (data.message || "").trim().slice(0, 240);

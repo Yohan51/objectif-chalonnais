@@ -209,6 +209,7 @@
 </footer>
 
 <script src="config.js"></script>
+<script src="galerie-donnees.js"></script>
 <script src="direct.js" defer></script>
 <script src="compteur.js" defer></script>
 <script>
@@ -233,25 +234,8 @@
     const date = (m[3] ? parseInt(m[3],10)+' ' : '') + mois + ' ' + m[1];
     return { date, titre:m[4].replace(/[_]+/g,' ') };
   }
-  function publicUrl(path){
-    return `${URL_BASE}/storage/v1/object/public/${BUCKET}/${path.split('/').map(encodeURIComponent).join('/')}`;
-  }
-  async function list(prefix){
-    const out = [];
-    for(let offset=0; ; offset+=1000){
-      const r = await fetch(`${URL_BASE}/storage/v1/object/list/${BUCKET}`, {
-        method:'POST', headers,
-        body: JSON.stringify({ prefix, limit:1000, offset, sortBy:{ column:'name', order:'asc' } })
-      });
-      if(!r.ok) throw new Error('liste ' + r.status);
-      const rows = await r.json();
-      out.push(...rows);
-      if(rows.length < 1000) break;
-    }
-    return out;
-  }
-  const isFolder = (o)=> o.id === null || (!o.metadata && !IMG.test(o.name));
-  const photosOf = (rows)=> rows.filter(o=> !isFolder(o) && IMG.test(o.name));
+  const G = window.OCGalerie;
+  function dimensions(img, p){ if(p.w && p.h){ img.width = p.w; img.height = p.h; } }
 
   function showState(el, titre, texte){
     el.innerHTML = `<h2></h2><p></p>`;
@@ -261,20 +245,18 @@
   }
 
   // ---------- Albums ----------
-  const albumCache = {};
   async function renderAlbums(){
     $('view-album').hidden = true;
     $('view-albums').hidden = false;
     document.title = 'Galerie photo — L\'Objectif Châlonnais';
     const grid = $('albums');
-    if(!URL_BASE || !CLE){
+    if(!G.configure){
       grid.innerHTML = '';
       showState($('albums-state'), 'La galerie arrive bientôt', 'Nos premiers albums sont en préparation. Revenez dans quelques jours !');
       return;
     }
     try{
-      const root = await list('');
-      const folders = root.filter(isFolder).map(o=>o.name).sort().reverse();
+      const folders = await G.albums();
       if(!folders.length){
         grid.innerHTML = '';
         showState($('albums-state'), 'La galerie arrive bientôt', 'Nos premiers albums sont en préparation. Revenez dans quelques jours !');
@@ -292,12 +274,13 @@
         a.querySelector('h3').textContent = titre;
         a.querySelector('.d').textContent = date;
         grid.appendChild(a);
-        loadAlbum(name).then(photos=>{
+        G.titre(name).then(t=>{ if(t) a.querySelector('h3').textContent = t; });
+        G.photos(name).then(photos=>{
           a.querySelector('.n').textContent = `${photos.length} photo${photos.length>1?'s':''}`;
           if(photos[0]){
             const img = document.createElement('img');
             img.loading = 'lazy'; img.decoding = 'async'; img.alt = '';
-            img.src = publicUrl(name + '/' + photos[0].name);
+            img.src = G.url(name, photos[0], 'm');
             a.querySelector('.album-cover').appendChild(img);
           }
         }).catch(()=>{});
@@ -307,10 +290,6 @@
       showState($('albums-state'), 'Impossible d\'afficher la galerie', 'La connexion aux photos a échoué. Rechargez la page dans quelques instants.');
     }
   }
-  async function loadAlbum(name){
-    if(!albumCache[name]) albumCache[name] = list(name + '/').then(photosOf);
-    return albumCache[name];
-  }
 
   // ---------- Un album ----------
   let current = { name:'', photos:[] };
@@ -318,8 +297,11 @@
     $('view-albums').hidden = true;
     $('view-album').hidden = false;
     $('album-state').hidden = true;
-    const { date, titre } = parseAlbum(name);
+    const { date } = parseAlbum(name);
+    let titre = parseAlbum(name).titre;
+    current = { name, photos: [], titre: null };
     $('album-title').textContent = titre;
+    G.titre(name).then(t=>{ if(t && current.name === name){ titre = t; current.titre = t; $('album-title').textContent = t; document.title = `${t} — Galerie L'Objectif Châlonnais`; } });
     $('album-date').textContent = date || 'Album';
     $('album-count').textContent = '';
     document.title = `${titre} — Galerie L'Objectif Châlonnais`;
@@ -327,8 +309,9 @@
     shots.innerHTML = '';
     window.scrollTo(0,0);
     try{
-      const photos = await loadAlbum(name);
-      current = { name, photos };
+      const photos = await G.photos(name);
+      if(current.name !== name) return;            // l'utilisateur a changé d'album entre-temps
+      current.photos = photos;
       if(!photos.length){
         showState($('album-state'), 'Cet album est vide', 'Les photos arrivent bientôt.');
         return;
@@ -341,7 +324,9 @@
         const img = document.createElement('img');
         img.loading = 'lazy'; img.decoding = 'async';
         img.alt = `${titre}, photo ${i+1}`;
-        img.src = publicUrl(name + '/' + p.name);
+        if(i < 6) img.loading = 'eager';           // les premières tout de suite
+        dimensions(img, p);
+        img.src = G.url(name, p, 'm');
         b.appendChild(img);
         b.onclick = ()=> openViewer(i);
         shots.appendChild(b);
@@ -362,16 +347,23 @@
   function showPhoto(i){
     const n = current.photos.length;
     vIndex = (i + n) % n;
-    $('viewer-img').src = publicUrl(current.name + '/' + current.photos[vIndex].name);
-    $('viewer-img').alt = `${parseAlbum(current.name).titre}, photo ${vIndex+1}`;
+    const p = current.photos[vIndex], vi = $('viewer-img');
+    const grande = G.url(current.name, p, 'g');
+    // affiche d'abord la version de la grille (déjà chargée), puis la grande dès qu'elle arrive
+    vi.src = G.url(current.name, p, 'm');
+    if(grande !== vi.src){
+      const pre = new Image();
+      pre.onload = ()=>{ if(current.photos[vIndex] === p) vi.src = grande; };
+      pre.src = grande;
+    }
+    vi.alt = `${current.titre || parseAlbum(current.name).titre}, photo ${vIndex+1}`;
     $('viewer-pos').textContent = `${vIndex+1} / ${n}`;
-    // précharge la suivante
-    const next = current.photos[(vIndex+1) % n];
-    if(next){ const pre = new Image(); pre.src = publicUrl(current.name + '/' + next.name); }
+    // précharge la suivante et la précédente
+    [1, -1].forEach(d=>{ const q = current.photos[(vIndex + d + n) % n]; if(q && q !== p){ const pre = new Image(); pre.src = G.url(current.name, q, 'g'); } });
   }
   function openViewer(i){
     lastFocus = document.activeElement;
-    $('viewer-title').textContent = parseAlbum(current.name).titre;
+    $('viewer-title').textContent = current.titre || parseAlbum(current.name).titre;
     $('viewer').hidden = false;
     document.body.style.overflow = 'hidden';
     showPhoto(i);

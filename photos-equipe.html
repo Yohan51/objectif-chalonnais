@@ -1,0 +1,396 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Ajouter des photos — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --tile:#E3EDF2;
+    --sky:#2E97C7; --err:#C0472F; --err-bg:#FBEAE6; --ok:#2E7D57; --ok-bg:#E5F4EC; --btn:#183140; --btn-ink:#F4F8FA;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C;
+      --sky:#6CC1EA; --err:#F08A73; --err-bg:#3D211B; --ok:#6FCF97; --ok-bg:#163A2A; --btn:#EAF4F9; --btn-ink:#0F2230; color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;}
+  a{color:var(--sky);}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 120px;}
+  h1,h2{font-family:var(--font-display);line-height:1.1;margin:0;}
+  .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;}
+  .top button{background:none;border:none;color:var(--sky);font:inherit;text-decoration:underline;cursor:pointer;padding:0;}
+  h1{font-size:clamp(30px,5vw,42px);font-weight:800;margin-top:22px;}
+  .sous{color:var(--ink-soft);margin:8px 0 22px;}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:20px;margin-bottom:16px;}
+  .carte h2{font-size:21px;font-weight:800;margin-bottom:12px;display:flex;align-items:center;gap:10px;}
+  .num{display:inline-grid;place-items:center;width:28px;height:28px;border-radius:50%;background:var(--ink);color:var(--bg);font-size:15px;flex-shrink:0;}
+  .choix{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:14px;}
+  .choix label{display:flex;align-items:center;justify-content:center;gap:8px;padding:11px;border:2px solid var(--line);border-radius:12px;font-weight:800;cursor:pointer;text-align:center;}
+  .choix input{position:absolute;opacity:0;pointer-events:none;}
+  .choix label:has(input:checked){border-color:var(--ink);background:var(--tile);}
+  label.l{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin:12px 0 5px;}
+  input[type=text],input[type=date],select{width:100%;font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);}
+  input:focus,select:focus{outline:none;border-color:var(--sky);}
+  .ligne2{display:grid;grid-template-columns:150px minmax(0,1fr);gap:10px;}
+  .hint{font-size:13px;color:var(--muted);margin:6px 0 0;}
+  .btn{font:inherit;font-weight:800;border:2px solid var(--btn);border-radius:999px;padding:11px 20px;background:var(--btn);color:var(--btn-ink);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn:disabled{opacity:.5;cursor:not-allowed;}
+  .btn.large{width:100%;font-size:17px;padding:15px 20px;}
+  .choisir{display:flex;flex-direction:column;align-items:center;gap:6px;border:2px dashed var(--line);border-radius:14px;padding:26px 16px;text-align:center;cursor:pointer;color:var(--ink-soft);}
+  .choisir:hover{border-color:var(--sky);}
+  .choisir strong{color:var(--ink);font-size:18px;}
+  .choisir .ico{font-size:34px;line-height:1;}
+  .grille{display:grid;grid-template-columns:repeat(auto-fill,minmax(92px,1fr));gap:8px;margin-top:14px;}
+  .vg{position:relative;aspect-ratio:1;border-radius:10px;overflow:hidden;background:var(--tile);}
+  .vg img{width:100%;height:100%;object-fit:cover;display:block;}
+  .vg .x{position:absolute;top:4px;right:4px;width:26px;height:26px;border-radius:50%;border:none;background:rgba(15,34,48,.75);color:#fff;font-size:15px;line-height:1;cursor:pointer;}
+  .vg .etat{position:absolute;inset:auto 0 0 0;padding:3px 6px;font-family:var(--font-mono);font-size:11px;color:#fff;background:rgba(15,34,48,.7);text-align:center;}
+  .vg.fait::after{content:'✓';position:absolute;inset:0;display:grid;place-items:center;font-size:30px;color:#fff;background:rgba(46,125,87,.45);}
+  .vg.erreur::after{content:'!';position:absolute;inset:0;display:grid;place-items:center;font-size:30px;font-weight:800;color:#fff;background:rgba(192,71,47,.55);}
+  .vg.encours .etat{background:var(--sky);}
+  .resume{display:flex;justify-content:space-between;gap:10px;flex-wrap:wrap;font-size:14px;color:var(--ink-soft);margin-top:12px;}
+  .case{display:flex;gap:10px;align-items:flex-start;font-weight:700;cursor:pointer;margin:2px 0 16px;}
+  .case input{width:18px;height:18px;accent-color:var(--ink);margin-top:2px;flex-shrink:0;}
+  .barre{height:10px;border-radius:999px;background:var(--tile);overflow:hidden;margin:14px 0 6px;}
+  .barre span{display:block;height:100%;width:0;background:var(--sky);transition:width .3s ease;}
+  .msg{margin-top:14px;font-size:14.5px;padding:12px 14px;border-radius:10px;}
+  .msg.ok{background:var(--ok-bg);color:var(--ok);}
+  .msg.err{background:var(--err-bg);color:var(--err);}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;margin:14px 0 10px;}
+  .err{color:var(--err);font-size:14px;}
+  @media (max-width:520px){ .ligne2{grid-template-columns:minmax(0,1fr);} .wrap{padding-inline:16px;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="vue-login" data-equipe-login>
+    <h1>Ajouter des photos</h1>
+    <p>Espace réservé à l'équipe.</p>
+    <input type="password" id="l-code" placeholder="Code de l'équipe" autocomplete="current-password">
+    <button class="btn" id="l-btn" type="submit" style="width:100%">Ouvrir</button>
+    <p class="err" id="l-msg" hidden></p>
+  </form>
+
+  <main id="vue-app" hidden>
+    <div class="top">
+      <a href="equipe.html">⌂ Espace équipe</a>
+      <span><a href="galerie.html" target="_blank" rel="noopener">Voir la galerie ↗</a> · <button type="button" id="btn-quitter">Se déconnecter</button></span>
+    </div>
+    <h1>Ajouter des photos</h1>
+    <p class="sous">Directement depuis le téléphone : les photos sont allégées avant l'envoi (rapide même en 4G) et rangées dans la galerie.</p>
+
+    <section class="carte">
+      <h2><span class="num">1</span> L'album</h2>
+      <div class="choix" role="radiogroup">
+        <label><input type="radio" name="mode" value="nouveau" checked> ✨ Nouvel album</label>
+        <label><input type="radio" name="mode" value="existant"> 📁 Album existant</label>
+      </div>
+      <div id="bloc-nouveau">
+        <div class="ligne2">
+          <div><label class="l" for="a-date">Date</label><input type="date" id="a-date"></div>
+          <div><label class="l" for="a-titre">Titre de l'album</label><input type="text" id="a-titre" maxlength="80" placeholder="Ex. Foire de Châlons"></div>
+        </div>
+      </div>
+      <div id="bloc-existant" hidden>
+        <label class="l" for="a-liste">Album</label>
+        <select id="a-liste"><option value="">Chargement…</option></select>
+      </div>
+    </section>
+
+    <section class="carte">
+      <h2><span class="num">2</span> Les photos</h2>
+      <label class="choisir" id="choisir">
+        <span class="ico" aria-hidden="true">📷</span>
+        <strong>Choisir des photos</strong>
+        <span>dans la pellicule ou les fichiers · plusieurs à la fois</span>
+        <input type="file" id="fichiers" accept="image/*" multiple hidden>
+      </label>
+      <div class="grille" id="grille"></div>
+      <div class="resume" id="resume" hidden><span id="r-nb"></span><button type="button" class="btn ghost" id="vider" style="padding:6px 12px;font-size:13px;">Tout retirer</button></div>
+    </section>
+
+    <section class="carte">
+      <h2><span class="num">3</span> Envoyer</h2>
+      <label class="case"><input type="checkbox" id="alerte" checked> <span>🔔 Prévenir les abonnés : « Nouvel album » (une alerte, à la fin de l'envoi)</span></label>
+      <button class="btn large" type="button" id="envoyer" disabled>Envoyer les photos</button>
+      <div id="progression" hidden>
+        <div class="barre"><span id="barre"></span></div>
+        <div class="hint" id="p-texte"></div>
+      </div>
+      <div class="msg" id="msg" hidden></div>
+      <div class="actions" id="apres" hidden>
+        <a class="btn" id="voir-album" href="galerie.html" target="_blank" rel="noopener">Voir l'album ↗</a>
+        <button class="btn ghost" type="button" id="encore">Ajouter d'autres photos</button>
+      </div>
+      <p class="hint">Les photos sont réduites à 2560 pixels (qualité écran et impression jusqu'au A4) et la position GPS est retirée. Gardez cette page ouverte pendant l'envoi.</p>
+    </section>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="equipe.js"></script>
+<script src="actus-rendu.js"></script>
+<script src="galerie-donnees.js"></script>
+<script>
+(function(){
+  const A = window.OCActus, G = window.OCGalerie;
+  const cfg = window.OC_CONFIG || {};
+  const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
+  const $ = (id)=> document.getElementById(id);
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  const MAX = 2560, QUALITE = 0.85, EN_PARALLELE = 2;
+  let code = null, liste = [], envoiEnCours = false;
+  const p2 = (n)=> String(n).padStart(2, '0');
+
+  // ---------- Connexion ----------
+  async function connecter(c){
+    await A.rpc('oc_actus_redaction', { p_code: c });
+    code = c; OCEquipe.memoriser(c);
+    $('vue-login').hidden = true; $('vue-app').hidden = false;
+    chargerAlbums();
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{ OCEquipe.oublier(); location.reload(); };
+  (async ()=>{
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ if(/incorrect/i.test(e.message)) OCEquipe.oublier(); } }
+    if(!code) $('l-code').focus();
+  })();
+
+  // ---------- Album ----------
+  const auj = new Date();
+  $('a-date').value = `${auj.getFullYear()}-${p2(auj.getMonth() + 1)}-${p2(auj.getDate())}`;
+  document.querySelectorAll('input[name=mode]').forEach(r=> r.addEventListener('change', ()=>{
+    const nouveau = mode() === 'nouveau';
+    $('bloc-nouveau').hidden = !nouveau; $('bloc-existant').hidden = nouveau;
+    $('alerte').checked = nouveau;
+  }));
+  const mode = ()=> document.querySelector('input[name=mode]:checked').value;
+  async function chargerAlbums(){
+    const sel = $('a-liste');
+    try{
+      const noms = await G.albums();
+      sel.innerHTML = noms.length ? '' : '<option value="">Aucun album pour l\'instant</option>';
+      for(const n of noms){
+        const o = document.createElement('option'); o.value = n; o.textContent = n; sel.append(o);
+        G.titre(n).then(t=>{ if(t){ const d = n.match(/^\d{4}-\d{2}(-\d{2})?/); o.textContent = (d ? d[0] + ' · ' : '') + t; } });
+      }
+    }catch(e){ sel.innerHTML = '<option value="">Galerie injoignable</option>'; }
+  }
+  // Nom du dossier : sans accents ni caractères refusés par le stockage
+  function nomDossier(date, titre){
+    const t = titre.normalize('NFD').replace(/[̀-ͯ]/g, '')
+      .replace(/œ/g, 'oe').replace(/Œ/g, 'OE').replace(/æ/g, 'ae').replace(/Æ/g, 'AE').replace(/[’‘`]/g, "'")
+      .replace(/[^A-Za-z0-9 '()&,.+!-]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80).replace(/[ .]+$/, '');
+    return `${date} ${t}`;
+  }
+
+  // ---------- Choix des photos ----------
+  $('fichiers').addEventListener('change', (e)=>{
+    const nouveaux = [...e.target.files].filter(f=> f.type.startsWith('image/') || /\.(heic|heif|jpe?g|png|webp)$/i.test(f.name));
+    e.target.value = '';
+    for(const f of nouveaux){
+      if(liste.some(x=> x.f.name === f.name && x.f.size === f.size)) continue;
+      liste.push({ f, id: Math.random().toString(36).slice(2), etat: 'attente' });
+    }
+    liste.sort((a, b)=> a.f.lastModified - b.f.lastModified);       // ordre chronologique
+    afficher();
+  });
+  function afficher(){
+    const g = $('grille');
+    g.innerHTML = '';
+    for(const it of liste){
+      const d = document.createElement('div');
+      d.className = 'vg' + (it.etat === 'fait' ? ' fait' : it.etat === 'erreur' ? ' erreur' : it.etat === 'encours' ? ' encours' : '');
+      d.dataset.id = it.id;
+      if(!it.apercu) it.apercu = URL.createObjectURL(it.f);
+      d.innerHTML = `<img src="${it.apercu}" alt="" loading="lazy" decoding="async">`
+        + (envoiEnCours || it.etat === 'fait' ? '' : '<button class="x" type="button" aria-label="Retirer">×</button>')
+        + (it.etat === 'encours' ? '<span class="etat">envoi…</span>' : it.etat === 'erreur' ? '<span class="etat">échec</span>' : '');
+      const x = d.querySelector('.x');
+      if(x) x.onclick = ()=>{ URL.revokeObjectURL(it.apercu); liste = liste.filter(y=> y !== it); afficher(); };
+      g.append(d);
+    }
+    const reste = liste.filter(x=> x.etat !== 'fait').length;
+    const mo = liste.reduce((s, x)=> s + x.f.size, 0) / 1048576;
+    $('resume').hidden = !liste.length;
+    $('r-nb').textContent = `${liste.length} photo${liste.length > 1 ? 's' : ''} · ${mo.toFixed(mo < 10 ? 1 : 0)} Mo avant allègement`;
+    $('envoyer').disabled = envoiEnCours || !reste;
+    $('envoyer').textContent = envoiEnCours ? 'Envoi en cours…' : reste ? `Envoyer ${reste} photo${reste > 1 ? 's' : ''}` : 'Envoyer les photos';
+    $('vider').hidden = envoiEnCours;
+  }
+  $('vider').onclick = ()=>{ liste.forEach(x=> URL.revokeObjectURL(x.apercu)); liste = []; afficher(); };
+
+  // ---------- Allègement dans le navigateur ----------
+  async function decoder(f){
+    if('createImageBitmap' in window){
+      try{ return await createImageBitmap(f, { imageOrientation: 'from-image' }); }catch(e){}
+    }
+    return new Promise((ok, ko)=>{
+      const u = URL.createObjectURL(f), img = new Image();
+      img.onload = ()=>{ URL.revokeObjectURL(u); ok(img); };
+      img.onerror = ()=>{ URL.revokeObjectURL(u); ko(new Error('format non lisible')); };
+      img.src = u;
+    });
+  }
+  async function alleger(f){
+    const img = await decoder(f);
+    const w0 = img.width || img.naturalWidth, h0 = img.height || img.naturalHeight;
+    const r = Math.min(1, MAX / Math.max(w0, h0));
+    const w = Math.round(w0 * r), h = Math.round(h0 * r);
+    const c = document.createElement('canvas'); c.width = w; c.height = h;
+    const ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high';
+    ctx.drawImage(img, 0, 0, w, h);
+    if(img.close) img.close();
+    const blob = await new Promise(ok=> c.toBlob(ok, 'image/jpeg', QUALITE));
+    c.width = c.height = 0;                       // libère la mémoire (téléphones)
+    if(!blob) throw new Error('allègement impossible');
+    return blob;
+  }
+  function nomPhoto(f, i){
+    const d = new Date(f.lastModified || Date.now());
+    const alea = Math.random().toString(36).slice(2, 6);
+    return `p-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}-${p2(i % 100)}${alea}.jpg`;
+  }
+
+  // ---------- Envoi ----------
+  async function fonction(corps){
+    const h = { apikey: CLE, 'Content-Type': 'application/json' }; if(CLE.startsWith('eyJ')) h.Authorization = 'Bearer ' + CLE;
+    const r = await fetch(`${BASE}/functions/v1/envoyer-notification`, { method: 'POST', headers: h, body: JSON.stringify({ code, ...corps }) });
+    const j = await r.json().catch(()=> ({}));
+    if(j.erreur) throw new Error(/titre est obligatoire/i.test(j.erreur) ? 'La fonction envoyer-notification doit être mise à jour dans Supabase (voir LISEZMOI, partie 19).' : j.erreur);
+    if(!r.ok) throw new Error('Erreur ' + r.status);
+    return j;
+  }
+  async function liensEnvoi(chemins){
+    const out = {};
+    for(let i = 0; i < chemins.length; i += 30){
+      const j = await fonction({ action: 'televerser', chemins: chemins.slice(i, i + 30) });
+      for(const u of j.urls || []) out[u.chemin] = u.url;
+    }
+    return out;
+  }
+  async function deposer(url, corps, type){
+    const h = { apikey: CLE, 'Content-Type': type, 'x-upsert': 'false' }; if(CLE.startsWith('eyJ')) h.Authorization = 'Bearer ' + CLE;
+    const r = await fetch(url, { method: 'PUT', headers: h, body: corps });
+    if(!r.ok) throw new Error('stockage ' + r.status);
+  }
+  function dire(html, k){ const m = $('msg'); m.innerHTML = html; m.className = 'msg ' + k; m.hidden = false; }
+
+  $('envoyer').onclick = async ()=>{
+    $('msg').hidden = true; $('apres').hidden = true;
+    let dossier, titreAffiche;
+    if(mode() === 'nouveau'){
+      const t = $('a-titre').value.trim();
+      if(!$('a-date').value){ dire('Choisissez la date de l\'album.', 'err'); return; }
+      if(t.length < 3){ dire('Donnez un titre à l\'album (3 caractères au moins).', 'err'); $('a-titre').focus(); return; }
+      dossier = nomDossier($('a-date').value, t); titreAffiche = t;
+      if(dossier.length < 14){ dire('Ce titre ne contient pas assez de lettres utilisables.', 'err'); return; }
+    }else{
+      dossier = $('a-liste').value;
+      if(!dossier){ dire('Choisissez l\'album.', 'err'); return; }
+      titreAffiche = (await G.titre(dossier)) || dossier.replace(/^\d{4}-\d{2}(-\d{2})?[\s_-]+/, '');
+    }
+    const aEnvoyer = liste.filter(x=> x.etat !== 'fait');
+    if(!aEnvoyer.length) return;
+    envoiEnCours = true; afficher();
+    $('progression').hidden = false;
+    let verrou = null;
+    try{ if(navigator.wakeLock) verrou = await navigator.wakeLock.request('screen'); }catch(e){}   // l'écran ne s'éteint pas pendant l'envoi
+    let faits = 0, echecs = 0, octets = 0;
+    const maj = ()=>{
+      const n = aEnvoyer.length;
+      $('barre').style.width = Math.round(100 * (faits + echecs) / n) + '%';
+      $('p-texte').textContent = `${faits} / ${n} envoyée${faits > 1 ? 's' : ''}` + (echecs ? ` · ${echecs} échec${echecs > 1 ? 's' : ''}` : '') + (octets ? ` · ${(octets / 1048576).toFixed(1)} Mo envoyés` : '');
+    };
+    maj();
+    try{
+      aEnvoyer.forEach((it, i)=>{ if(!it.nom) it.nom = nomPhoto(it.f, i); it.etat = 'attente'; });
+      const chemins = aEnvoyer.map(it=> `${dossier}/${it.nom}`);
+      const nouvelAlbum = mode() === 'nouveau';
+      if(nouvelAlbum) chemins.push(`${dossier}/_album.json`);
+      const liens = await liensEnvoi(chemins);
+      if(nouvelAlbum){
+        await deposer(liens[`${dossier}/_album.json`], new Blob([JSON.stringify({ titre: titreAffiche, date: $('a-date').value })], { type: 'application/json' }), 'application/json');
+      }
+      let k = 0;
+      async function ouvrier(){
+        while(k < aEnvoyer.length){
+          const it = aEnvoyer[k++];
+          it.etat = 'encours'; afficher();
+          try{
+            const blob = await alleger(it.f);
+            let essai = 0;
+            for(;;){
+              try{ await deposer(liens[`${dossier}/${it.nom}`], blob, 'image/jpeg'); break; }
+              catch(e){ if(++essai >= 3) throw e; await new Promise(r=> setTimeout(r, 1500 * essai)); }
+            }
+            octets += blob.size; it.etat = 'fait'; faits++;
+          }catch(e){ it.etat = 'erreur'; it.erreur = e.message; echecs++; }
+          afficher(); maj();
+        }
+      }
+      await Promise.all(Array.from({ length: EN_PARALLELE }, ouvrier));
+      const lienAlbum = 'galerie.html#' + encodeURIComponent(dossier);
+      $('voir-album').href = lienAlbum;
+      let texte = `${faits} photo${faits > 1 ? 's' : ''} ajoutée${faits > 1 ? 's' : ''} à « ${esc(titreAffiche)} ».`;
+      if(echecs) texte += ` <b>${echecs} n'ont pas pu être envoyées</b> (format non lisible ou connexion coupée) : touchez « Envoyer » pour réessayer.`;
+      if(faits && $('alerte').checked){
+        try{
+          const r = await fonction({ titre: '📸 Nouvel album', message: `${titreAffiche} — ${faits} photo${faits > 1 ? 's' : ''} à découvrir dans la galerie.`, lien: './' + lienAlbum });
+          texte += ` 🔔 Alerte envoyée à ${r.envoyes || 0} abonné${(r.envoyes || 0) > 1 ? 's' : ''}.`;
+          $('alerte').checked = false;
+        }catch(e){ texte += ` ⚠️ Alerte non envoyée (${esc(e.message)}).`; }
+      }
+      if(faits) texte += ' Les versions rapides pour la galerie seront prêtes dans le quart d\'heure.';
+      dire(texte, echecs && !faits ? 'err' : 'ok');
+      $('apres').hidden = !faits;
+      if(nouvelAlbum && faits){
+        // les prochains envois vont dans le même album
+        document.querySelector('input[name=mode][value=existant]').checked = true;
+        $('bloc-nouveau').hidden = true; $('bloc-existant').hidden = false;
+        const sel = $('a-liste');
+        if(![...sel.options].some(o=> o.value === dossier)){ const o = document.createElement('option'); o.value = dossier; o.textContent = $('a-date').value + ' · ' + titreAffiche; sel.prepend(o); }
+        sel.value = dossier;
+      }
+    }catch(e){
+      dire(esc(e.message), 'err');
+    }finally{
+      envoiEnCours = false; afficher();
+      if(verrou) try{ verrou.release(); }catch(e){}
+    }
+  };
+  $('encore').onclick = ()=>{
+    liste.filter(x=> x.etat === 'fait').forEach(x=> URL.revokeObjectURL(x.apercu));
+    liste = liste.filter(x=> x.etat !== 'fait'); afficher();
+    $('apres').hidden = true; $('msg').hidden = true; $('progression').hidden = true;
+    $('fichiers').click();
+  };
+  window.addEventListener('beforeunload', (e)=>{ if(envoiEnCours){ e.preventDefault(); e.returnValue = ''; } });
+})();
+</script>
+</body>
+</html>
