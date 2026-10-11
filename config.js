@@ -11,7 +11,7 @@ window.OC_CONFIG = {
     tiktok:    'https://www.tiktok.com/@lobjectifchalonn',
     instagram: 'https://www.instagram.com/lobjectifchalonnais',
     youtube:   'https://www.youtube.com/@lobjectifchalonnais',
-    facebook:  ''   // à remettre quand la page sera réactivée
+    facebook:  'https://www.facebook.com/lObjectif.Chalonnais'
   },
 
   // ---------- Contact ----------
