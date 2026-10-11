@@ -420,12 +420,14 @@
   <div class="oc-nav-links">
     <a href="index.html" aria-current="page">Accueil</a>
     <a href="actus.html">Actus</a>
+    <a href="direct.html">Direct</a>
     <a href="jeux.html">Jeux</a>
     <a href="bons-plans.html">Bons plans</a>
     <a href="galerie.html">Galerie</a>
     <a href="quiz.html">Quiz</a>
   </div>
 </nav>
+<a class="oc-direct-bandeau" id="oc-bandeau-direct" href="direct.html" hidden></a>
 
 <main>
   <section class="hero" id="hero">
@@ -440,13 +442,13 @@
           <a class="btn btn-main" href="bons-plans.html">Explorer les bons plans</a>
           <a class="btn btn-ghost" href="galerie.html">Voir la galerie</a>
         </div>
-        <p class="stat-ligne" id="stat-ligne" hidden><strong>164 000</strong> personnes nous suivaient sur Facebook. Merci d'être là, ici aussi.</p>
+        <p class="stat-ligne" id="stat-ligne" hidden><strong>164 000</strong> personnes nous suivent sur Facebook. Merci d'être là, ici aussi.</p>
         <p class="stat-ligne compteur" id="compteur" hidden><strong data-nb>0</strong><span>visites sur le site depuis le <span data-depuis></span></span></p>
       </div>
       <div class="finder vf" id="finder" aria-label="Notre communauté">
         <div>Notre communauté</div>
         <div class="big">164 000</div>
-        <p class="caption">personnes nous suivaient sur Facebook. Merci d'être là, ici aussi.</p>
+        <p class="caption">personnes nous suivent sur Facebook. Merci d'être là, ici aussi.</p>
         <dl>
           <dt>Lieu</dt><dd>Châlons-en-Champagne, Marne</dd>
           <dt>Coord.</dt><dd>48°57′ N · 4°22′ E</dd>
@@ -457,10 +459,7 @@
   </section>
 
   <div class="wrap">
-    <div class="notice" role="status">
-      <p><strong>Notre page Facebook est suspendue pour le moment.</strong> Une demande de réexamen est en cours auprès de Meta. En attendant, retrouvez-nous ici et sur nos autres réseaux.</p>
-      <a href="#nous-suivre">Nous suivre →</a>
-    </div>
+    <a class="oc-prochain" id="oc-prochain-direct" href="direct.html" hidden></a>
   </div>
 
   <section id="derniers-albums" hidden>
@@ -681,6 +680,7 @@
 </footer>
 
 <script src="config.js"></script>
+<script src="direct.js" defer></script>
 <script src="compteur.js" defer></script>
 <script src="storage.js"></script>
 <script>

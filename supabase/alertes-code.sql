@@ -2,8 +2,8 @@
 -- ALERTES : UN SEUL CODE — L'Objectif Châlonnais
 -- Permet à la fonction d'envoi des alertes de vérifier le code modérateur.
 -- À coller dans Supabase : SQL Editor → New query → Run.
--- Nécessite securite.sql (et actus.sql / jeux.sql pour les alertes
--- automatiques). Peut être relancé sans risque.
+-- Nécessite securite.sql (et actus.sql / jeux.sql / direct.sql pour les
+-- alertes automatiques). Peut être relancé sans risque.
 -- =====================================================================
 create or replace function public.oc_verifier_code_serveur(p_code text, p_ip text)
 returns boolean language plpgsql volatile security definer set search_path = '' as $$
@@ -94,6 +94,19 @@ begin
                                       || (select string_agg(g, ', ') from jsonb_array_elements_text(r.gagnants) g)
                                       || ' ! Merci à tous pour votre participation.', 200),
         'lien', './jeux.html#jeu-' || r.slug);
+    end loop;
+  end if;
+  -- Direct lancé depuis l'Espace équipe (direct.sql)
+  if to_regclass('public.direct') is not null then
+    for r in
+      update public.direct d set alerte_le = now()
+      where d.en_direct and d.alerte_auto and d.alerte_le is null and d.debut > now() - interval '1 hour'
+      returning d.titre
+    loop
+      res := res || jsonb_build_object(
+        'type', 'direct', 'titre', '🔴 On est en direct !',
+        'message', oc_private.resume(coalesce(nullif(btrim(r.titre), ''), 'Rejoignez-nous') || ' — à suivre maintenant sur le site.', 200),
+        'lien', './direct.html');
     end loop;
   end if;
   return res;

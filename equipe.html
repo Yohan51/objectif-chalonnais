@@ -106,6 +106,12 @@
         <p>Créer un jeu, faire le tirage au sort, publier les gagnants.</p>
         <span class="etat" id="e-jeux">…</span>
       </a>
+      <a class="outil" href="direct-equipe.html">
+        <span class="badge" id="b-direct" hidden>● LIVE</span>
+        <span class="ico" aria-hidden="true">🔴</span><h2>Direct</h2>
+        <p>Lancer un direct YouTube sur le site, annoncer le prochain.</p>
+        <span class="etat" id="e-direct">…</span>
+      </a>
       <a class="outil" href="envoyer.html">
         <span class="ico" aria-hidden="true">🔔</span><h2>Envoyer une alerte</h2>
         <p>Prévenir tous les abonnés sur leur téléphone.</p>
@@ -141,6 +147,7 @@
         <a class="btn" href="rediger.html">+ Nouvel article</a>
         <a class="btn ghost" href="tirage.html#nouveau">+ Nouveau jeu</a>
         <a class="btn ghost" href="envoyer.html">+ Nouvelle alerte</a>
+        <a class="btn ghost" href="direct-equipe.html">🔴 Lancer un direct</a>
       </div>
     </section>
 
@@ -235,6 +242,19 @@
       const sem = j.slice(-7).reduce((s, d)=> s + d.visites, 0);
       etat('e-stats', `<b>${plur(auj, 'visite')}</b> aujourd'hui · ${sem.toLocaleString('fr-FR')} sur 7 jours`);
     }catch(e){ etat('e-stats', 'Compteur pas encore installé'); }
+    // Direct (données publiques)
+    try{
+      const base = (cfg.supabaseUrl || '').replace(/\/+$/, ''), cle = cfg.supabaseCle || '';
+      const h = { apikey: cle }; if(cle.startsWith('eyJ')) h.Authorization = 'Bearer ' + cle;
+      const r = await fetch(`${base}/rest/v1/direct?id=eq.1&select=en_direct,debut,titre,prochain_le,prochain_titre`, { headers: h, cache:'no-store' });
+      if(!r.ok) throw new Error('absent');
+      const d = (await r.json())[0] || {};
+      const live = d.en_direct && d.debut && Date.now() - new Date(d.debut) < 8 * 3600e3;
+      $('b-direct').hidden = !live;
+      etat('e-direct', live ? `<b>En direct</b> depuis ${new Date(d.debut).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }).replace(':', 'h')}`
+        : (d.prochain_le && new Date(d.prochain_le) > Date.now()) ? `Prochain : <b>${new Date(d.prochain_le).toLocaleDateString('fr-FR', { weekday:'short', day:'numeric', month:'short' })}</b>`
+        : 'Pas de direct en cours');
+    }catch(e){ etat('e-direct', 'À installer (direct.sql)'); }
     // Bons plans : événements en attente et signalements (données publiques)
     try{
       const base = (cfg.supabaseUrl || '').replace(/\/+$/, ''), cle = cfg.supabaseCle || '';

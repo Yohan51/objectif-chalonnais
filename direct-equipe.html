@@ -1,0 +1,280 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Régie du direct — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --tile:#E3EDF2;
+    --sky:#2E97C7; --err:#C0472F; --ok:#2E7D57; --ok-bg:#E5F4EC; --btn:#183140; --btn-ink:#F4F8FA;
+    --rouge:#C8231E; --rouge-vif:#E5322D; --rouge-bg:#FDECEB;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C;
+      --sky:#6CC1EA; --err:#F08A73; --ok:#6FCF97; --ok-bg:#163A2A; --btn:#EAF4F9; --btn-ink:#0F2230;
+      --rouge:#F0675F; --rouge-bg:#3D1F1D; color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;}
+  a{color:var(--sky);}
+  .wrap{max-width:760px;margin:0 auto;padding:24px 20px 64px;}
+  h1,h2{font-family:var(--font-display);line-height:1.1;margin:0;}
+  .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;}
+  .top button{background:none;border:none;color:var(--sky);font:inherit;text-decoration:underline;cursor:pointer;padding:0;}
+  h1{font-size:clamp(30px,5vw,42px);font-weight:800;margin-top:22px;}
+  .sous{color:var(--ink-soft);margin:8px 0 22px;}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;}
+  .carte h2{font-size:22px;font-weight:800;margin-bottom:12px;}
+  label.l{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin:14px 0 5px;}
+  label.l:first-of-type{margin-top:0;}
+  input[type=text],input[type=url],input[type=datetime-local]{width:100%;font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);}
+  input:focus{outline:none;border-color:var(--sky);}
+  .hint{font-size:13px;color:var(--muted);margin:5px 0 0;}
+  .case{display:flex;gap:10px;align-items:center;font-weight:700;margin-top:16px;cursor:pointer;}
+  .case input{width:18px;height:18px;accent-color:var(--ink);}
+  .btn{font:inherit;font-weight:800;border:2px solid var(--btn);border-radius:999px;padding:10px 20px;background:var(--btn);color:var(--btn-ink);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;gap:8px;}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn:disabled{opacity:.5;}
+  .btn.go{background:var(--rouge-vif);border-color:var(--rouge-vif);color:#fff;font-size:18px;padding:14px 26px;}
+  .btn.go::before{content:'';width:12px;height:12px;border-radius:50%;background:#fff;}
+  .actions{display:flex;gap:10px;flex-wrap:wrap;margin-top:20px;align-items:center;}
+  .msg{margin-top:14px;font-size:14.5px;padding:12px 14px;border-radius:10px;}
+  .msg.ok{background:var(--ok-bg);color:var(--ok);}
+  .msg.err{background:var(--rouge-bg);color:var(--err);}
+  /* état en direct */
+  .antenne{display:flex;align-items:center;gap:14px;flex-wrap:wrap;background:var(--rouge-bg);border:2px solid var(--rouge-vif);border-radius:16px;padding:18px 20px;margin-bottom:18px;}
+  .antenne .pastille{display:inline-flex;align-items:center;gap:8px;font-family:var(--font-mono);font-size:13px;letter-spacing:.1em;text-transform:uppercase;background:var(--rouge-vif);color:#fff;border-radius:999px;padding:6px 12px;}
+  .antenne .pastille::before{content:'';width:9px;height:9px;border-radius:50%;background:#fff;animation:pouls 1.4s ease-in-out infinite;}
+  @keyframes pouls{50%{opacity:.25;}}
+  .antenne .t{flex:1;min-width:200px;}
+  .antenne strong{display:block;font-size:18px;}
+  .antenne span.d{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);}
+  .hors{display:flex;align-items:center;gap:10px;color:var(--ink-soft);font-weight:700;margin-bottom:18px;}
+  .hors::before{content:'';width:10px;height:10px;border-radius:50%;background:var(--muted);}
+  ol.etapes{margin:0;padding-left:20px;color:var(--ink-soft);font-size:14.5px;}
+  ol.etapes li{margin-bottom:6px;}
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;margin:14px 0 10px;}
+  .err{color:var(--err);font-size:14px;}
+  .ligne2{display:grid;grid-template-columns:minmax(0,1.4fr) minmax(0,1fr);gap:12px;}
+  @media (max-width:600px){ .ligne2{grid-template-columns:minmax(0,1fr);} .btn.go{width:100%;justify-content:center;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="vue-login" data-equipe-login>
+    <h1>Régie du direct</h1>
+    <p>Espace réservé à l'équipe.</p>
+    <input type="password" id="l-code" placeholder="Code de l'équipe" autocomplete="current-password">
+    <button class="btn" id="l-btn" type="submit" style="width:100%;justify-content:center">Ouvrir</button>
+    <p class="err" id="l-msg" hidden></p>
+  </form>
+
+  <main id="vue-app" hidden>
+    <div class="top">
+      <a href="equipe.html">⌂ Espace équipe</a>
+      <span><a href="direct.html" target="_blank" rel="noopener">Voir la page Direct ↗</a> · <button type="button" id="btn-quitter">Se déconnecter</button></span>
+    </div>
+    <h1>Régie du direct</h1>
+    <p class="sous">Lancez le direct sur YouTube, puis touchez « On est en direct » : le site affiche le direct et les abonnés reçoivent une alerte.</p>
+
+    <div class="antenne" id="antenne" hidden>
+      <span class="pastille">À l'antenne</span>
+      <div class="t"><strong id="a-titre"></strong><span class="d" id="a-debut"></span></div>
+      <button class="btn ghost" type="button" id="btn-arreter">⏹ Terminer le direct</button>
+    </div>
+    <div class="hors" id="hors">Pas de direct en cours sur le site.</div>
+
+    <section class="carte">
+      <h2 id="f-titre-carte">Lancer un direct</h2>
+      <form id="f-direct" novalidate>
+        <label class="l" for="f-titre">Titre du direct</label>
+        <input type="text" id="f-titre" maxlength="120" placeholder="Ex. Marché de Noël : on fait le tour des chalets">
+        <label class="l" for="f-lien">Lien du direct YouTube <span style="font-weight:600">(conseillé)</span></label>
+        <input type="url" id="f-lien" inputmode="url" placeholder="https://youtube.com/live/…" autocomplete="off" spellcheck="false">
+        <p class="hint">Dans l'appli YouTube, pendant le direct : <b>Partager → Copier le lien</b>. Avec le lien, le site affiche aussi le tchat. Sans lien, le site montre le direct en cours de la chaîne.</p>
+        <label class="case"><input type="checkbox" id="f-alerte" checked> 🔔 Prévenir les abonnés par une alerte</label>
+        <div class="actions">
+          <button class="btn go" type="submit" id="btn-lancer">On est en direct</button>
+        </div>
+      </form>
+      <div class="msg" id="msg-direct" hidden></div>
+    </section>
+
+    <section class="carte">
+      <h2>Annoncer le prochain direct</h2>
+      <form id="f-prochain" novalidate>
+        <div class="ligne2">
+          <div><label class="l" for="p-titre">Sujet</label><input type="text" id="p-titre" maxlength="120" placeholder="Ex. Match du CCRB au Capitole"></div>
+          <div><label class="l" for="p-date">Date et heure</label><input type="datetime-local" id="p-date"></div>
+        </div>
+        <p class="hint">Affiché sur l'accueil et sur la page Direct. L'annonce disparaît d'elle-même quand le direct commence.</p>
+        <div class="actions">
+          <button class="btn" type="submit" id="btn-prochain">Annoncer</button>
+          <button class="btn ghost" type="button" id="btn-retirer" hidden>Retirer l'annonce</button>
+        </div>
+      </form>
+      <div class="msg" id="msg-prochain" hidden></div>
+    </section>
+
+    <section class="carte">
+      <h2>Le jour J, dans l'ordre</h2>
+      <ol class="etapes">
+        <li>Ouvrez l'appli <b>YouTube</b> → <b>+</b> → <b>Passer en direct</b>, donnez un titre et lancez.</li>
+        <li>Copiez le lien du direct (<b>Partager → Copier le lien</b>).</li>
+        <li>Ici : collez le lien, puis <b>On est en direct</b>. L'alerte part aux abonnés.</li>
+        <li>À la fin : <b>Terminer le direct</b> ici. Le replay apparaît tout seul sur la page Direct dans l'heure.</li>
+      </ol>
+      <p class="hint">Oubli de terminer ? Le site retire le bandeau tout seul au bout de 8 heures.</p>
+    </section>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="equipe.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  let code = null, etat = null;
+
+  // Identifiant de vidéo à partir de n'importe quel lien YouTube
+  function idVideo(t){
+    t = (t || '').trim();
+    if(!t) return '';
+    if(/^[A-Za-z0-9_-]{11}$/.test(t)) return t;
+    try{
+      const u = new URL(t.startsWith('http') ? t : 'https://' + t);
+      if(!/(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)youtube-nocookie\.com$/.test(u.hostname)) return null;
+      if(u.hostname.endsWith('youtu.be')) return (u.pathname.split('/')[1] || '').slice(0, 11) || null;
+      if(u.searchParams.get('v')) return u.searchParams.get('v').slice(0, 11);
+      const m = u.pathname.match(/\/(live|shorts|embed|v)\/([A-Za-z0-9_-]{11})/);
+      return m ? m[2] : null;
+    }catch(e){ return null; }
+  }
+  function versLocal(iso){
+    const d = new Date(iso); const p = n=> String(n).padStart(2,'0');
+    return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
+  }
+  function dire(id, html, kind){ const m = $(id); m.innerHTML = html; m.className = 'msg ' + kind; m.hidden = false; }
+  async function lireEtat(){
+    const cfg = window.OC_CONFIG || {};
+    const base = (cfg.supabaseUrl || '').replace(/\/+$/, ''), cle = cfg.supabaseCle || '';
+    const h = { apikey: cle }; if(cle.startsWith('eyJ')) h.Authorization = 'Bearer ' + cle;
+    const r = await fetch(`${base}/rest/v1/direct?id=eq.1&select=*`, { headers: h, cache:'no-store' });
+    if(!r.ok) throw new Error('Les directs ne sont pas encore installés : exécutez supabase/direct.sql dans Supabase.');
+    return (await r.json())[0] || {};
+  }
+  function enDirect(e){ return e && e.en_direct && e.debut && Date.now() - new Date(e.debut) < 8 * 3600e3; }
+  function afficher(e){
+    etat = e;
+    const live = enDirect(e);
+    $('antenne').hidden = !live; $('hors').hidden = live;
+    if(live){
+      $('a-titre').textContent = e.titre || 'Direct sans titre';
+      $('a-debut').textContent = 'depuis ' + new Date(e.debut).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }).replace(':', 'h')
+        + (e.alerte_le ? ' · 🔔 alerte envoyée' : (e.alerte_auto ? ' · alerte en cours d\'envoi' : ' · sans alerte'));
+      $('f-titre-carte').textContent = 'Modifier le direct en cours';
+      $('btn-lancer').textContent = 'Mettre à jour';
+    }else{
+      $('f-titre-carte').textContent = 'Lancer un direct';
+      $('btn-lancer').textContent = 'On est en direct';
+    }
+    if(live || !$('f-titre').value){
+      $('f-titre').value = live ? (e.titre || '') : ($('f-titre').value || e.prochain_titre || '');
+      if(live) $('f-lien').value = e.video_id ? 'https://youtube.com/live/' + e.video_id : '';
+    }
+    const annonce = e.prochain_le && new Date(e.prochain_le) > Date.now() - 2 * 3600e3;
+    $('btn-retirer').hidden = !annonce;
+    if(annonce && document.activeElement !== $('p-date')){ $('p-titre').value = e.prochain_titre || ''; $('p-date').value = versLocal(e.prochain_le); }
+  }
+
+  async function connecter(c){
+    await A.rpc('oc_actus_redaction', { p_code: c });      // vérifie le code
+    code = c; OCEquipe.memoriser(c);
+    $('vue-login').hidden = true; $('vue-app').hidden = false;
+    try{ afficher(await lireEtat()); }catch(e){ dire('msg-direct', esc(e.message), 'err'); }
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{ OCEquipe.oublier(); location.reload(); };
+  (async ()=>{
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ if(/incorrect/i.test(e.message)) OCEquipe.oublier(); } }
+    if(!code) $('l-code').focus();
+  })();
+
+  $('f-direct').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const id = idVideo($('f-lien').value);
+    if(id === null){ dire('msg-direct', 'Ce lien n\'est pas un lien YouTube reconnu. Copiez le lien de partage du direct, ou laissez la case vide.', 'err'); $('f-lien').focus(); return; }
+    const dejaLive = enDirect(etat);
+    const b = $('btn-lancer'); b.disabled = true; b.textContent = 'Un instant…';
+    try{
+      const r = await A.rpc('oc_direct_lancer', { p_code: code, p_titre: $('f-titre').value.trim(), p_video: id || '', p_alerte: $('f-alerte').checked });
+      let texte = dejaLive ? 'Direct mis à jour sur le site.' : '🔴 C\'est parti : le site affiche le direct.';
+      if(r.alerte_auto && !r.alerte_le){
+        b.textContent = 'Envoi de l\'alerte…';
+        const al = await OCEquipe.alertesAuto();
+        texte += ' ' + (OCEquipe.texteAlerte(al) || '');
+        r.alerte_le = al && al.alertes ? new Date().toISOString() : r.alerte_le;
+      }else if(!dejaLive && r.alerte_auto && r.alerte_le){
+        texte += ' (Alerte déjà envoyée il y a moins de 30 minutes : pas de deuxième alerte.)';
+      }
+      afficher(r);
+      dire('msg-direct', esc(texte), 'ok');
+    }catch(err){ dire('msg-direct', esc(/function|find/i.test(err.message) ? 'Exécutez d\'abord supabase/direct.sql dans Supabase.' : err.message), 'err'); }
+    finally{ b.disabled = false; afficher(etat || {}); }
+  });
+
+  $('btn-arreter').onclick = async ()=>{
+    if(!confirm('Terminer le direct sur le site ?\n(Pensez aussi à l\'arrêter dans YouTube.)')) return;
+    try{
+      afficher(await A.rpc('oc_direct_arreter', { p_code: code }));
+      $('f-lien').value = '';
+      dire('msg-direct', 'Direct terminé sur le site. Le replay apparaîtra sur la page Direct dans l\'heure.', 'ok');
+    }catch(err){ dire('msg-direct', esc(err.message), 'err'); }
+  };
+
+  $('f-prochain').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    if(!$('p-date').value){ dire('msg-prochain', 'Choisissez la date et l\'heure du prochain direct.', 'err'); return; }
+    try{
+      const le = new Date($('p-date').value).toISOString();
+      afficher(await A.rpc('oc_direct_prochain', { p_code: code, p_titre: $('p-titre').value.trim(), p_le: le }));
+      dire('msg-prochain', 'Annonce en ligne sur l\'accueil et la page Direct.', 'ok');
+    }catch(err){ dire('msg-prochain', esc(err.message), 'err'); }
+  });
+  $('btn-retirer').onclick = async ()=>{
+    try{
+      afficher(await A.rpc('oc_direct_prochain', { p_code: code, p_titre: '', p_le: null }));
+      $('p-titre').value = ''; $('p-date').value = '';
+      dire('msg-prochain', 'Annonce retirée.', 'ok');
+    }catch(err){ dire('msg-prochain', esc(err.message), 'err'); }
+  };
+  setInterval(async ()=>{ if(code && !document.hidden){ try{ afficher(await lireEtat()); }catch(e){} } }, 30000);
+})();
+</script>
+</body>
+</html>

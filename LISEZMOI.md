@@ -369,6 +369,28 @@ Quand tu publies un article (*Publier maintenant*), une alerte part **toute seul
 2. **Supabase → Edge Functions → envoyer-notification → Code** : remplace tout le code par le contenu du fichier `supabase/envoyer-notification.ts`, puis *Deploy*. (Les secrets ne changent pas.)
 3. **GitHub** : rien à faire, le robot qui fabrique les aperçus envoie aussi les alertes des articles programmés.
 
+## 17. Les directs (YouTube)
+
+Les directs se font sur la **chaîne YouTube** (les replays y restent), et se regardent sur le site, page **Direct**.
+
+### Installation (une seule fois)
+
+1. **Supabase → SQL Editor** : exécute `supabase/direct.sql`, puis à nouveau `supabase/alertes-code.sql` (pour l'alerte automatique au lancement du direct).
+2. **GitHub** : remplace le contenu de `.github/workflows/apercus.yml` (crayon ✏️ → tout sélectionner → coller → *Commit changes*). Le robot récupère alors tes dernières vidéos YouTube toutes les 15 minutes (fichier `data/videos.json`).
+3. **YouTube Studio** : active le direct sur la chaîne dès maintenant (le premier peut demander jusqu'à 24 h). Depuis un téléphone, il faut au moins 50 abonnés et une chaîne vérifiée.
+
+### Le jour du direct
+
+1. Lance le direct dans l'appli YouTube, puis copie son lien (*Partager → Copier le lien*).
+2. **Espace équipe → Direct** : colle le lien, donne un titre, touche **On est en direct**. Le bandeau rouge apparaît sur l'accueil, un point rouge s'allume sur « Direct » dans le menu et une alerte part vers les abonnés.
+3. À la fin : **Terminer le direct**. (Oubli ? Le bandeau disparaît tout seul au bout de 8 heures.)
+
+- **Sans lien**, le site affiche le direct en cours de la chaîne, mais sans le tchat. Avec le lien, le tchat YouTube s'affiche à côté.
+- **Coupure réseau** : relancer moins de 30 minutes après n'envoie pas de deuxième alerte.
+- **Annoncer le prochain direct** : même page, date et sujet. L'annonce s'affiche sur l'accueil et la page Direct, et disparaît quand le direct commence.
+- Membres et administrateur peuvent tous lancer un direct.
+- Autre chaîne YouTube ? Ajoute `youtubeChaineId: 'UC…'` dans `config.js`.
+
 ## Bon à savoir
 
 - **Modération** : lien *Espace modérateur* en bas de la page des bons plans, avec le code choisi à la section 7.

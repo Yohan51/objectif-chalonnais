@@ -1,0 +1,390 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Les directs — L'Objectif Châlonnais</title>
+<meta name="description" content="Les directs vidéo de L'Objectif Châlonnais : événements, sport et vie locale à Châlons-en-Champagne, en direct et en replay.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="L'Objectif Châlonnais">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="En direct — L'Objectif Châlonnais">
+<meta property="og:description" content="Suivez nos directs depuis Châlons-en-Champagne, et retrouvez toutes nos vidéos en replay.">
+<meta property="og:url" content="https://lobjectifchalonnais.fr/direct.html">
+<meta property="og:image" content="https://lobjectifchalonnais.fr/icons/partage.jpg">
+<meta property="og:image:width" content="1200">
+<meta property="og:image:height" content="630">
+<meta name="twitter:card" content="summary_large_image">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-title" content="L'Objectif">
+<meta name="apple-mobile-web-app-status-bar-style" content="default">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7; --tile:#E3EDF2; --rouge:#C8231E; --rouge-vif:#E5322D;
+    --ecran:#0F2230;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+      --rouge:#F0675F; --ecran:#08151E; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; --tile:#1D3A4C;
+    --rouge:#F0675F; --ecran:#08151E; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.55;}
+  a{color:var(--sky-deep);}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .wrap{max-width:1180px;margin:0 auto;padding-inline:20px;padding-block:0 64px;}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.12;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .page-head{padding-block:40px 24px;display:flex;justify-content:space-between;align-items:flex-end;gap:16px;flex-wrap:wrap;}
+  .page-head h1{font-size:clamp(34px,5vw,52px);font-weight:800;margin-top:8px;}
+  .page-head p{color:var(--ink-soft);max-width:58ch;margin:10px 0 0;}
+  .btn{
+    display:inline-flex;align-items:center;justify-content:center;gap:8px;font:inherit;font-weight:800;font-size:15px;
+    padding:11px 18px;border-radius:999px;border:2px solid var(--line);background:var(--surface);color:var(--ink);cursor:pointer;text-decoration:none;
+  }
+  .btn:hover{border-color:var(--sky-deep);}
+  .btn-main{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .btn-main:hover{background:var(--sky-deep);border-color:var(--sky-deep);}
+  .btn:disabled{opacity:.55;cursor:not-allowed;}
+
+  /* Scène : lecteur + tchat */
+  .scene{display:grid;grid-template-columns:minmax(0,1fr);gap:18px;}
+  .scene.avec-tchat{grid-template-columns:minmax(0,1fr) 360px;}
+  .ecran{position:relative;aspect-ratio:16/9;background:var(--ecran);border-radius:18px;overflow:hidden;}
+  .ecran iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  .facade{
+    position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
+    border:0;width:100%;cursor:pointer;color:#fff;font:inherit;text-align:center;padding:24px;
+    background:
+      radial-gradient(120% 90% at 20% 10%, rgba(46,151,199,.35), transparent 60%),
+      radial-gradient(90% 80% at 90% 100%, rgba(200,35,30,.35), transparent 60%),
+      var(--ecran);
+    background-size:cover;background-position:center;
+  }
+  .facade.avec-image::after{content:'';position:absolute;inset:0;background:linear-gradient(180deg,rgba(8,21,30,.25),rgba(8,21,30,.7));}
+  .facade > *{position:relative;z-index:1;}
+  .lire{
+    width:84px;height:84px;border-radius:50%;background:var(--rouge-vif);display:grid;place-items:center;
+    box-shadow:0 10px 40px rgba(229,50,45,.45);transition:transform .15s ease;
+  }
+  .lire::before{content:'';margin-left:6px;border-style:solid;border-width:16px 0 16px 26px;border-color:transparent transparent transparent #fff;}
+  .facade:hover .lire{transform:scale(1.06);}
+  .facade strong{font-family:var(--font-display);font-size:clamp(22px,3vw,30px);line-height:1.15;max-width:22ch;}
+  .facade small{font-size:12.5px;opacity:.75;max-width:46ch;}
+  .ecran-vide{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;color:#fff;text-align:center;padding:24px;
+    background:radial-gradient(120% 90% at 20% 10%, rgba(46,151,199,.30), transparent 60%), var(--ecran);}
+  .ecran-vide .gros{font-family:var(--font-display);font-size:clamp(24px,3.4vw,36px);font-weight:800;line-height:1.1;}
+  .ecran-vide p{margin:0;opacity:.8;max-width:44ch;}
+  .ecran-vide .date{font-family:var(--font-display);font-size:clamp(28px,4.4vw,46px);font-weight:800;color:#9FD8F5;line-height:1.05;}
+  .viseur{position:absolute;width:26px;height:26px;border-color:rgba(255,255,255,.55);border-style:solid;border-width:0;pointer-events:none;z-index:2;}
+  .viseur.hg{top:14px;left:14px;border-top-width:2px;border-left-width:2px;}
+  .viseur.hd{top:14px;right:14px;border-top-width:2px;border-right-width:2px;}
+  .viseur.bg{bottom:14px;left:14px;border-bottom-width:2px;border-left-width:2px;}
+  .viseur.bd{bottom:14px;right:14px;border-bottom-width:2px;border-right-width:2px;}
+  .rec{position:absolute;top:16px;left:50px;z-index:2;display:none;}
+  .scene.live .rec{display:inline-flex;}
+  .tchat{background:var(--surface);border:1px solid var(--line);border-radius:18px;overflow:hidden;display:flex;flex-direction:column;min-height:0;}
+  .tchat iframe{flex:1;width:100%;border:0;min-height:420px;background:var(--surface);}
+  .tchat-tete{padding:12px 16px;border-bottom:1px solid var(--line);font-weight:800;display:flex;justify-content:space-between;gap:8px;font-size:14.5px;}
+  .tchat-attente{flex:1;display:flex;align-items:center;justify-content:center;padding:24px;text-align:center;color:var(--ink-soft);font-size:14.5px;}
+  .sous-ecran{display:flex;justify-content:space-between;align-items:flex-start;gap:12px 20px;flex-wrap:wrap;margin-top:14px;}
+  .sous-ecran h2{font-size:clamp(22px,2.6vw,28px);font-weight:800;}
+  .sous-ecran .meta{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);margin-top:4px;}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;}
+
+  /* Être prévenu */
+  .prevenir{margin-top:22px;display:flex;align-items:center;gap:14px 20px;flex-wrap:wrap;background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:18px 20px;}
+  .prevenir p{margin:0;flex:1;min-width:220px;color:var(--ink-soft);}
+  .prevenir strong{color:var(--ink);}
+
+  /* Vidéos */
+  .section-titre{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;margin:48px 0 18px;}
+  .section-titre h2{font-size:clamp(26px,3vw,32px);font-weight:800;}
+  .videos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:20px;}
+  .video{display:flex;flex-direction:column;gap:10px;text-align:left;background:none;border:0;padding:0;font:inherit;color:inherit;cursor:pointer;}
+  .vignette{position:relative;aspect-ratio:16/9;border-radius:14px;overflow:hidden;background:var(--tile);}
+  .vignette img{width:100%;height:100%;object-fit:cover;display:block;transition:transform .3s ease;}
+  .video:hover .vignette img{transform:scale(1.04);}
+  .vignette::after{
+    content:'';position:absolute;left:12px;bottom:12px;width:40px;height:40px;border-radius:50%;
+    background:rgba(15,34,48,.78) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='%23fff' d='M8 5v14l11-7z'/%3E%3C/svg%3E") center/20px no-repeat;
+  }
+  .video.en-lecture .vignette{outline:3px solid var(--rouge);outline-offset:2px;}
+  .video h3{font-family:var(--font-body);font-size:16px;font-weight:800;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden;}
+  .video .quand{font-family:var(--font-mono);font-size:12px;color:var(--ink-soft);}
+  .tag-court{position:absolute;top:10px;right:10px;font-family:var(--font-mono);font-size:11px;background:rgba(15,34,48,.8);color:#fff;border-radius:999px;padding:2px 8px;}
+  .videos-vide{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;color:var(--ink-soft);}
+  .note-yt{font-size:12.5px;color:var(--ink-soft);margin-top:28px;}
+
+  @media (max-width:980px){ .scene.avec-tchat{grid-template-columns:minmax(0,1fr);} .tchat iframe{min-height:380px;} }
+  @media (max-width:860px){ .videos{grid-template-columns:repeat(2,minmax(0,1fr));} }
+  @media (max-width:560px){
+    .wrap{padding-inline:16px;}
+    .ecran{border-radius:12px;margin-inline:-4px;}
+    .videos{grid-template-columns:minmax(0,1fr);gap:22px;}
+    .rec{left:44px;}
+    .lire{width:68px;height:68px;}
+    .facade strong,.facade small{display:none;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="actus.html">Actus</a>
+    <a href="direct.html" aria-current="page">Direct</a>
+    <a href="jeux.html">Jeux</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <div class="page-head">
+    <div>
+      <p class="eyebrow">En vidéo</p>
+      <h1>Les directs</h1>
+      <p>Événements, sport, vie locale : on vous emmène sur place, en direct depuis Châlons. Et toutes nos vidéos en replay.</p>
+    </div>
+    <a class="btn" id="lien-chaine" href="https://www.youtube.com/@LObjectifCh%C3%A2lonnais" target="_blank" rel="noopener">Notre chaîne YouTube ↗</a>
+  </div>
+
+  <section class="scene" id="scene" aria-live="polite">
+    <div>
+      <div class="ecran" id="ecran">
+        <span class="viseur hg"></span><span class="viseur hd"></span><span class="viseur bg"></span><span class="viseur bd"></span>
+        <span class="oc-live-pastille rec">En direct</span>
+        <div class="ecran-vide" id="ecran-attente"><p>Chargement…</p></div>
+      </div>
+      <div class="sous-ecran" id="sous-ecran" hidden>
+        <div>
+          <h2 id="titre-lecture"></h2>
+          <div class="meta" id="meta-lecture"></div>
+        </div>
+        <div class="actions" id="actions-lecture"></div>
+      </div>
+    </div>
+    <aside class="tchat" id="tchat" hidden>
+      <div class="tchat-tete"><span>💬 Le tchat du direct</span><a id="tchat-lien" href="#" target="_blank" rel="noopener">Écrire ↗</a></div>
+      <div class="tchat-attente" id="tchat-attente">Le tchat s'affiche quand vous lancez la vidéo.</div>
+    </aside>
+  </section>
+
+  <div class="prevenir" id="prevenir" hidden>
+    <p><strong>Ne manquez pas le prochain direct.</strong> Activez les alertes : vous serez prévenu sur votre téléphone dès qu'on lance la caméra.</p>
+    <button class="btn btn-main" type="button" id="btn-prevenir">🔔 Me prévenir</button>
+  </div>
+
+  <div class="section-titre">
+    <h2>Nos dernières vidéos</h2>
+    <a href="https://www.youtube.com/@LObjectifCh%C3%A2lonnais/videos" target="_blank" rel="noopener">Toutes les vidéos sur YouTube ↗</a>
+  </div>
+  <div class="videos" id="videos"></div>
+  <p class="note-yt">Les vidéos sont diffusées par YouTube : rien n'est chargé depuis YouTube tant que vous n'avez pas lancé une vidéo. <a href="mentions-legales.html#confidentialite">En savoir plus</a></p>
+</main>
+
+<footer class="oc-pied">
+  <span>© L'Objectif Châlonnais · Association loi 1901</span>
+  <a href="mentions-legales.html">Mentions légales et confidentialité</a>
+</footer>
+
+<script src="config.js"></script>
+<script src="direct.js"></script>
+<script src="compteur.js" defer></script>
+<script src="app.js"></script>
+<script src="push.js"></script>
+<script src="chat.js"></script>
+<script>
+(function(){
+  const $ = (id)=> document.getElementById(id);
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  const D = window.OCDirect;
+  const CHAINE = D.CHAINE;
+  let etat = null;          // dernier état du direct
+  let lecture = null;       // { type:'live'|'video', id }
+  let videos = [];
+
+  const majuscule = (t)=> t.charAt(0).toUpperCase() + t.slice(1);
+  function heure(iso){ return new Date(iso).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }).replace(':', 'h'); }
+  function jour(iso){
+    const d = new Date(iso), j = Math.floor((Date.now() - d) / 864e5);
+    if(j < 1 && new Date().toDateString() === d.toDateString()) return 'aujourd\'hui';
+    if(j < 2) return 'hier';
+    if(j < 7) return `il y a ${j} jours`;
+    return d.toLocaleDateString('fr-FR', { day:'numeric', month:'long', year: d.getFullYear() === new Date().getFullYear() ? undefined : 'numeric' });
+  }
+  function iframe(src, titre){
+    const f = document.createElement('iframe');
+    f.src = src; f.title = titre || 'Vidéo';
+    f.allow = 'autoplay; encrypted-media; picture-in-picture; fullscreen; web-share';
+    f.allowFullscreen = true; f.referrerPolicy = 'strict-origin-when-cross-origin';
+    return f;
+  }
+  function viderEcran(){ $('ecran').querySelectorAll('iframe,.facade,.ecran-vide').forEach(n=> n.remove()); }
+  function boutonYT(href, txt){ return `<a class="btn" href="${esc(href)}" target="_blank" rel="noopener">${esc(txt)} ↗</a>`; }
+
+  // ---------- Direct en cours ----------
+  function urlLive(){
+    return etat.video
+      ? `https://www.youtube.com/embed/${encodeURIComponent(etat.video)}?autoplay=1&playsinline=1&rel=0`
+      : `https://www.youtube.com/embed/live_stream?channel=${encodeURIComponent(CHAINE)}&autoplay=1&playsinline=1&rel=0`;
+  }
+  function lienLive(){ return etat.video ? `https://www.youtube.com/watch?v=${encodeURIComponent(etat.video)}` : `https://www.youtube.com/channel/${encodeURIComponent(CHAINE)}/live`; }
+  function afficherLive(){
+    $('scene').classList.add('live');
+    $('prevenir').hidden = true;
+    const avecTchat = !!etat.video;
+    $('scene').classList.toggle('avec-tchat', avecTchat);
+    $('tchat').hidden = !avecTchat;
+    if(avecTchat) $('tchat-lien').href = `https://www.youtube.com/live_chat?v=${encodeURIComponent(etat.video)}`;
+    $('titre-lecture').textContent = etat.titre || 'L\'Objectif Châlonnais en direct';
+    $('meta-lecture').textContent = etat.debut ? `En direct depuis ${heure(etat.debut)}` : 'En direct';
+    $('actions-lecture').innerHTML = boutonYT(lienLive(), 'Ouvrir sur YouTube');
+    $('sous-ecran').hidden = false;
+    if(lecture && lecture.type === 'live' && lecture.id === (etat.video || 'chaine')) return;   // déjà en lecture : on ne coupe pas
+    lecture = null;
+    viderEcran();
+    const f = document.createElement('button');
+    f.type = 'button'; f.className = 'facade';
+    if(etat.video){ f.classList.add('avec-image'); f.style.backgroundImage = `url("https://i.ytimg.com/vi/${encodeURIComponent(etat.video)}/hqdefault_live.jpg")`; }
+    f.innerHTML = `<span class="lire" aria-hidden="true"></span><strong>${esc(etat.titre || 'Regarder le direct')}</strong><small>Touchez pour lancer le direct. La vidéo est diffusée par YouTube.</small>`;
+    f.setAttribute('aria-label', 'Regarder le direct');
+    f.onclick = lancerLive;
+    $('ecran').append(f);
+    if(avecTchat) $('tchat-attente').hidden = false, $('tchat').querySelectorAll('iframe').forEach(n=> n.remove());
+  }
+  function lancerLive(){
+    viderEcran();
+    $('ecran').append(iframe(urlLive(), etat.titre || 'Direct'));
+    lecture = { type:'live', id: etat.video || 'chaine' };
+    marquerVideo(null);
+    if(etat.video && !$('tchat').hidden && !$('tchat').querySelector('iframe')){
+      $('tchat-attente').hidden = true;
+      $('tchat').append(iframe(`https://www.youtube.com/live_chat?v=${encodeURIComponent(etat.video)}&embed_domain=${encodeURIComponent(location.hostname)}`, 'Tchat du direct'));
+    }
+  }
+
+  // ---------- Pas de direct ----------
+  function afficherAttente(){
+    $('scene').classList.remove('live', 'avec-tchat');
+    $('tchat').hidden = true; $('tchat').querySelectorAll('iframe').forEach(n=> n.remove());
+    if(lecture && lecture.type === 'video') return;        // une vidéo est en cours de lecture : on la laisse
+    lecture = null;
+    viderEcran();
+    $('sous-ecran').hidden = true;
+    const v = document.createElement('div'); v.className = 'ecran-vide';
+    if(etat && etat.prochain){
+      v.innerHTML = `<p>Prochain direct</p><div class="date">${esc(majuscule(D.dateFr(etat.prochain.le)))}</div>${etat.prochain.titre ? `<p>${esc(etat.prochain.titre)}</p>` : ''}`;
+    }else{
+      v.innerHTML = `<div class="gros">Pas de direct en ce moment</div><p>Retrouvez nos dernières vidéos juste en dessous, ou activez les alertes pour être prévenu du prochain direct.</p>`;
+    }
+    $('ecran').append(v);
+    majPrevenir();
+  }
+
+  // ---------- Vidéos (replays) ----------
+  function jouerVideo(v){
+    viderEcran();
+    $('ecran').append(iframe(`https://www.youtube-nocookie.com/embed/${encodeURIComponent(v.id)}?autoplay=1&playsinline=1&rel=0`, v.titre));
+    lecture = { type:'video', id: v.id };
+    $('titre-lecture').textContent = v.titre;
+    $('meta-lecture').textContent = v.date ? 'Publiée ' + (jour(v.date) === 'aujourd\'hui' || jour(v.date) === 'hier' ? jour(v.date) : (/^il y a/.test(jour(v.date)) ? jour(v.date) : 'le ' + jour(v.date))) : '';
+    const retour = etat && etat.live ? `<button class="btn btn-main" type="button" id="retour-live">🔴 Revenir au direct</button>` : (etat && !etat.live ? `<button class="btn" type="button" id="fermer-video">Fermer</button>` : '');
+    $('actions-lecture').innerHTML = retour + boutonYT(`https://www.youtube.com/watch?v=${encodeURIComponent(v.id)}`, 'Ouvrir sur YouTube');
+    $('sous-ecran').hidden = false;
+    const r = $('retour-live'); if(r) r.onclick = ()=>{ lecture = null; afficherLive(); lancerLive(); };
+    const fe = $('fermer-video'); if(fe) fe.onclick = ()=>{ lecture = null; marquerVideo(null); afficherAttente(); };
+    marquerVideo(v.id);
+    $('ecran').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  function marquerVideo(id){ document.querySelectorAll('.video').forEach(b=> b.classList.toggle('en-lecture', b.dataset.id === id)); }
+  async function chargerVideos(){
+    const zone = $('videos');
+    try{
+      const r = await fetch('data/videos.json', { cache:'no-cache' });
+      if(!r.ok) throw new Error();
+      videos = ((await r.json()).videos || []).slice(0, 12);
+    }catch(e){ videos = []; }
+    if(!videos.length){
+      zone.innerHTML = `<p class="videos-vide">Les vidéos de notre chaîne apparaîtront ici. En attendant, <a href="https://www.youtube.com/@LObjectifCh%C3%A2lonnais/videos" target="_blank" rel="noopener">retrouvez-les sur YouTube</a>.</p>`;
+      return;
+    }
+    zone.innerHTML = '';
+    videos.forEach(v=>{
+      const b = document.createElement('button');
+      b.type = 'button'; b.className = 'video'; b.dataset.id = v.id;
+      b.innerHTML = `<span class="vignette"><img src="https://i.ytimg.com/vi/${encodeURIComponent(v.id)}/mqdefault.jpg" alt="" loading="lazy" decoding="async">${v.court ? '<span class="tag-court">Short</span>' : ''}</span>
+        <h3>${esc(v.titre)}</h3><span class="quand">${esc(v.date ? jour(v.date) : '')}</span>`;
+      b.onclick = ()=> jouerVideo(v);
+      zone.append(b);
+    });
+    // lien direct vers une vidéo : direct.html#v=ID
+    const m = location.hash.match(/^#v=([A-Za-z0-9_-]{11})$/);
+    if(m){ const v = videos.find(x=> x.id === m[1]) || { id: m[1], titre: 'Vidéo' }; jouerVideo(v); }
+  }
+
+  // ---------- Alertes ----------
+  async function majPrevenir(){
+    const OA = window.OCAlertes, p = $('prevenir');
+    if(etat && etat.live){ p.hidden = true; return; }
+    if(!OA || (!OA.disponible && !OA.iphoneSansAppli)){ p.hidden = true; return; }
+    if(OA.disponible && await OA.abonnement()){ p.hidden = true; return; }
+    p.hidden = false;
+    const b = $('btn-prevenir');
+    if(OA.iphoneSansAppli){
+      b.textContent = 'Comment faire ?';
+      b.onclick = ()=>{ p.querySelector('p').innerHTML = '<strong>Sur iPhone, les alertes passent par l\'application.</strong> Touchez Partager puis « Sur l\'écran d\'accueil », ouvrez l\'appli L\'Objectif, puis revenez ici.'; b.hidden = true; };
+      return;
+    }
+    b.onclick = async ()=>{
+      b.disabled = true;
+      try{
+        const r = await OA.activer();
+        if(r === 'refuse') p.querySelector('p').innerHTML = '<strong>Alertes refusées.</strong> Vous pourrez les autoriser plus tard dans les réglages de votre téléphone.';
+        else if(await OA.abonnement()) p.querySelector('p').innerHTML = '<strong>C\'est noté !</strong> Vous serez prévenu dès le prochain direct.', b.hidden = true;
+      }catch(e){}
+      b.disabled = false;
+    };
+  }
+
+  // ---------- État du direct ----------
+  document.addEventListener('oc-direct', (e)=>{
+    const avant = etat;
+    etat = e.detail;
+    if(etat.live){
+      if(lecture && lecture.type === 'video') return;     // le visiteur regarde un replay : il a le bouton « Revenir au direct »
+      afficherLive();
+    }else{
+      if(avant && avant.live && lecture && lecture.type === 'live'){ lecture = null; }  // le direct vient de se terminer
+      afficherAttente();
+    }
+  });
+
+  chargerVideos();
+})();
+</script>
+</body>
+</html>
