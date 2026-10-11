@@ -387,6 +387,9 @@
     background:var(--surface);border:1px solid var(--line);border-radius:12px;padding:12px 14px;
   }
   .contact-line span{user-select:all;word-break:break-all;min-width:0;flex:1;}
+  .btn-appel{justify-content:center;gap:8px;background:var(--surface);color:var(--ink);border:2px solid var(--line);}
+  .btn-appel:hover{border-color:var(--sky-deep);}
+  .appel-num{font-family:var(--font-mono);font-weight:500;font-size:14px;color:var(--ink-soft);}
   .copy{
     font:inherit;font-family:var(--font-body);font-weight:800;font-size:13px;
     border:none;background:var(--ink);color:var(--bg);
@@ -655,6 +658,7 @@
       </div>
       <div class="contact">
         <div class="contact-line"><span id="contact-email">lobjectifchalonnais@gmail.com</span><button class="copy" type="button" id="copy-email">Copier</button></div>
+        <a class="btn btn-appel" id="appel-btn" href="#" hidden><span aria-hidden="true">📞</span> Nous appeler <span class="appel-num" id="appel-num"></span></a>
         <a class="btn btn-main" id="dons-btn" href="#" target="_blank" rel="noopener" hidden>Soutenir l'association</a>
       </div>
     </div>
@@ -707,6 +711,18 @@
 
   // Contact
   if(cfg.contact) document.getElementById('contact-email').textContent = cfg.contact;
+  // Bouton « Nous appeler » (numéro réglé dans config.js : telephone)
+  if(cfg.telephone){
+    const num = String(cfg.telephone).trim();
+    const tel = num.replace(/[^\d+]/g, '').replace(/^0033/, '+33');
+    if(tel.length >= 10){
+      const b = document.getElementById('appel-btn');
+      b.href = 'tel:' + tel;
+      document.getElementById('appel-num').textContent = num;
+      b.setAttribute('aria-label', 'Nous appeler au ' + num);
+      b.hidden = false;
+    }
+  }
   document.getElementById('copy-email').onclick = async (e)=>{
     const txt = document.getElementById('contact-email').textContent;
     try{ await navigator.clipboard.writeText(txt); e.target.textContent = 'Copié'; }
