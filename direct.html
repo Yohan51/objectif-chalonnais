@@ -167,7 +167,7 @@
     <div>
       <p class="eyebrow">En vidéo</p>
       <h1>Les directs</h1>
-      <p>Événements, sport, vie locale : on vous emmène sur place, en direct depuis Châlons. Et toutes nos vidéos en replay.</p>
+      <p>Événements, sport, vie locale : on vous emmène sur place, en direct depuis Châlons, que le direct soit lancé sur YouTube ou sur Facebook. Et toutes nos vidéos en replay.</p>
     </div>
     <a class="btn" id="lien-chaine" href="https://www.youtube.com/@LObjectifCh%C3%A2lonnais" target="_blank" rel="noopener">Notre chaîne YouTube ↗</a>
   </div>
@@ -203,7 +203,7 @@
     <a href="https://www.youtube.com/@LObjectifCh%C3%A2lonnais/videos" target="_blank" rel="noopener">Toutes les vidéos sur YouTube ↗</a>
   </div>
   <div class="videos" id="videos"></div>
-  <p class="note-yt">Les vidéos sont diffusées par YouTube : rien n'est chargé depuis YouTube tant que vous n'avez pas lancé une vidéo. <a href="mentions-legales.html#confidentialite">En savoir plus</a></p>
+  <p class="note-yt">Les vidéos sont diffusées par YouTube (et par Facebook pour certains directs) : rien n'est chargé depuis ces services tant que vous n'avez pas lancé une vidéo. <a href="mentions-legales.html#confidentialite">En savoir plus</a></p>
 </main>
 
 <footer class="oc-pied">
@@ -248,29 +248,36 @@
 
   // ---------- Direct en cours ----------
   function urlLive(){
+    if(etat.fb) return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(etat.fb)}&show_text=false&autoplay=true&allowfullscreen=true&width=1280`;
     return etat.video
       ? `https://www.youtube.com/embed/${encodeURIComponent(etat.video)}?autoplay=1&playsinline=1&rel=0`
       : `https://www.youtube.com/embed/live_stream?channel=${encodeURIComponent(CHAINE)}&autoplay=1&playsinline=1&rel=0`;
   }
-  function lienLive(){ return etat.video ? `https://www.youtube.com/watch?v=${encodeURIComponent(etat.video)}` : `https://www.youtube.com/channel/${encodeURIComponent(CHAINE)}/live`; }
+  function lienLive(){
+    if(etat.fb) return etat.fb;
+    return etat.video ? `https://www.youtube.com/watch?v=${encodeURIComponent(etat.video)}` : `https://www.youtube.com/channel/${encodeURIComponent(CHAINE)}/live`;
+  }
+  function cleLive(){ return etat.fb || etat.video || 'chaine'; }
   function afficherLive(){
     $('scene').classList.add('live');
     $('prevenir').hidden = true;
-    const avecTchat = !!etat.video;
+    const avecTchat = !!etat.video && !etat.fb;
     $('scene').classList.toggle('avec-tchat', avecTchat);
     $('tchat').hidden = !avecTchat;
     if(avecTchat) $('tchat-lien').href = `https://www.youtube.com/live_chat?v=${encodeURIComponent(etat.video)}`;
     $('titre-lecture').textContent = etat.titre || 'L\'Objectif Châlonnais en direct';
-    $('meta-lecture').textContent = etat.debut ? `En direct depuis ${heure(etat.debut)}` : 'En direct';
-    $('actions-lecture').innerHTML = boutonYT(lienLive(), 'Ouvrir sur YouTube');
+    $('meta-lecture').textContent = (etat.debut ? `En direct depuis ${heure(etat.debut)}` : 'En direct') + (etat.fb ? ' · sur Facebook' : '');
+    $('actions-lecture').innerHTML = etat.fb
+      ? boutonYT(lienLive(), '💬 Commenter sur Facebook')
+      : boutonYT(lienLive(), 'Ouvrir sur YouTube');
     $('sous-ecran').hidden = false;
-    if(lecture && lecture.type === 'live' && lecture.id === (etat.video || 'chaine')) return;   // déjà en lecture : on ne coupe pas
+    if(lecture && lecture.type === 'live' && lecture.id === cleLive()) return;   // déjà en lecture : on ne coupe pas
     lecture = null;
     viderEcran();
     const f = document.createElement('button');
     f.type = 'button'; f.className = 'facade';
     if(etat.video){ f.classList.add('avec-image'); f.style.backgroundImage = `url("https://i.ytimg.com/vi/${encodeURIComponent(etat.video)}/hqdefault_live.jpg")`; }
-    f.innerHTML = `<span class="lire" aria-hidden="true"></span><strong>${esc(etat.titre || 'Regarder le direct')}</strong><small>Touchez pour lancer le direct. La vidéo est diffusée par YouTube.</small>`;
+    f.innerHTML = `<span class="lire" aria-hidden="true"></span><strong>${esc(etat.titre || 'Regarder le direct')}</strong><small>Touchez pour lancer le direct. La vidéo est diffusée par ${etat.fb ? 'Facebook' : 'YouTube'}.</small>`;
     f.setAttribute('aria-label', 'Regarder le direct');
     f.onclick = lancerLive;
     $('ecran').append(f);
@@ -279,7 +286,7 @@
   function lancerLive(){
     viderEcran();
     $('ecran').append(iframe(urlLive(), etat.titre || 'Direct'));
-    lecture = { type:'live', id: etat.video || 'chaine' };
+    lecture = { type:'live', id: cleLive() };
     marquerVideo(null);
     if(etat.video && !$('tchat').hidden && !$('tchat').querySelector('iframe')){
       $('tchat-attente').hidden = true;

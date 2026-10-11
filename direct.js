@@ -27,6 +27,7 @@
       live: !!v.en_direct && !!v.debut && maint - new Date(v.debut) < DUREE_MAX,
       titre: v.titre || '',
       video: v.video_id || '',
+      fb: v.lien_fb || '',
       debut: v.debut || null,
       prochain: v.prochain_le && new Date(v.prochain_le) > maint - 2 * 3600e3
         ? { le: v.prochain_le, titre: v.prochain_titre || '' } : null
@@ -42,7 +43,7 @@
     if(!base || !cle) return normaliser(null);
     const h = { apikey: cle }; if(cle.startsWith('eyJ')) h.Authorization = 'Bearer ' + cle;
     try{
-      const r = await fetch(`${base}/rest/v1/direct?id=eq.1&select=en_direct,titre,video_id,debut,prochain_titre,prochain_le`, { headers: h, cache: 'no-store' });
+      const r = await fetch(`${base}/rest/v1/direct?id=eq.1&select=*`, { headers: h, cache: 'no-store' });
       if(!r.ok) return normaliser(null);           // directs pas encore installés
       const v = (await r.json())[0] || null;
       try{ sessionStorage.setItem(CLE_CACHE, JSON.stringify({ t: Date.now(), v })); }catch(e){}

@@ -89,7 +89,7 @@
       <span><a href="direct.html" target="_blank" rel="noopener">Voir la page Direct ↗</a> · <button type="button" id="btn-quitter">Se déconnecter</button></span>
     </div>
     <h1>Régie du direct</h1>
-    <p class="sous">Lancez le direct sur YouTube, puis touchez « On est en direct » : le site affiche le direct et les abonnés reçoivent une alerte.</p>
+    <p class="sous">Lancez le direct sur YouTube ou Facebook, collez son lien ici et touchez « On est en direct » : le site affiche le direct et les abonnés reçoivent une alerte.</p>
 
     <div class="antenne" id="antenne" hidden>
       <span class="pastille">À l'antenne</span>
@@ -103,9 +103,11 @@
       <form id="f-direct" novalidate>
         <label class="l" for="f-titre">Titre du direct</label>
         <input type="text" id="f-titre" maxlength="120" placeholder="Ex. Marché de Noël : on fait le tour des chalets">
-        <label class="l" for="f-lien">Lien du direct YouTube <span style="font-weight:600">(conseillé)</span></label>
-        <input type="url" id="f-lien" inputmode="url" placeholder="https://youtube.com/live/…" autocomplete="off" spellcheck="false">
-        <p class="hint">Dans l'appli YouTube, pendant le direct : <b>Partager → Copier le lien</b>. Avec le lien, le site affiche aussi le tchat. Sans lien, le site montre le direct en cours de la chaîne.</p>
+        <label class="l" for="f-lien">Lien du direct, YouTube ou Facebook <span style="font-weight:600">(conseillé)</span></label>
+        <input type="url" id="f-lien" inputmode="url" placeholder="https://youtube.com/live/…  ou  https://www.facebook.com/…/videos/…" autocomplete="off" spellcheck="false">
+        <p class="hint"><b>YouTube</b> : pendant le direct, <b>Partager → Copier le lien</b> (le site affiche aussi le tchat). Sans lien, le site montre le direct en cours de la chaîne YouTube.<br>
+        <b>Facebook</b> : une fois le direct lancé, ouvrez la vidéo sur la page, <b>⋯ → Copier le lien</b> (de préférence depuis un ordinateur : lien en <i>facebook.com/…/videos/…</i>). Le direct doit être <b>public</b>.</p>
+        <p class="hint" id="f-lien-type" hidden></p>
         <label class="case"><input type="checkbox" id="f-alerte" checked> 🔔 Prévenir les abonnés par une alerte</label>
         <div class="actions">
           <button class="btn go" type="submit" id="btn-lancer">On est en direct</button>
@@ -133,10 +135,10 @@
     <section class="carte">
       <h2>Le jour J, dans l'ordre</h2>
       <ol class="etapes">
-        <li>Ouvrez l'appli <b>YouTube</b> → <b>+</b> → <b>Passer en direct</b>, donnez un titre et lancez.</li>
-        <li>Copiez le lien du direct (<b>Partager → Copier le lien</b>).</li>
+        <li>Lancez le direct : appli <b>YouTube</b> (<b>+</b> → <b>Passer en direct</b>) ou page <b>Facebook</b> (<b>Direct</b>, en <b>public</b>).</li>
+        <li>Copiez le lien du direct (YouTube : <b>Partager → Copier le lien</b> · Facebook : <b>⋯ → Copier le lien</b>).</li>
         <li>Ici : collez le lien, puis <b>On est en direct</b>. L'alerte part aux abonnés.</li>
-        <li>À la fin : <b>Terminer le direct</b> ici. Le replay apparaît tout seul sur la page Direct dans l'heure.</li>
+        <li>À la fin : <b>Terminer le direct</b> ici. Les replays YouTube apparaissent tout seuls sur la page Direct dans l'heure.</li>
       </ol>
       <p class="hint">Oubli de terminer ? Le site retire le bandeau tout seul au bout de 8 heures.</p>
     </section>
@@ -153,20 +155,41 @@
   const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
   let code = null, etat = null;
 
-  // Identifiant de vidéo à partir de n'importe quel lien YouTube
-  function idVideo(t){
+  // Lien collé → identifiant YouTube, lien Facebook, '' (vide) ou null (non reconnu)
+  function lienDirect(t){
     t = (t || '').trim();
     if(!t) return '';
     if(/^[A-Za-z0-9_-]{11}$/.test(t)) return t;
-    try{
-      const u = new URL(t.startsWith('http') ? t : 'https://' + t);
-      if(!/(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)youtube-nocookie\.com$/.test(u.hostname)) return null;
-      if(u.hostname.endsWith('youtu.be')) return (u.pathname.split('/')[1] || '').slice(0, 11) || null;
-      if(u.searchParams.get('v')) return u.searchParams.get('v').slice(0, 11);
-      const m = u.pathname.match(/\/(live|shorts|embed|v)\/([A-Za-z0-9_-]{11})/);
-      return m ? m[2] : null;
-    }catch(e){ return null; }
+    // texte copié avec le lien (« Regardez notre direct https://… ») : on garde le lien
+    const m0 = t.match(/https?:\/\/\S+/i) || t.match(/(?:www\.|m\.)?(?:youtube\.com|youtu\.be|facebook\.com|fb\.watch)\/\S*/i);
+    if(m0) t = m0[0];
+    t = t.replace(/[)\].,;!?»"']+$/, '');
+    let u;
+    try{ u = new URL(/^https?:\/\//i.test(t) ? t : 'https://' + t); }catch(e){ return null; }
+    const hote = u.hostname.toLowerCase();
+    if(/(^|\.)facebook\.com$|(^|\.)fb\.watch$|(^|\.)fb\.com$/.test(hote)){
+      u.protocol = 'https:';
+      if(/^(m|web|mbasic|touch)\.facebook\.com$|^fb\.com$|^facebook\.com$/.test(hote)) u.hostname = 'www.facebook.com';
+      ['mibextid', 'rdid', 'share_url', 'ref', 'fs', '__tn__', '__cft__[0]', 'sfnsn', 'extid'].forEach(k=> u.searchParams.delete(k));
+      return u.toString().slice(0, 500);
+    }
+    if(!/(^|\.)youtube\.com$|(^|\.)youtu\.be$|(^|\.)youtube-nocookie\.com$/.test(hote)) return null;
+    if(hote.endsWith('youtu.be')){ const id = (u.pathname.split('/')[1] || '').slice(0, 11); return /^[A-Za-z0-9_-]{11}$/.test(id) ? id : null; }
+    const v = u.searchParams.get('v');
+    if(v && /^[A-Za-z0-9_-]{11}/.test(v)) return v.slice(0, 11);
+    const m = u.pathname.match(/\/(live|shorts|embed|v|video)\/([A-Za-z0-9_-]{11})/);   // youtube.com/live/…, studio.youtube.com/video/…
+    if(m) return m[2];
+    // lien de la chaîne (…/@LObjectifChâlonnais/live, …/channel/…/live) : direct en cours de la chaîne
+    if(/^\/(@[^/]+|channel\/[^/]+|c\/[^/]+|user\/[^/]+)(\/(live|streams|featured))?\/?$/.test(decodeURIComponent(u.pathname))) return '';
+    return null;
   }
+  $('f-lien').addEventListener('input', ()=>{
+    const v = lienDirect($('f-lien').value), i = $('f-lien-type');
+    i.hidden = !$('f-lien').value.trim();
+    i.textContent = v === null ? '⚠️ Lien non reconnu' : v === '' ? '✓ Lien de la chaîne YouTube : le site affichera le direct en cours de la chaîne (sans le tchat)' : /^https:/.test(v)
+      ? (/fb\.watch|\/share\//.test(v) ? '⚠️ Lien Facebook raccourci : il peut ne pas s\'afficher sur le site. Préférez le lien complet en facebook.com/…/videos/…' : '✓ Direct Facebook')
+      : '✓ Direct YouTube';
+  });
   function versLocal(iso){
     const d = new Date(iso); const p = n=> String(n).padStart(2,'0');
     return `${d.getFullYear()}-${p(d.getMonth()+1)}-${p(d.getDate())}T${p(d.getHours())}:${p(d.getMinutes())}`;
@@ -197,7 +220,7 @@
     }
     if(live || !$('f-titre').value){
       $('f-titre').value = live ? (e.titre || '') : ($('f-titre').value || e.prochain_titre || '');
-      if(live) $('f-lien').value = e.video_id ? 'https://youtube.com/live/' + e.video_id : '';
+      if(live) $('f-lien').value = e.lien_fb || (e.video_id ? 'https://youtube.com/live/' + e.video_id : '');
     }
     const annonce = e.prochain_le && new Date(e.prochain_le) > Date.now() - 2 * 3600e3;
     $('btn-retirer').hidden = !annonce;
@@ -227,8 +250,8 @@
 
   $('f-direct').addEventListener('submit', async (e)=>{
     e.preventDefault();
-    const id = idVideo($('f-lien').value);
-    if(id === null){ dire('msg-direct', 'Ce lien n\'est pas un lien YouTube reconnu. Copiez le lien de partage du direct, ou laissez la case vide.', 'err'); $('f-lien').focus(); return; }
+    const id = lienDirect($('f-lien').value);
+    if(id === null){ dire('msg-direct', 'Ce lien n\'est pas reconnu. Collez le lien du direct YouTube (youtube.com/live/…) ou Facebook (facebook.com/…), ou laissez la case vide pour afficher le direct en cours de la chaîne YouTube.', 'err'); $('f-lien').focus(); return; }
     const dejaLive = enDirect(etat);
     const b = $('btn-lancer'); b.disabled = true; b.textContent = 'Un instant…';
     try{
@@ -244,7 +267,13 @@
       }
       afficher(r);
       dire('msg-direct', esc(texte), 'ok');
-    }catch(err){ dire('msg-direct', esc(/function|find/i.test(err.message) ? 'Exécutez d\'abord supabase/direct.sql dans Supabase.' : err.message), 'err'); }
+    }catch(err){
+      const m = err.message || '';
+      const aJour = /^Lien YouTube non reconnu/.test(m) || /lien_fb/.test(m);     // ancienne version de direct.sql
+      dire('msg-direct', esc(/function|find/i.test(m) ? 'Exécutez d\'abord supabase/direct.sql dans Supabase.'
+        : aJour ? 'La base n\'accepte pas encore les liens Facebook : exécutez à nouveau supabase/direct.sql dans Supabase (SQL Editor), puis réessayez.'
+        : m), 'err');
+    }
     finally{ b.disabled = false; afficher(etat || {}); }
   });
 
@@ -253,7 +282,7 @@
     try{
       afficher(await A.rpc('oc_direct_arreter', { p_code: code }));
       $('f-lien').value = '';
-      dire('msg-direct', 'Direct terminé sur le site. Le replay apparaîtra sur la page Direct dans l\'heure.', 'ok');
+      dire('msg-direct', 'Direct terminé sur le site. Pensez à l\'arrêter aussi sur YouTube ou Facebook.', 'ok');
     }catch(err){ dire('msg-direct', esc(err.message), 'err'); }
   };
 
