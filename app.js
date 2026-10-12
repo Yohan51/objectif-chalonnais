@@ -5,10 +5,11 @@
      qui contient un élément #install-banner.
    ============================================================ */
 (function(){
+  // Activation immédiate du service worker (sans attendre la fin du
+  // chargement de la page), pour qu'il soit détecté par les outils
+  // d'analyse comme PWABuilder.
   if('serviceWorker' in navigator){
-    window.addEventListener('load', ()=>{
-      navigator.serviceWorker.register('sw.js').catch(()=>{});
-    });
+    navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
 
   const banner = document.getElementById('install-banner');
