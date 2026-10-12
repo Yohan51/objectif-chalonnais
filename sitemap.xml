@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
-  <url><loc>https://lobjectifchalonnais.fr/</loc><lastmod>2026-10-11</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
-  <url><loc>https://lobjectifchalonnais.fr/actus.html</loc><lastmod>2026-10-11</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
-  <url><loc>https://lobjectifchalonnais.fr/a/</loc><lastmod>2026-10-11</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
+  <url><loc>https://lobjectifchalonnais.fr/</loc><lastmod>2026-10-12</lastmod><changefreq>daily</changefreq><priority>1.0</priority></url>
+  <url><loc>https://lobjectifchalonnais.fr/actus.html</loc><lastmod>2026-10-12</lastmod><changefreq>hourly</changefreq><priority>0.9</priority></url>
+  <url><loc>https://lobjectifchalonnais.fr/a/</loc><lastmod>2026-10-12</lastmod><changefreq>daily</changefreq><priority>0.8</priority></url>
   <url><loc>https://lobjectifchalonnais.fr/agenda.html</loc><changefreq>daily</changefreq><priority>0.8</priority></url>
   <url><loc>https://lobjectifchalonnais.fr/direct.html</loc><changefreq>daily</changefreq><priority>0.6</priority></url>
   <url><loc>https://lobjectifchalonnais.fr/jeux.html</loc><changefreq>daily</changefreq><priority>0.7</priority></url>
@@ -12,6 +12,7 @@
   <url><loc>https://lobjectifchalonnais.fr/proposer.html</loc><changefreq>monthly</changefreq><priority>0.4</priority></url>
   <url><loc>https://lobjectifchalonnais.fr/partenaires.html</loc><changefreq>monthly</changefreq><priority>0.5</priority></url>
   <url><loc>https://lobjectifchalonnais.fr/mentions-legales.html</loc><changefreq>yearly</changefreq><priority>0.1</priority></url>
+  <url><loc>https://lobjectifchalonnais.fr/a/fermeture-administrative-d-un-commerce-pour-manquements-aux-regles-d-hygiene.html</loc><lastmod>2026-10-12</lastmod></url>
   <url><loc>https://lobjectifchalonnais.fr/a/un-nouveau-laboratoire-bioxa-attendu-rive-gauche.html</loc><lastmod>2026-10-11</lastmod></url>
   <url><loc>https://lobjectifchalonnais.fr/a/un-derby-haut-en-couleur.html</loc><lastmod>2026-10-11</lastmod></url>
   <url><loc>https://lobjectifchalonnais.fr/a/un-derby-intense-du-spectacle-et-des-emotions.html</loc><lastmod>2026-10-11</lastmod></url>
