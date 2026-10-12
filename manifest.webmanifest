@@ -16,6 +16,11 @@
     { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any" },
     { "src": "icons/icon-maskable-512.png", "sizes": "512x512", "type": "image/png", "purpose": "maskable" }
   ],
+  "screenshots": [
+    { "src": "captures/capture-accueil.jpg", "sizes": "1170x2532", "type": "image/jpeg", "form_factor": "narrow", "label": "Accueil : Châlons, vu par ceux qui y vivent" },
+    { "src": "captures/capture-actus.jpg", "sizes": "1170x2532", "type": "image/jpeg", "form_factor": "narrow", "label": "L'actualité locale de Châlons-en-Champagne" },
+    { "src": "captures/capture-bons-plans.jpg", "sizes": "1170x2532", "type": "image/jpeg", "form_factor": "narrow", "label": "Le guide des bons plans de Châlons" }
+  ],
   "shortcuts": [
     { "name": "Actus", "url": "./actus.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
     { "name": "Jeux concours", "url": "./jeux.html", "icons": [{ "src": "icons/icon-192.png", "sizes": "192x192" }] },
