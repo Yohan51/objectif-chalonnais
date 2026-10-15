@@ -12,6 +12,11 @@
 //     Les originaux ne sont jamais modifiés.
 //  2. Écrit data/galerie.json : la liste des albums et des photos, lue par
 //     la galerie et l'accueil en une seule fois (au lieu d'une requête par album).
+//  3. Alertes différées : quand la page « Ajouter des photos » a demandé une
+//     alerte (champ « alerte » du fichier <album>/_album.json), l'alerte part
+//     au passage qui suit la mise en ligne des versions rapides de toutes les
+//     photos de l'album. Demande le code de l'équipe dans le secret GitHub
+//     CODE_EQUIPE (même endroit que SUPABASE_SERVICE_KEY).
 //
 // Les vignettes demandent la clé secrète de Supabase, rangée dans GitHub :
 // Settings → Secrets and variables → Actions → New repository secret
@@ -59,6 +64,7 @@ async function lister(prefix){
 const estDossier = (o)=> o.id === null || (!o.metadata && !IMG.test(o.name));
 
 async function main(){
+  const debut = Date.now();
   // ---------- Inventaire ----------
   const albums = (await lister('')).filter(estDossier).map(o=> o.name).filter(n=> !n.startsWith('_') && !n.startsWith('.')).sort();
   const inventaire = {};
@@ -126,11 +132,11 @@ async function main(){
   }
 
   // ---------- Titres avec accents (fichier _album.json créé par la page « Ajouter des photos ») ----------
-  const titres = {};
+  const titres = {}, infosAlbums = {};
   for(const a of albums){
     try{
-      const r = await fetch(`${SUPABASE}/storage/v1/object/public/${BUCKET}/${enc(a + '/_album.json')}`);
-      if(r.ok){ const j = await r.json(); if(j && typeof j.titre === 'string' && j.titre.trim()) titres[a] = j.titre.trim().slice(0, 100); }
+      const r = await fetch(`${SUPABASE}/storage/v1/object/public/${BUCKET}/${enc(a + '/_album.json')}`, { cache: 'no-store' });
+      if(r.ok){ const j = await r.json(); infosAlbums[a] = j; if(j && typeof j.titre === 'string' && j.titre.trim()) titres[a] = j.titre.trim().slice(0, 100); }
     }catch(e){}
   }
 
@@ -152,9 +158,55 @@ async function main(){
     fs.writeFileSync(fichier, JSON.stringify({ maj: new Date().toISOString(), ...JSON.parse(json) }) + '\n');
     console.log('data/galerie.json mis à jour.');
   }
+  await alertesDifferees(albums, inventaire, ancien, infosAlbums, debut);
+
   const total = Object.values(inventaire).reduce((s, l)=> s + l.length, 0);
   const pretes = Object.values(faites).reduce((s, l)=> s + l.size, 0);
   console.log(`${albums.length} album(s), ${total} photo(s), ${pretes} avec vignettes · ${traitees - erreurs} fabriquée(s) à ce passage${erreurs ? `, ${erreurs} erreur(s)` : ''}.`);
+}
+
+// ---------- Alertes différées ----------
+// Une alerte part quand toutes les photos de l'album figuraient déjà, avec leurs
+// versions rapides, dans le data/galerie.json publié au passage précédent :
+// les abonnés qui ouvrent l'alerte trouvent donc un album qui s'affiche vite.
+async function alertesDifferees(albums, inventaire, ancien, infos, debut){
+  const CODE = (process.env.CODE_EQUIPE || '').trim();
+  for(const a of albums){
+    const al = infos[a] && infos[a].alerte;
+    if(!al || typeof al !== 'object') continue;
+    const demandee = Date.parse(al.demandee || '') || 0;
+    if(demandee > debut) continue;                               // demandée pendant ce passage : on attend le suivant
+    const trop = Date.now() - demandee > 48 * 3600 * 1000;       // plus de 2 jours : on n'annonce plus
+    const publiees = new Map((ancien[a] || []).map(p=> [p.n, p]));
+    const pret = inventaire[a].length > 0 && inventaire[a].every(n=> publiees.get(n) && publiees.get(n).v);
+    if(!pret && !trop){ console.log(`Alerte « ${a} » : en attente des versions rapides.`); continue; }
+    if(!CLE_SECRETE){ console.log(`Alerte « ${a} » en attente : il manque le secret SUPABASE_SERVICE_KEY.`); continue; }
+    let resultat = null;
+    if(trop){
+      console.log(`Alerte « ${a} » abandonnée (demandée il y a plus de 2 jours).`);
+    }else{
+      if(!CODE){ console.log(`Alerte « ${a} » prête mais pas envoyée : ajoute le secret CODE_EQUIPE dans GitHub.`); continue; }
+      try{
+        const r = await fetch(`${SUPABASE}/functions/v1/envoyer-notification`, {
+          method: 'POST', headers: { ...entetes(CLE_PUBLIQUE), 'Content-Type': 'application/json' },
+          body: JSON.stringify({ code: CODE, titre: String(al.titre || '📸 Nouvel album').slice(0, 80), message: String(al.message || '').slice(0, 240), lien: al.lien || './galerie.html' })
+        });
+        const j = await r.json().catch(()=> ({}));
+        if(!r.ok || j.erreur) throw new Error(j.erreur || ('erreur ' + r.status));
+        resultat = j;
+      }catch(e){ console.log(`Alerte « ${a} » non envoyée : ${e.message} (nouvel essai au prochain passage).`); continue; }
+    }
+    // On retire la demande pour ne jamais envoyer deux fois la même alerte
+    const { alerte, ...reste } = infos[a];
+    const nouveau = trop ? reste : { ...reste, alerteEnvoyee: new Date().toISOString() };
+    const u = await fetch(`${SUPABASE}/storage/v1/object/${BUCKET}/${enc(a + '/_album.json')}`, {
+      method: 'POST',
+      headers: { ...entetes(CLE_SECRETE), 'Content-Type': 'application/json', 'x-upsert': 'true', 'Cache-Control': 'no-cache' },
+      body: JSON.stringify(nouveau)
+    });
+    if(!u.ok) console.log(`⚠️ Alerte « ${a} » : impossible de la marquer comme envoyée (${u.status}).`);
+    if(resultat) console.log(`🔔 Alerte « ${a} » envoyée à ${resultat.envoyes || 0} abonné(s).`);
+  }
 }
 
 if(import.meta.url === `file://${process.argv[1]}`){
