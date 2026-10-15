@@ -6,6 +6,9 @@
 //     versions légères au format WebP, rangées dans le dossier _vignettes :
 //       <album>/<photo>.m.webp  → 800 px, pour les grilles (≈ 60–100 Ko)
 //       <album>/<photo>.g.webp  → 2000 px, pour la visionneuse (≈ 250–450 Ko)
+//     Si la photo fait déjà 2000 px ou moins (cas des photos envoyées par la
+//     page « Ajouter des photos »), seule la petite version est fabriquée :
+//     la visionneuse affiche directement la photo (v: 2 dans galerie.json).
 //     Les originaux ne sont jamais modifiés.
 //  2. Écrit data/galerie.json : la liste des albums et des photos, lue par
 //     la galerie et l'accueil en une seule fois (au lieu d'une requête par album).
@@ -66,9 +69,12 @@ async function main(){
   try{ ancien = JSON.parse(fs.readFileSync(fichier, 'utf8')).albums || {}; }catch(e){}
 
   // ---------- Vignettes ----------
-  const faites = {};      // album -> Set des photos qui ont leurs deux versions
+  const faites = {};      // album -> Set des photos qui ont leurs versions légères
   const dims = {};        // album/photo -> [w, h]
   for(const [a, liste] of Object.entries(ancien)) for(const p of liste){ if(p.w) dims[a + '/' + p.n] = [p.w, p.h]; }
+  const grandes = {};     // album -> Set des photos qui ont aussi la grande version
+  const WEB = /\.(jpe?g|png|webp|gif|avif)$/i;   // formats que tous les navigateurs affichent
+  const dejaLegere = (k)=> WEB.test(k) && !!(dims[k] && dims[k][0] && Math.max(dims[k][0], dims[k][1]) <= TAILLES.g.long);
   let sharp = null;
   if(CLE_SECRETE){
     try{ sharp = (await import('sharp')).default; }catch(e){ console.log('Module sharp absent : vignettes ignorées.'); }
@@ -79,7 +85,9 @@ async function main(){
   for(const a of albums){
     let existantes = new Set();
     try{ existantes = new Set((await lister(`${DOSSIER_V}/${a}/`)).map(o=> o.name)); }catch(e){}
-    faites[a] = new Set(inventaire[a].filter(p=> ['m', 'g'].every(t=> existantes.has(path.posix.basename(nomVignette(a, p, t))))));
+    const aLa = (p, t)=> existantes.has(path.posix.basename(nomVignette(a, p, t)));
+    faites[a] = new Set(inventaire[a].filter(p=> aLa(p, 'm') && (aLa(p, 'g') || dejaLegere(a + '/' + p))));
+    grandes[a] = new Set(inventaire[a].filter(p=> aLa(p, 'g')));
     if(!sharp) continue;
     for(const p of inventaire[a]){
       if(faites[a].has(p)) continue;
@@ -93,7 +101,9 @@ async function main(){
         const meta = await base.clone().metadata();
         const tourne = (meta.orientation || 1) >= 5;
         dims[a + '/' + p] = tourne ? [meta.height, meta.width] : [meta.width, meta.height];
+        const legere = WEB.test(p) && meta.width > 0 && Math.max(meta.width, meta.height || 0) <= TAILLES.g.long;
         for(const [t, { long, qualite }] of Object.entries(TAILLES)){
+          if(t === 'g' && legere) continue;      // la photo sert directement de grande version
           const sortie = await base.clone()
             .resize({ width: long, height: long, fit: 'inside', withoutEnlargement: true })
             .webp({ quality: qualite, effort: 4 })
@@ -106,6 +116,7 @@ async function main(){
           if(!u.ok) throw new Error(`envoi ${t} : ${u.status} ${await u.text()}`);
         }
         faites[a].add(p);
+        if(!legere) grandes[a].add(p);
         console.log(`✓ ${a}/${p} (${Math.round(brut.length / 1024)} Ko)`);
       }catch(e){
         erreurs++;
@@ -128,7 +139,7 @@ async function main(){
   for(const a of albums){
     sortie[a] = inventaire[a].map(p=>{
       const o = { n: p };
-      if(faites[a] && faites[a].has(p)) o.v = 1;
+      if(faites[a] && faites[a].has(p)) o.v = grandes[a].has(p) ? 1 : 2;
       const d = dims[a + '/' + p]; if(d && d[0]){ o.w = d[0]; o.h = d[1]; }
       return o;
     });
