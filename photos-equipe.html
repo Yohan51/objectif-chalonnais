@@ -127,7 +127,7 @@
 
     <section class="carte">
       <h2><span class="num">3</span> Envoyer</h2>
-      <label class="case"><input type="checkbox" id="alerte" checked> <span>🔔 Prévenir les abonnés : « Nouvel album » (une alerte, à la fin de l'envoi)</span></label>
+      <label class="case"><input type="checkbox" id="alerte" checked> <span>🔔 Prévenir les abonnés (une alerte, envoyée dès que l'album est prêt dans la galerie, en général sous 15 à 30 minutes)</span></label>
       <button class="btn large" type="button" id="envoyer" disabled>Envoyer les photos</button>
       <div id="progression" hidden>
         <div class="barre"><span id="barre"></span></div>
@@ -301,10 +301,31 @@
     }
     return out;
   }
-  async function deposer(url, corps, type){
-    const h = { apikey: CLE, 'Content-Type': type, 'x-upsert': 'false' }; if(CLE.startsWith('eyJ')) h.Authorization = 'Bearer ' + CLE;
+  async function deposer(url, corps, type, remplacer){
+    const h = { apikey: CLE, 'Content-Type': type, 'x-upsert': remplacer ? 'true' : 'false' }; if(CLE.startsWith('eyJ')) h.Authorization = 'Bearer ' + CLE;
     const r = await fetch(url, { method: 'PUT', headers: h, body: corps });
     if(!r.ok) throw new Error('stockage ' + r.status);
+  }
+  // Note la demande d'alerte dans <album>/_album.json (titre et date conservés)
+  async function programmerAlerte(dossier, titreAffiche, nouvelAlbum, faits, lienAlbum){
+    const chemin = `${dossier}/_album.json`;
+    let infos = {};
+    try{
+      const r = await fetch(`${BASE}/storage/v1/object/public/${cfg.galerieBucket || 'galerie'}/${chemin.split('/').map(encodeURIComponent).join('/')}`, { cache: 'no-cache' });
+      if(r.ok) infos = (await r.json()) || {};
+    }catch(e){}
+    if(nouvelAlbum) infos = { ...infos, titre: titreAffiche, date: $('a-date').value };
+    const deja = infos.alerte && !nouvelAlbum ? (infos.alerte.photos || 0) : 0;   // envoi précédent pas encore annoncé
+    const n = deja + faits;
+    infos.alerte = {
+      titre: nouvelAlbum || (infos.alerte && infos.alerte.titre === '📸 Nouvel album') ? '📸 Nouvel album' : '📸 Nouvelles photos',
+      message: `${titreAffiche} — ${n} photo${n > 1 ? 's' : ''} à découvrir dans la galerie.`,
+      lien: './' + lienAlbum,
+      photos: n,
+      demandee: new Date().toISOString()
+    };
+    const liens = await liensEnvoi([chemin]);
+    await deposer(liens[chemin], new Blob([JSON.stringify(infos)], { type: 'application/json' }), 'application/json', true);
   }
   function dire(html, k){ const m = $('msg'); m.innerHTML = html; m.className = 'msg ' + k; m.hidden = false; }
 
@@ -367,13 +388,15 @@
       let texte = `${faits} photo${faits > 1 ? 's' : ''} ajoutée${faits > 1 ? 's' : ''} à « ${esc(titreAffiche)} ».`;
       if(echecs) texte += ` <b>${echecs} n'ont pas pu être envoyées</b> (format non lisible ou connexion coupée) : touchez « Envoyer » pour réessayer.`;
       if(faits && $('alerte').checked){
+        // L'alerte n'est pas envoyée tout de suite : elle est notée dans le fichier
+        // _album.json, et le robot GitHub l'envoie quand les versions rapides de
+        // toutes les photos sont prêtes (scripts/vignettes.mjs).
         try{
-          const r = await fonction({ titre: '📸 Nouvel album', message: `${titreAffiche} — ${faits} photo${faits > 1 ? 's' : ''} à découvrir dans la galerie.`, lien: './' + lienAlbum });
-          texte += ` 🔔 Alerte envoyée à ${r.envoyes || 0} abonné${(r.envoyes || 0) > 1 ? 's' : ''}.`;
+          await programmerAlerte(dossier, titreAffiche, nouvelAlbum, faits, lienAlbum);
+          texte += ' 🔔 L\'alerte partira automatiquement dès que l\'album sera prêt dans la galerie (en général sous 15 à 30 minutes).';
           $('alerte').checked = false;
-        }catch(e){ texte += ` ⚠️ Alerte non envoyée (${esc(e.message)}).`; }
-      }
-      if(faits) texte += ' Les versions rapides pour la galerie seront prêtes dans le quart d\'heure.';
+        }catch(e){ texte += ` ⚠️ Alerte non programmée (${esc(e.message)}).`; }
+      }else if(faits) texte += ' Les versions rapides pour la galerie seront prêtes dans le quart d\'heure.';
       dire(texte, echecs && !faits ? 'err' : 'ok');
       $('apres').hidden = !faits;
       if(nouvelAlbum && faits){
