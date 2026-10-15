@@ -154,7 +154,15 @@
   const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
   const $ = (id)=> document.getElementById(id);
   const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
-  const MAX = 2560, QUALITE = 0.85, EN_PARALLELE = 2;
+  // Photos envoyées en 2000 px : c'est aussi la taille de la visionneuse, le robot
+  // n'a donc plus qu'une petite vignette à fabriquer (≈ 3 fois moins de place).
+  const MAX = 2000, QUALITE = 0.82, EN_PARALLELE = 2;
+  // WebP si le navigateur sait en fabriquer (sinon JPEG, ex. anciens iPhone)
+  const FORMAT = (()=>{
+    try{ const c = document.createElement('canvas'); c.width = c.height = 1;
+      return c.toDataURL('image/webp').startsWith('data:image/webp') ? { type: 'image/webp', ext: 'webp' } : { type: 'image/jpeg', ext: 'jpg' };
+    }catch(e){ return { type: 'image/jpeg', ext: 'jpg' }; }
+  })();
   let code = null, liste = [], envoiEnCours = false;
   const p2 = (n)=> String(n).padStart(2, '0');
 
@@ -265,7 +273,7 @@
     const ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, 0, 0, w, h);
     if(img.close) img.close();
-    const blob = await new Promise(ok=> c.toBlob(ok, 'image/jpeg', QUALITE));
+    const blob = await new Promise(ok=> c.toBlob(ok, FORMAT.type, QUALITE));
     c.width = c.height = 0;                       // libère la mémoire (téléphones)
     if(!blob) throw new Error('allègement impossible');
     return blob;
@@ -273,7 +281,7 @@
   function nomPhoto(f, i){
     const d = new Date(f.lastModified || Date.now());
     const alea = Math.random().toString(36).slice(2, 6);
-    return `p-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}-${p2(i % 100)}${alea}.jpg`;
+    return `p-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}-${p2(i % 100)}${alea}.${FORMAT.ext}`;
   }
 
   // ---------- Envoi ----------
@@ -345,7 +353,7 @@
             const blob = await alleger(it.f);
             let essai = 0;
             for(;;){
-              try{ await deposer(liens[`${dossier}/${it.nom}`], blob, 'image/jpeg'); break; }
+              try{ await deposer(liens[`${dossier}/${it.nom}`], blob, FORMAT.type); break; }
               catch(e){ if(++essai >= 3) throw e; await new Promise(r=> setTimeout(r, 1500 * essai)); }
             }
             octets += blob.size; it.etat = 'fait'; faits++;

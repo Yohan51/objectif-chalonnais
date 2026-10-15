@@ -67,7 +67,10 @@
     return lu[album];
   }
   // taille : 'm' (grilles), 'g' (grand écran), 'o' (original)
+  // p.v = 1 : petite et grande versions fabriquées par le robot
+  // p.v = 2 : photo déjà légère (≤ 2000 px), seule la petite version existe
   function url(album, p, taille){
+    if(p.v === 2 && taille === 'g') return publicUrl(album + '/' + p.n);
     if(p.v && taille !== 'o'){
       return publicUrl(`_vignettes/${album}/${p.n.replace(/\.[^.]+$/, '')}.${taille === 'g' ? 'g' : 'm'}.webp`);
     }
