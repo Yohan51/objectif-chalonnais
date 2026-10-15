@@ -19,6 +19,10 @@
 // (page « Ajouter des photos » de l'Espace équipe) : après vérification du
 // code de l'équipe, renvoie des liens d'envoi à usage unique vers le stockage
 // de la galerie. Les photos vont directement du téléphone au stockage.
+//
+// Suppression d'un album : { "action": "supprimer_album", "code": "…", "album": "…" }
+// (même page) : efface les photos de l'album et leurs versions rapides
+// (dossier _vignettes). Définitif.
 // =====================================================================
 
 const CORS = {
@@ -130,7 +134,7 @@ if (typeof Deno !== "undefined" && Deno.serve) Deno.serve(async (req) => {
   const dbHeaders: Record<string, string> = { apikey: SB_KEY };
   if (SB_KEY.startsWith("eyJ")) dbHeaders.Authorization = `Bearer ${SB_KEY}`;
 
-  let data: { code?: string; titre?: string; message?: string; lien?: string; endpoint?: string; auto?: boolean; action?: string; chemins?: string[] };
+  let data: { code?: string; titre?: string; message?: string; lien?: string; endpoint?: string; auto?: boolean; action?: string; chemins?: string[]; album?: string };
   try { data = await req.json(); } catch { return json({ erreur: "Requête illisible." }, 400); }
 
   const lireAbonnes = async (): Promise<Sub[] | null> => {
@@ -199,6 +203,48 @@ if (typeof Deno !== "undefined" && Deno.serve) Deno.serve(async (req) => {
       urls.push({ chemin: c, url: `${SB_URL}/storage/v1${j.url}` });
     }
     return json({ urls });
+  }
+
+  // ---------- Suppression d'un album de la galerie ----------
+  if (data.action === "supprimer_album") {
+    const BUCKET = env("GALERIE_BUCKET") || "galerie";
+    const album = typeof data.album === "string" ? data.album : "";
+    // un seul dossier de premier niveau, jamais _vignettes ni un dossier caché
+    if (!/^[A-Za-z0-9][A-Za-z0-9 _'()&,.+!@=;:$-]{0,99}$/.test(album) || album.includes("..")) {
+      return json({ erreur: "Nom d'album non valide." }, 400);
+    }
+    const lister = async (prefix: string): Promise<string[]> => {
+      const noms: string[] = [];
+      for (let offset = 0; ; offset += 1000) {
+        const r = await fetch(`${SB_URL}/storage/v1/object/list/${BUCKET}`, {
+          method: "POST",
+          headers: { ...dbHeaders, "Content-Type": "application/json" },
+          body: JSON.stringify({ prefix, limit: 1000, offset }),
+        });
+        if (!r.ok) throw new Error(`Stockage indisponible (${r.status})`);
+        const lignes: { name: string; id: string | null }[] = await r.json();
+        // l'album ne contient que des fichiers (pas de sous-dossier)
+        for (const l of lignes) if (l.id !== null) noms.push(prefix + l.name);
+        if (lignes.length < 1000) break;
+      }
+      return noms;
+    };
+    try {
+      const fichiers = [...(await lister(`${album}/`)), ...(await lister(`_vignettes/${album}/`))];
+      if (!fichiers.some((f) => f.startsWith(album + "/"))) return json({ erreur: "Album introuvable (déjà supprimé ?)." }, 404);
+      for (let i = 0; i < fichiers.length; i += 500) {
+        const r = await fetch(`${SB_URL}/storage/v1/object/${BUCKET}`, {
+          method: "DELETE",
+          headers: { ...dbHeaders, "Content-Type": "application/json" },
+          body: JSON.stringify({ prefixes: fichiers.slice(i, i + 500) }),
+        });
+        if (!r.ok) throw new Error(`Suppression impossible (${r.status}) : ${(await r.text()).slice(0, 160)}`);
+      }
+      const photos = fichiers.filter((f) => f.startsWith(album + "/") && !f.endsWith("/_album.json")).length;
+      return json({ supprime: true, photos });
+    } catch (e) {
+      return json({ erreur: (e as Error).message }, 500);
+    }
   }
 
   const titre = (data.titre || "").trim().slice(0, 80);
