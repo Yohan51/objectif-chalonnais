@@ -2,7 +2,8 @@
 # Toutes les 15 minutes :
 #  - envoie l'alerte des articles programmés dont l'heure est arrivée ;
 #  - met à jour la liste des dernières vidéos YouTube (page Direct) ;
-#  - fabrique les versions légères des photos de la galerie (affichage rapide) ;
+#  - fabrique les versions légères des photos de la galerie (affichage rapide)
+#    et envoie l'alerte « Nouvel album » une fois l'album prêt ;
 #  - fabrique les pages des articles publiés (lisibles par Google, et
 #    titre/résumé/photo dans WhatsApp, Facebook, Messenger…), les archives
 #    et le plan du site (sitemap.xml).
@@ -46,6 +47,7 @@ jobs:
           node scripts/vignettes.mjs
         env:
           SUPABASE_SERVICE_KEY: ${{ secrets.SUPABASE_SERVICE_KEY }}
+          CODE_EQUIPE: ${{ secrets.CODE_EQUIPE }}
         continue-on-error: true
 
       - name: Fabriquer les pages des articles et le plan du site
