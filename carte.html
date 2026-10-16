@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#183140">
+<title>Ma carte d'adhérent — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#EEF4F7; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA; --surface:#FFFFFF;
+    --navy:#183140; --navy-2:#21495F; --sky:#9FD8F5; --sky-deep:#2E97C7; --paper:#FBFAF6;
+    --ok:#1F8A55; --ok-bg:#DDF3E6; --err:#C0472F; --err-bg:#FBE4DE; --wait:#4B6372; --wait-bg:#E3EDF2;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --bg:#0B1A25; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --surface:#183140; color-scheme:dark; }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;min-height:100vh;}
+  a{color:var(--sky-deep);}
+  .wrap{max-width:440px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top, 0px)) 16px calc(32px + env(safe-area-inset-bottom, 0px));}
+  .haut{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:14px;}
+  .haut a{text-decoration:none;font-weight:700;}
+
+  /* La carte */
+  .carte{position:relative;overflow:hidden;border-radius:24px;color:#fff;
+    background:linear-gradient(150deg, var(--navy) 0%, var(--navy-2) 62%, #2B6C8A 100%);
+    box-shadow:0 18px 40px -18px rgba(24,49,64,.65);padding:22px 22px 20px;}
+  .carte::before{content:"";position:absolute;right:-70px;top:-70px;width:220px;height:220px;border-radius:50%;
+    background:radial-gradient(circle, rgba(159,216,245,.35) 0%, rgba(159,216,245,0) 70%);}
+  .entete{position:relative;display:flex;align-items:center;justify-content:space-between;gap:12px;}
+  .logo{background:var(--paper);border-radius:12px;padding:6px 10px;display:flex;}
+  .logo img{height:26px;width:auto;display:block;}
+  .type{font-family:var(--font-mono);font-size:11px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky);text-align:right;line-height:1.35;}
+  .qui{position:relative;margin-top:22px;}
+  .prenom{font-family:var(--font-display);font-weight:800;font-size:34px;line-height:1;}
+  .nom{font-family:var(--font-display);font-weight:700;font-size:22px;line-height:1.1;color:#D6ECF7;text-transform:uppercase;letter-spacing:.02em;}
+  .num{font-family:var(--font-mono);font-size:13px;color:var(--sky);margin-top:6px;}
+  .qr{position:relative;background:#fff;border-radius:18px;padding:14px;margin:20px auto 0;width:max-content;}
+  .qr img,.qr canvas{display:block;width:220px;height:220px;}
+  .pied{position:relative;display:flex;justify-content:space-between;align-items:flex-end;gap:10px;margin-top:18px;}
+  .validite small{display:block;font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--sky);font-family:var(--font-mono);}
+  .validite b{font-size:15px;}
+  .statut{display:inline-flex;align-items:center;gap:7px;font-weight:800;font-size:14px;padding:7px 13px;border-radius:999px;white-space:nowrap;}
+  .statut::before{content:"";width:10px;height:10px;border-radius:50%;background:currentColor;}
+  .statut.valide{background:var(--ok-bg);color:var(--ok);}
+  .statut.expire,.statut.suspendu{background:var(--err-bg);color:var(--err);}
+  .statut.a_venir{background:var(--wait-bg);color:var(--wait);}
+
+  .conseil{text-align:center;color:var(--ink-soft);font-size:14px;margin:16px 4px 0;}
+  .alerte{background:var(--err-bg);color:var(--err);border-radius:14px;padding:12px 14px;font-size:14px;margin-top:14px;}
+  .hors{background:var(--wait-bg);color:var(--wait);border-radius:14px;padding:10px 14px;font-size:13px;margin-top:14px;text-align:center;}
+  .liens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:22px;}
+  .liens a{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 6px;text-align:center;text-decoration:none;color:var(--ink);font-weight:700;font-size:14px;}
+  .vide{text-align:center;margin-top:16vh;}
+  .vide h1{font-family:var(--font-display);font-size:30px;margin:0 0 8px;line-height:1.1;}
+  .vide p{color:var(--ink-soft);}
+  .charge{text-align:center;color:var(--ink-soft);margin-top:20vh;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="haut">
+    <a href="index.html">← L'Objectif Châlonnais</a>
+  </div>
+
+  <p class="charge" id="v-charge">Chargement de votre carte…</p>
+
+  <div class="vide" id="v-vide" hidden>
+    <h1>Ma carte d'adhérent</h1>
+    <p id="v-vide-txt">Ouvrez le lien personnel que l'association vous a envoyé par SMS : votre carte s'affichera ici et restera enregistrée sur ce téléphone.</p>
+  </div>
+
+  <div id="v-carte" hidden>
+    <article class="carte" aria-label="Carte d'adhérent">
+      <div class="entete">
+        <span class="logo"><img src="logo.png" alt="L'Objectif Châlonnais"></span>
+        <span class="type">Carte<br>d'adhérent</span>
+      </div>
+      <div class="qui">
+        <div class="prenom" id="c-prenom"></div>
+        <div class="nom" id="c-nom"></div>
+        <div class="num" id="c-num"></div>
+      </div>
+      <div class="qr" id="c-qr"></div>
+      <div class="pied">
+        <div class="validite"><small>Cotisation valable</small><b id="c-dates"></b></div>
+        <span class="statut" id="c-statut"></span>
+      </div>
+    </article>
+    <div class="alerte" id="c-alerte" hidden></div>
+    <div class="hors" id="c-hors" hidden>Hors connexion : dernière version enregistrée de votre carte.</div>
+    <p class="conseil">Présentez ce QR code à l'entrée des événements réservés aux adhérents. Pensez à monter la luminosité de l'écran.</p>
+    <nav class="liens" id="c-liens"></nav>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="actus-rendu.js"></script>
+<script src="qrcode.min.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const CLE = 'oc-ma-carte';
+
+  const lireDate = (s)=> { const [y, m, j] = s.split('-').map(Number); return new Date(y, m - 1, j); };
+  const frCourt = (s)=> lireDate(s).toLocaleDateString('fr-FR', { day:'2-digit', month:'2-digit', year:'numeric' });
+  // Statut recalculé sur le téléphone (utile hors connexion)
+  function statutLocal(c){
+    if(c.statut === 'suspendu') return 'suspendu';
+    const auj = new Date(); auj.setHours(0, 0, 0, 0);
+    if(auj < lireDate(c.debut)) return 'a_venir';
+    if(auj > lireDate(c.fin)) return 'expire';
+    return 'valide';
+  }
+  const LIBELLES = { valide:'À jour', expire:'Expirée', suspendu:'Suspendue', a_venir:'Pas encore valable' };
+
+  function memoire(){ try{ return JSON.parse(localStorage.getItem(CLE) || 'null'); }catch(e){ return null; } }
+  function garder(o){ try{ localStorage.setItem(CLE, JSON.stringify(o)); }catch(e){} }
+
+  function montrer(c, horsLigne){
+    $('v-charge').hidden = true; $('v-vide').hidden = true; $('v-carte').hidden = false;
+    $('c-prenom').textContent = c.prenom;
+    $('c-nom').textContent = c.nom;
+    $('c-num').textContent = 'N° ' + c.numero;
+    $('c-dates').textContent = `du ${frCourt(c.debut)} au ${frCourt(c.fin)}`;
+    const s = statutLocal(c);
+    $('c-statut').className = 'statut ' + s; $('c-statut').textContent = LIBELLES[s] || s;
+    const al = $('c-alerte');
+    if(s === 'expire'){ al.textContent = 'Votre cotisation est arrivée à échéance. Renouvelez-la auprès de l\'association pour garder votre carte active.'; al.hidden = false; }
+    else if(s === 'suspendu'){ al.textContent = 'Cette carte est suspendue. Contactez l\'association.'; al.hidden = false; }
+    else al.hidden = true;
+    $('c-hors').hidden = !horsLigne;
+    const box = $('c-qr'); box.innerHTML = '';
+    if(typeof QRCode !== 'undefined'){
+      new QRCode(box, { text: new URL('verif.html#' + c.jeton, location.href).href, width:440, height:440, colorDark:'#0A0A0A', colorLight:'#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
+    }
+    document.title = `Carte de ${c.prenom} — L'Objectif Châlonnais`;
+  }
+
+  function vide(txt){
+    $('v-charge').hidden = true; $('v-carte').hidden = true; $('v-vide').hidden = false;
+    if(txt) $('v-vide-txt').textContent = txt;
+  }
+
+  // Liens de l'association
+  (function liens(){
+    const cfg = window.OC_CONFIG || {}, r = cfg.reseaux || {};
+    const items = [['index.html', '🌐 Le site'], [r.facebook, 'Facebook'], [r.youtube, 'YouTube']].filter(x=> x[0]);
+    $('c-liens').innerHTML = items.map(([h, t])=> `<a href="${h}"${/^https?:/.test(h) ? ' target="_blank" rel="noopener"' : ''}>${t}</a>`).join('');
+  })();
+
+  async function charger(){
+    // Le lien reçu par SMS contient la clé après « # » ; on la garde sur le téléphone
+    // et on l'efface de la barre d'adresse.
+    const h = decodeURIComponent(location.hash.slice(1)).trim();
+    const m = memoire();
+    let cle = h || (m && m.cle);
+    if(h){ history.replaceState(null, '', location.pathname); }
+    if(!cle){ vide(); return; }
+
+    if(m && m.cle === cle && m.carte) montrer(m.carte, false);   // affichage immédiat
+    if(!A.configure){ if(m && m.carte) montrer(m.carte, true); else vide('Carte indisponible pour le moment.'); return; }
+    try{
+      const c = await A.rpc('oc_ma_carte', { p_cle: cle });
+      garder({ cle, carte: c });
+      montrer(c, false);
+    }catch(err){
+      if(/n'existe pas|remplac/i.test(err.message)){
+        try{ if(memoire() && memoire().cle === cle) localStorage.removeItem(CLE); }catch(e){}
+        vide(err.message);
+      }else if(m && m.cle === cle && m.carte){
+        montrer(m.carte, true);
+      }else{
+        vide('Impossible de charger la carte. Vérifiez votre connexion puis rouvrez le lien.');
+      }
+    }
+  }
+  charger();
+  window.addEventListener('hashchange', charger);
+
+  if('serviceWorker' in navigator){ navigator.serviceWorker.register('sw.js').catch(()=>{}); }
+})();
+</script>
+</body>
+</html>

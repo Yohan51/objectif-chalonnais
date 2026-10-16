@@ -18,6 +18,10 @@
 | `chat.js`, `messages.html`, `supabase/chat.sql` | La bulle « Discuter » (discussion publique et messages à l'équipe) et la page de l'équipe pour répondre et modérer |
 | `equipe.html`, `equipe.js` | L'espace équipe : une seule connexion pour tous les outils de l'équipe |
 | `membres.html`, `supabase/membres.sql` | Gestion des membres de l'équipe : un code personnel par membre, droits limités |
+| `adherents.html`, `supabase/adherents.sql` | Adhérents de l'association : cotisations, cartes de membre numériques avec QR code (réservé à l'administrateur) |
+| `carte.html` | La carte d'adhérent sur le téléphone de l'adhérent (lien personnel envoyé par SMS) |
+| `verif.html` | La page qui s'ouvre quand on scanne le QR code d'une carte |
+| `controle.html` | Contrôle d'entrée des événements réservés aux adhérents (scan avec la caméra) |
 | `mentions-legales.html` | Mentions légales et politique de confidentialité (lien en bas de chaque page) |
 | `jeux.html` | Les jeux concours : participation des abonnés et gagnants |
 | `tirage.html`, `qrcode.min.js` | Outil de l'équipe : créer les jeux, tirage au sort, certificats (non visible dans le menu) |
@@ -466,6 +470,24 @@ Bonus : **Bing Webmaster Tools** (bing.com/webmasters) peut importer la proprié
 - **Public** : page `partenaires.html` (lien « Nos partenaires » en bas de toutes les pages) : partenaires principaux en grand, partenaires, puis « Ils nous soutiennent aussi » ; logo, activité, présentation, avantage pour les lecteurs (🎁), adresse (itinéraire), téléphone, site et réseaux. En bas, l'encadré **« Devenez partenaire »** (boutons Écrire / Appeler, d'après `contact` et `telephone` de config.js). Sur l'accueil, le bandeau **« Merci à nos partenaires »** montre jusqu'à 12 logos.
 - **Équipe** : **Espace équipe → Partenaires** : ajouter, modifier, choisir la place (principal / partenaire / soutien) et l'ordre, masquer. Supprimer est réservé à l'administrateur.
 - Installation : **Supabase → SQL Editor** → exécute `supabase/partenaires.sql`.
+
+## 24. Les adhérents et les cartes de membre
+
+Deux niveaux bien séparés :
+- **Adhérent** : à jour (ou non) de sa cotisation, il reçoit une carte numérique avec un QR code. Aucun accès à l'espace équipe.
+- **Contributeur** : un membre de l'équipe (partie 15), avec son code personnel, qui peut publier. Être adhérent ne donne pas ce droit.
+
+**Installation (une seule fois)** : dans Supabase, *SQL Editor → New query*, colle le contenu de `supabase/adherents.sql` puis *Run* (après `membres.sql`).
+
+**Inscrire un adhérent** : *Espace équipe → Adhérents*. Prénom, nom, téléphone, dates de la cotisation (raccourcis « Année en cours » et « 12 mois »), puis *Ajouter*. La fenêtre de sa carte s'ouvre : *Envoyer par SMS* prépare le message avec son lien personnel.
+
+**L'adhérent** ouvre le lien sur son téléphone : sa carte s'affiche (logo, nom, numéro, validité, pastille verte ou rouge, QR code) et reste enregistrée, même hors connexion. Il retrouve sa carte à l'adresse `lobjectifchalonnais.fr/carte.html`.
+
+**Quand on scanne le QR code** : la page affiche en grand « Adhérent à jour » (vert) ou « Cotisation expirée » (rouge), avec le prénom et l'initiale du nom. Le téléphone n'est jamais montré. Un membre de l'équipe connecté voit le nom complet.
+
+**À l'entrée d'un événement réservé aux adhérents** : *Espace équipe → Contrôle d'entrée*, donne un nom à l'événement, *Lancer le scan*. Vert = entrée enregistrée, orange = carte déjà passée, rouge = refus. Le compteur d'entrées est partagé entre tous les téléphones de l'équipe qui utilisent le même nom d'événement.
+
+**Renouveler** : bouton *Renouveler 1 an* (la carte de l'adhérent se met à jour toute seule). **Téléphone perdu ou carte partagée** : *Nouveau QR* (l'ancien QR et l'ancien lien cessent aussitôt de fonctionner, envoie le nouveau lien). **Export** : bouton *Exporter (tableur)* pour la comptabilité.
 
 ## Bon à savoir
 

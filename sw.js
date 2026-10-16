@@ -3,10 +3,10 @@
      est en ligne, la dernière version enregistrée quand on est hors ligne.
    - Polices et bibliothèque de carte : gardées en mémoire.
    - Base de données, photos et fonds de carte : jamais mis en cache ici. */
-const VERSION = 'oc-v30';
+const VERSION = 'oc-v31';
 const SHELL = [
-  './', './index.html', './actus.html', './bons-plans.html', './galerie.html', './quiz.html', './jeux.html', './direct.html', './proposer.html', './agenda.html', './partenaires.html', './offline.html',
-  './site.css', './config.js', './storage.js', './app.js', './push.js', './actus-rendu.js', './compteur.js', './chat.js', './direct.js', './galerie-donnees.js', './logo.png',
+  './', './index.html', './actus.html', './bons-plans.html', './galerie.html', './quiz.html', './jeux.html', './direct.html', './proposer.html', './agenda.html', './partenaires.html', './carte.html', './offline.html',
+  './site.css', './config.js', './storage.js', './app.js', './push.js', './actus-rendu.js', './compteur.js', './chat.js', './direct.js', './galerie-donnees.js', './qrcode.min.js', './logo.png',
   './icons/icon-192.png', './manifest.webmanifest'
 ];
 const STATIC_HOSTS = ['fonts.googleapis.com', 'fonts.gstatic.com', 'unpkg.com'];

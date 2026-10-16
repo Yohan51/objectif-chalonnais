@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Vérification d'adhésion — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA; --paper:#FBFAF6;
+    --ok:#1F8A55; --err:#C0472F; --wait:#5D7482; --sky:#2E97C7;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky:#6CC1EA; color-scheme:dark; }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;min-height:100vh;}
+  .wrap{max-width:440px;margin:0 auto;padding:calc(18px + env(safe-area-inset-top, 0px)) 16px 32px;}
+  .logo{display:flex;justify-content:center;margin-bottom:18px;}
+  .logo span{background:var(--paper);border-radius:12px;padding:7px 12px;display:flex;border:1px solid var(--line);}
+  .logo img{height:28px;width:auto;display:block;}
+  .bandeau{border-radius:24px;color:#fff;text-align:center;padding:30px 20px 26px;}
+  .bandeau.valide{background:var(--ok);}
+  .bandeau.expire,.bandeau.suspendu,.bandeau.inconnu{background:var(--err);}
+  .bandeau.a_venir{background:var(--wait);}
+  .icone{width:84px;height:84px;border-radius:50%;background:rgba(255,255,255,.2);display:flex;align-items:center;justify-content:center;margin:0 auto 12px;font-size:46px;font-weight:800;line-height:1;}
+  .bandeau h1{font-family:var(--font-display);font-size:30px;line-height:1.1;margin:0;}
+  .bandeau p{margin:6px 0 0;opacity:.92;}
+  .fiche{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:18px 20px;margin-top:14px;}
+  .fiche .n{font-family:var(--font-display);font-size:28px;font-weight:800;line-height:1.1;}
+  .fiche .num{font-family:var(--font-mono);font-size:13px;color:var(--ink-soft);margin-top:4px;}
+  .fiche .dates{margin-top:12px;font-size:15px;}
+  .fiche .dates small{display:block;font-family:var(--font-mono);font-size:11px;letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);}
+  .heure{text-align:center;font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);margin-top:14px;}
+  .note{text-align:center;font-size:13.5px;color:var(--ink-soft);margin-top:18px;}
+  .note a{color:var(--sky);font-weight:700;}
+  .charge{text-align:center;color:var(--ink-soft);margin-top:20vh;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <div class="logo"><span><img src="logo.png" alt="L'Objectif Châlonnais"></span></div>
+  <p class="charge" id="v-charge">Vérification de la carte…</p>
+  <div id="v-res" hidden>
+    <section class="bandeau" id="r-bandeau">
+      <div class="icone" id="r-icone" aria-hidden="true"></div>
+      <h1 id="r-titre"></h1>
+      <p id="r-sous"></p>
+    </section>
+    <section class="fiche" id="r-fiche" hidden>
+      <div class="n" id="r-nom"></div>
+      <div class="num" id="r-num"></div>
+      <div class="dates"><small>Cotisation valable</small><span id="r-dates"></span></div>
+    </section>
+    <p class="heure" id="r-heure"></p>
+    <p class="note" id="r-note"></p>
+  </div>
+</div>
+
+<script src="config.js"></script>
+<script src="equipe.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const lireDate = (s)=> { const [y, m, j] = s.split('-').map(Number); return new Date(y, m - 1, j); };
+  const fr = (s)=> lireDate(s).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  const ETATS = {
+    valide:   { i:'✓', t:'Adhérent à jour', s:'Cotisation valable aujourd\'hui.' },
+    expire:   { i:'✕', t:'Cotisation expirée', s:'Cette adhésion n\'est plus valable.' },
+    suspendu: { i:'✕', t:'Carte suspendue', s:'Cette carte n\'est pas valable.' },
+    a_venir:  { i:'…', t:'Pas encore valable', s:'La cotisation n\'a pas encore commencé.' },
+    inconnu:  { i:'?', t:'Carte inconnue', s:'Ce QR code ne correspond à aucune carte en cours. Il a pu être remplacé.' }
+  };
+
+  function afficher(r){
+    const e = ETATS[r.statut] || ETATS.inconnu, st = ETATS[r.statut] ? r.statut : 'inconnu';
+    $('v-charge').hidden = true; $('v-res').hidden = false;
+    $('r-bandeau').className = 'bandeau ' + st;
+    $('r-icone').textContent = e.i; $('r-titre').textContent = e.t; $('r-sous').textContent = e.s;
+    if(r.prenom){
+      $('r-fiche').hidden = false;
+      $('r-nom').textContent = `${r.prenom} ${r.nom}`;
+      $('r-num').textContent = 'Adhérent n° ' + r.numero;
+      $('r-dates').textContent = `du ${fr(r.debut)} au ${fr(r.fin)}`;
+    }
+    $('r-heure').textContent = 'Vérifié le ' + new Date().toLocaleString('fr-FR', { dateStyle:'long', timeStyle:'short' });
+    $('r-note').innerHTML = r.equipe
+      ? 'Vous êtes connecté à l\'espace équipe. Pour enregistrer les entrées d\'un événement, utilisez le <a href="controle.html">contrôle d\'entrée</a>.'
+      : 'Carte d\'adhérent de l\'association L\'Objectif Châlonnais. <a href="index.html">Découvrir le média</a>';
+    if(navigator.vibrate) navigator.vibrate(st === 'valide' ? 80 : [80, 60, 80]);
+  }
+
+  (async ()=>{
+    const jeton = decodeURIComponent(location.hash.slice(1)).trim();
+    if(!jeton){ afficher({ statut:'inconnu' }); return; }
+    if(!A.configure){ afficher({ statut:'inconnu' }); return; }
+    try{
+      const code = (window.OCEquipe && OCEquipe.code()) || '';
+      afficher(await A.rpc('oc_verifier_carte', { p_jeton: jeton, p_code: code }));
+    }catch(err){
+      $('v-charge').textContent = 'Vérification impossible : vérifiez la connexion internet puis rechargez la page.';
+    }
+  })();
+})();
+</script>
+</body>
+</html>

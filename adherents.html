@@ -1,0 +1,369 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Adhérents — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --tile:#E3EDF2;
+    --sky:#2E97C7; --err:#C0472F; --err-bg:#FBEAE6; --ok:#2E7D57; --ok-bg:#E5F4EC; --warn:#9A6A00; --warn-bg:#FBF1D9; --btn:#183140; --btn-ink:#F4F8FA;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C;
+      --sky:#6CC1EA; --err:#F08A73; --err-bg:#3A1F1A; --ok:#6FCF97; --ok-bg:#163A2A; --warn:#F2C35B; --warn-bg:#3A3018; --btn:#EAF4F9; --btn-ink:#0F2230; color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;}
+  a{color:var(--sky);}
+  .wrap{max-width:860px;margin:0 auto;padding:24px 16px 64px;}
+  h1,h2{font-family:var(--font-display);line-height:1.1;margin:0;}
+  .top{display:flex;justify-content:space-between;gap:12px;flex-wrap:wrap;font-size:14px;}
+  .top button{background:none;border:none;color:var(--sky);font:inherit;text-decoration:underline;cursor:pointer;padding:0;}
+  h1{font-size:clamp(30px,5vw,42px);font-weight:800;margin-top:22px;}
+  .sous{color:var(--ink-soft);margin:8px 0 22px;}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:22px;margin-bottom:18px;}
+  .carte h2{font-size:22px;font-weight:800;margin-bottom:12px;}
+  .chiffres{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:10px;margin-bottom:18px;}
+  .chiffre{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 14px;}
+  .chiffre b{display:block;font-family:var(--font-display);font-size:28px;line-height:1;}
+  .chiffre span{font-size:13px;color:var(--ink-soft);}
+  label.l{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:5px;}
+  input[type=text],input[type=tel],input[type=date],input[type=search]{width:100%;font:inherit;padding:10px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);min-width:0;}
+  .grille{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;}
+  .raccourcis{display:flex;gap:8px;flex-wrap:wrap;margin:10px 0 4px;font-size:13.5px;color:var(--ink-soft);align-items:center;}
+  .actions{display:flex;gap:8px;flex-wrap:wrap;margin-top:16px;}
+  .btn{font:inherit;font-weight:800;border:2px solid var(--btn);border-radius:999px;padding:9px 18px;background:var(--btn);color:var(--btn-ink);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-block;}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn.petit{padding:5px 11px;font-size:13px;}
+  .btn.danger{color:var(--err);}
+  .btn:disabled{opacity:.5;}
+  .msg{margin-top:12px;font-size:14px;padding:12px 14px;border-radius:10px;}
+  .msg.ok{background:var(--ok-bg);color:var(--ok);}
+  .msg.err{background:var(--err-bg);color:var(--err);}
+  .filtres{display:flex;gap:8px;flex-wrap:wrap;align-items:center;margin-bottom:6px;}
+  .filtres input{flex:1 1 200px;}
+  .puce{font:inherit;font-size:13.5px;font-weight:700;border:1.5px solid var(--line);background:transparent;color:var(--ink-soft);border-radius:999px;padding:6px 12px;cursor:pointer;}
+  .puce[aria-pressed="true"]{background:var(--ink);color:var(--bg);border-color:var(--ink);}
+  .adh{padding:14px 0;border-bottom:1px solid var(--line);}
+  .adh:last-child{border-bottom:none;}
+  .adh .tete{display:flex;justify-content:space-between;gap:10px;align-items:flex-start;flex-wrap:wrap;}
+  .adh .n{font-weight:800;font-size:17px;}
+  .adh .d{font-size:13.5px;color:var(--ink-soft);}
+  .adh .num{font-family:var(--font-mono);font-size:12px;color:var(--muted);margin-left:6px;}
+  .adh .a{display:flex;gap:6px;flex-wrap:wrap;margin-top:8px;}
+  .statut{font-size:12.5px;font-weight:800;padding:3px 10px;border-radius:999px;white-space:nowrap;}
+  .statut.valide{background:var(--ok-bg);color:var(--ok);}
+  .statut.bientot{background:var(--warn-bg);color:var(--warn);}
+  .statut.expire,.statut.suspendu{background:var(--err-bg);color:var(--err);}
+  .statut.a_venir{background:var(--tile);color:var(--ink-soft);}
+  .vide{color:var(--ink-soft);font-size:14.5px;}
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;margin:14px 0 10px;}
+  .err{color:var(--err);font-size:14px;}
+  /* Fenêtre « carte » */
+  dialog{border:none;border-radius:20px;padding:0;max-width:420px;width:calc(100% - 32px);background:var(--surface);color:var(--ink);}
+  dialog::backdrop{background:rgba(15,34,48,.55);}
+  .dlg{padding:22px;}
+  .dlg h2{font-size:24px;margin-bottom:4px;}
+  .dlg .qr{background:#fff;border-radius:14px;padding:14px;width:max-content;margin:14px auto;}
+  .dlg .qr img,.dlg .qr canvas{display:block;}
+  .dlg .lien{font-family:var(--font-mono);font-size:12px;word-break:break-all;background:var(--bg);border-radius:8px;padding:8px 10px;color:var(--ink-soft);}
+  .dlg .actions{justify-content:center;}
+  .dlg .note{font-size:13px;color:var(--ink-soft);margin-top:12px;}
+  @media (max-width:640px){ .grille{grid-template-columns:minmax(0,1fr);} .chiffres{grid-template-columns:repeat(2,minmax(0,1fr));} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="vue-login" data-equipe-login>
+    <h1>Adhérents</h1>
+    <p>Réservé à l'administrateur principal.</p>
+    <input type="password" id="l-code" placeholder="Code administrateur" autocomplete="current-password">
+    <button class="btn" id="l-btn" type="submit" style="width:100%">Ouvrir</button>
+    <p class="err" id="l-msg" hidden></p>
+  </form>
+
+  <main id="vue-app" hidden>
+    <div class="top">
+      <a href="equipe.html">⌂ Espace équipe</a>
+      <button type="button" id="btn-quitter">Se déconnecter</button>
+    </div>
+    <h1>Les adhérents</h1>
+    <p class="sous">Chaque adhérent reçoit une carte numérique avec un QR code. Être adhérent ne donne aucun accès à l'espace équipe : pour publier, il faut un code de <a href="membres.html">contributeur</a>.</p>
+
+    <div class="chiffres">
+      <div class="chiffre"><b id="c-total">–</b><span>adhérents</span></div>
+      <div class="chiffre"><b id="c-valide">–</b><span>à jour</span></div>
+      <div class="chiffre"><b id="c-bientot">–</b><span>expirent sous 30 jours</span></div>
+      <div class="chiffre"><b id="c-expire">–</b><span>à renouveler</span></div>
+    </div>
+
+    <section class="carte" id="bloc-form">
+      <h2 id="f-titre">Nouvel adhérent</h2>
+      <form id="f" novalidate>
+        <div class="grille">
+          <div><label class="l" for="f-prenom">Prénom</label><input type="text" id="f-prenom" maxlength="40" autocomplete="off"></div>
+          <div><label class="l" for="f-nom">Nom</label><input type="text" id="f-nom" maxlength="60" autocomplete="off"></div>
+          <div><label class="l" for="f-tel">Téléphone</label><input type="tel" id="f-tel" maxlength="25" placeholder="06 12 34 56 78" autocomplete="off"></div>
+          <div></div>
+          <div><label class="l" for="f-debut">Cotisation valable du</label><input type="date" id="f-debut"></div>
+          <div><label class="l" for="f-fin">au</label><input type="date" id="f-fin"></div>
+        </div>
+        <div class="raccourcis">Remplir :
+          <button type="button" class="puce" id="r-annee"></button>
+          <button type="button" class="puce" id="r-12mois">12 mois à partir d'aujourd'hui</button>
+        </div>
+        <div class="actions">
+          <button class="btn" type="submit" id="f-btn">Ajouter l'adhérent</button>
+          <button class="btn ghost" type="button" id="f-annuler" hidden>Annuler</button>
+        </div>
+      </form>
+      <div class="msg" id="f-msg" hidden></div>
+    </section>
+
+    <section class="carte">
+      <h2>Liste</h2>
+      <div class="filtres">
+        <input type="search" id="q" placeholder="Rechercher un nom, un numéro…" autocomplete="off">
+        <button type="button" class="puce" data-f="tous" aria-pressed="true">Tous</button>
+        <button type="button" class="puce" data-f="valide" aria-pressed="false">À jour</button>
+        <button type="button" class="puce" data-f="expire" aria-pressed="false">À renouveler</button>
+        <button type="button" class="btn ghost petit" id="btn-csv">Exporter (tableur)</button>
+      </div>
+      <div id="liste"><p class="vide">Chargement…</p></div>
+    </section>
+  </main>
+</div>
+
+<dialog id="dlg">
+  <div class="dlg">
+    <h2 id="d-nom"></h2>
+    <div class="d" id="d-info" style="color:var(--ink-soft);font-size:14px;"></div>
+    <div class="qr" id="d-qr"></div>
+    <p style="font-size:13px;font-weight:700;margin:0 0 4px;">Lien personnel de sa carte</p>
+    <div class="lien" id="d-lien"></div>
+    <div class="actions">
+      <a class="btn" id="d-sms" href="#">Envoyer par SMS</a>
+      <button type="button" class="btn ghost" id="d-copier">Copier le message</button>
+      <a class="btn ghost" id="d-ouvrir" href="#" target="_blank" rel="noopener">Voir sa carte ↗</a>
+    </div>
+    <p class="note">L'adhérent ouvre ce lien sur son téléphone : sa carte s'affiche et reste enregistrée, même hors connexion. Le QR code ci-dessus est celui qu'il présentera.</p>
+    <div class="actions"><button type="button" class="btn ghost petit" id="d-fermer">Fermer</button></div>
+  </div>
+</dialog>
+
+<script src="config.js"></script>
+<script src="equipe.js"></script>
+<script src="actus-rendu.js"></script>
+<script src="qrcode.min.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
+  let code = null, tous = [], filtre = 'tous', enEdition = null;
+
+  // ---------- Dates ----------
+  const iso = (d)=> `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
+  const lireDate = (s)=> { const [y, m, j] = s.split('-').map(Number); return new Date(y, m - 1, j); };
+  const fr = (s)=> lireDate(s).toLocaleDateString('fr-FR', { day:'numeric', month:'long', year:'numeric' });
+  const frCourt = (s)=> lireDate(s).toLocaleDateString('fr-FR');
+  function unAnApres(debut){ const d = new Date(debut); d.setFullYear(d.getFullYear() + 1); d.setDate(d.getDate() - 1); return d; }
+  const joursRestants = (fin)=> Math.round((lireDate(fin) - lireDate(iso(new Date()))) / 86400000);
+
+  const annee = new Date().getFullYear();
+  $('r-annee').textContent = `Année ${annee}`;
+  $('r-annee').onclick = ()=>{ $('f-debut').value = `${annee}-01-01`; $('f-fin').value = `${annee}-12-31`; };
+  $('r-12mois').onclick = ()=>{ const d = new Date(); $('f-debut').value = iso(d); $('f-fin').value = iso(unAnApres(d)); };
+
+  // ---------- Liens ----------
+  const urlCarte = (a)=> new URL('carte.html#' + a.cle_carte, location.href).href;
+  const urlVerif = (a)=> new URL('verif.html#' + a.jeton, location.href).href;
+
+  // ---------- Connexion ----------
+  function dire(html, kind){ const m = $('f-msg'); m.innerHTML = html; m.className = 'msg ' + kind; m.hidden = false; }
+  async function connecter(c){
+    const r = await A.rpc('oc_adherents_liste', { p_code: c });
+    code = c; OCEquipe.memoriser(c);
+    $('vue-login').hidden = true; $('vue-app').hidden = false;
+    tous = r.adherents || []; afficher();
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = /function|find/i.test(err.message) ? 'Installez d\'abord supabase/adherents.sql dans Supabase.' : err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{ OCEquipe.oublier(); location.reload(); };
+  (async ()=>{
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ $('l-msg').textContent = /function|find/i.test(e.message) ? 'Installez d\'abord supabase/adherents.sql dans Supabase.' : e.message; $('l-msg').hidden = false; } }
+  })();
+  async function recharger(){ tous = (await A.rpc('oc_adherents_liste', { p_code: code })).adherents || []; afficher(); }
+
+  // ---------- Statut ----------
+  function etat(a){
+    if(a.statut === 'valide' && joursRestants(a.fin) <= 30) return { c:'bientot', t:`Expire dans ${Math.max(0, joursRestants(a.fin))} j` };
+    return { valide:{ c:'valide', t:'À jour' }, expire:{ c:'expire', t:'Expirée' }, suspendu:{ c:'suspendu', t:'Suspendue' }, a_venir:{ c:'a_venir', t:'Pas encore commencée' } }[a.statut] || { c:'a_venir', t:a.statut };
+  }
+
+  // ---------- Liste ----------
+  $('q').addEventListener('input', afficher);
+  document.querySelectorAll('[data-f]').forEach(b=> b.onclick = ()=>{
+    filtre = b.dataset.f;
+    document.querySelectorAll('[data-f]').forEach(x=> x.setAttribute('aria-pressed', String(x === b)));
+    afficher();
+  });
+
+  function afficher(){
+    $('c-total').textContent = tous.length;
+    $('c-valide').textContent = tous.filter(a=> a.statut === 'valide').length;
+    $('c-bientot').textContent = tous.filter(a=> a.statut === 'valide' && joursRestants(a.fin) <= 30).length;
+    $('c-expire').textContent = tous.filter(a=> a.statut === 'expire').length;
+
+    const q = $('q').value.trim().toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '');
+    const liste = tous.filter(a=>{
+      if(filtre === 'valide' && a.statut !== 'valide') return false;
+      if(filtre === 'expire' && !(a.statut === 'expire' || (a.statut === 'valide' && joursRestants(a.fin) <= 30))) return false;
+      if(!q) return true;
+      return `${a.prenom} ${a.nom} ${a.numero} ${a.telephone || ''}`.toLowerCase().normalize('NFD').replace(/[̀-ͯ]/g, '').includes(q);
+    });
+    const l = $('liste');
+    if(!tous.length){ l.innerHTML = '<p class="vide">Aucun adhérent pour l\'instant. Ajoutez le premier ci-dessus.</p>'; return; }
+    if(!liste.length){ l.innerHTML = '<p class="vide">Personne ne correspond.</p>'; return; }
+    l.innerHTML = '';
+    liste.forEach(a=>{
+      const e = etat(a);
+      const d = document.createElement('div');
+      d.className = 'adh';
+      d.innerHTML = `<div class="tete"><div><span class="n">${esc(a.prenom)} ${esc(a.nom)}</span><span class="num">${esc(a.numero)}</span>
+          <div class="d">Du ${esc(frCourt(a.debut))} au ${esc(frCourt(a.fin))}${a.telephone ? ' · ' + esc(a.telephone) : ''}${a.passages ? ` · ${a.passages} entrée${a.passages > 1 ? 's' : ''} aux événements` : ''}</div></div>
+          <span class="statut ${e.c}">${esc(e.t)}</span></div>
+        <div class="a">
+          <button type="button" class="btn petit" data-a="carte">Carte et QR</button>
+          <button type="button" class="btn ghost petit" data-a="modif">Modifier</button>
+          <button type="button" class="btn ghost petit" data-a="renouv">Renouveler 1 an</button>
+          <button type="button" class="btn ghost petit" data-a="actif">${a.actif ? 'Suspendre' : 'Réactiver'}</button>
+          <button type="button" class="btn ghost petit" data-a="qr">Nouveau QR</button>
+          <button type="button" class="btn ghost petit danger" data-a="suppr">Supprimer</button>
+        </div>`;
+      d.querySelector('[data-a="carte"]').onclick = ()=> ouvrirCarte(a);
+      d.querySelector('[data-a="modif"]').onclick = ()=> editer(a);
+      d.querySelector('[data-a="renouv"]').onclick = async ()=>{
+        // Nouvelle période : à la suite de l'ancienne si elle court encore, sinon à partir d'aujourd'hui
+        const lendemain = lireDate(a.fin); lendemain.setDate(lendemain.getDate() + 1);
+        const debut = lendemain > new Date() ? lendemain : new Date();
+        const fin = unAnApres(debut);
+        if(!confirm(`Renouveler la cotisation de ${a.prenom} ${a.nom} ?\nNouvelle période : du ${fr(iso(debut))} au ${fr(iso(fin))}.`)) return;
+        await enregistrer(a.id, a.prenom, a.nom, a.telephone, iso(debut), iso(fin), a.actif, `Cotisation de <strong>${esc(a.prenom)}</strong> renouvelée jusqu'au ${esc(fr(iso(fin)))}. Sa carte se met à jour toute seule.`);
+      };
+      d.querySelector('[data-a="actif"]').onclick = ()=> enregistrer(a.id, a.prenom, a.nom, a.telephone, a.debut, a.fin, !a.actif, null);
+      d.querySelector('[data-a="qr"]').onclick = async ()=>{
+        if(!confirm(`Remplacer le QR code et le lien de carte de ${a.prenom} ${a.nom} ?\nL'ancienne carte ne fonctionnera plus : il faudra lui envoyer le nouveau lien.`)) return;
+        try{ await A.rpc('oc_adherent_nouveau_qr', { p_code: code, p_id: a.id }); await recharger(); const n = tous.find(x=> x.id === a.id); if(n) ouvrirCarte(n); }
+        catch(err){ alert(err.message); }
+      };
+      d.querySelector('[data-a="suppr"]').onclick = async ()=>{
+        if(!confirm(`Supprimer définitivement ${a.prenom} ${a.nom} de la liste des adhérents ?`)) return;
+        try{ await A.rpc('oc_adherent_supprimer', { p_code: code, p_id: a.id }); recharger(); }catch(err){ alert(err.message); }
+      };
+      l.append(d);
+    });
+  }
+
+  // ---------- Formulaire ----------
+  function vider(){
+    enEdition = null;
+    ['f-prenom', 'f-nom', 'f-tel', 'f-debut', 'f-fin'].forEach(id=> $(id).value = '');
+    $('f-titre').textContent = 'Nouvel adhérent'; $('f-btn').textContent = 'Ajouter l\'adhérent'; $('f-annuler').hidden = true;
+  }
+  function editer(a){
+    enEdition = a;
+    $('f-prenom').value = a.prenom; $('f-nom').value = a.nom; $('f-tel').value = a.telephone || '';
+    $('f-debut').value = a.debut; $('f-fin').value = a.fin;
+    $('f-titre').textContent = `Modifier ${a.prenom} ${a.nom}`; $('f-btn').textContent = 'Enregistrer'; $('f-annuler').hidden = false;
+    $('f-msg').hidden = true;
+    $('bloc-form').scrollIntoView({ behavior:'smooth', block:'start' });
+  }
+  $('f-annuler').onclick = ()=>{ vider(); $('f-msg').hidden = true; };
+
+  async function enregistrer(id, prenom, nom, tel, debut, fin, actif, message){
+    try{
+      const r = await A.rpc('oc_adherent_enregistrer', { p_code: code, p_id: id, p_prenom: prenom, p_nom: nom, p_telephone: tel || '', p_debut: debut, p_fin: fin, p_actif: actif });
+      await recharger();
+      if(message){ dire(message, 'ok'); window.scrollTo({ top: $('bloc-form').offsetTop - 10, behavior:'smooth' }); }
+      return r;
+    }catch(err){ dire(esc(err.message), 'err'); return null; }
+  }
+
+  $('f').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const prenom = $('f-prenom').value.trim(), nom = $('f-nom').value.trim(), tel = $('f-tel').value.trim();
+    const debut = $('f-debut').value, fin = $('f-fin').value;
+    if(!prenom || !nom){ dire('Indiquez le prénom et le nom.', 'err'); return; }
+    if(!debut || !fin){ dire('Indiquez les deux dates de la cotisation (ou utilisez un raccourci).', 'err'); return; }
+    $('f-btn').disabled = true;
+    const modif = enEdition;
+    const r = await enregistrer(modif ? modif.id : null, prenom, nom, tel, debut, fin, modif ? modif.actif : true,
+      modif ? `<strong>${esc(prenom)} ${esc(nom)}</strong> est à jour.` : null);
+    $('f-btn').disabled = false;
+    if(!r) return;
+    vider();
+    if(!modif){
+      const nouveau = tous.find(x=> x.id === r.id);
+      dire(`<strong>${esc(prenom)} ${esc(nom)}</strong> est inscrit${nouveau ? ` (n° ${esc(nouveau.numero)})` : ''}. Envoyez-lui maintenant sa carte.`, 'ok');
+      if(nouveau) ouvrirCarte(nouveau);
+    }
+  });
+
+  // ---------- Fenêtre « carte et QR » ----------
+  function messageCarte(a){
+    return `Bonjour ${a.prenom} ! Voici ta carte d'adhérent de L'Objectif Châlonnais : ${urlCarte(a)}\nOuvre-la sur ton téléphone, elle reste enregistrée. Présente son QR code à l'entrée de nos événements. Merci pour ton soutien !`;
+  }
+  function ouvrirCarte(a){
+    $('d-nom').textContent = `${a.prenom} ${a.nom}`;
+    $('d-info').textContent = `${a.numero} · valable du ${frCourt(a.debut)} au ${frCourt(a.fin)}`;
+    const box = $('d-qr'); box.innerHTML = '';
+    if(typeof QRCode !== 'undefined') new QRCode(box, { text: urlVerif(a), width:200, height:200, colorDark:'#0A0A0A', colorLight:'#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
+    $('d-lien').textContent = urlCarte(a);
+    $('d-ouvrir').href = urlCarte(a);
+    const tel = (a.telephone || '').replace(/[^\d+]/g, '');
+    $('d-sms').href = `sms:${tel}?&body=${encodeURIComponent(messageCarte(a))}`;
+    $('d-copier').textContent = 'Copier le message';
+    $('d-copier').onclick = async ()=>{
+      try{ await navigator.clipboard.writeText(messageCarte(a)); $('d-copier').textContent = 'Copié ✓'; }
+      catch(e){ $('d-copier').textContent = 'Copiez le lien à la main'; }
+    };
+    $('dlg').showModal();
+  }
+  $('d-fermer').onclick = ()=> $('dlg').close();
+  $('dlg').addEventListener('click', (e)=>{ if(e.target === $('dlg')) $('dlg').close(); });
+
+  // ---------- Export ----------
+  $('btn-csv').onclick = ()=>{
+    const lignes = [['Numéro', 'Prénom', 'Nom', 'Téléphone', 'Début', 'Fin', 'Statut', 'Entrées aux événements']];
+    tous.forEach(a=> lignes.push([a.numero, a.prenom, a.nom, a.telephone || '', frCourt(a.debut), frCourt(a.fin), etat(a).t, a.passages]));
+    const csv = '﻿' + lignes.map(l=> l.map(v=> `"${String(v).replace(/"/g, '""')}"`).join(';')).join('\r\n');
+    const lien = document.createElement('a');
+    lien.href = URL.createObjectURL(new Blob([csv], { type:'text/csv;charset=utf-8' }));
+    lien.download = `adherents-${iso(new Date())}.csv`;
+    document.body.append(lien); lien.click(); lien.remove();
+  };
+})();
+</script>
+</body>
+</html>

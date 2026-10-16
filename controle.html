@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="robots" content="noindex, nofollow">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="theme-color" content="#183140">
+<title>Contrôle d'entrée — L'Objectif Châlonnais</title>
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --tile:#E3EDF2;
+    --sky:#2E97C7; --ok:#1F8A55; --warn:#C27C0E; --err:#C0472F; --btn:#183140; --btn-ink:#F4F8FA;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){ --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C; --sky:#6CC1EA; --btn:#EAF4F9; --btn-ink:#0F2230; color-scheme:dark; }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.5;}
+  a{color:var(--sky);}
+  .wrap{max-width:520px;margin:0 auto;padding:calc(16px + env(safe-area-inset-top, 0px)) 16px 48px;}
+  h1{font-family:var(--font-display);font-size:32px;line-height:1.1;margin:14px 0 4px;}
+  .top{display:flex;justify-content:space-between;gap:12px;font-size:14px;}
+  .top button{background:none;border:none;color:var(--sky);font:inherit;text-decoration:underline;cursor:pointer;padding:0;}
+  .sous{color:var(--ink-soft);margin:0 0 16px;font-size:15px;}
+  .bloc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:16px;margin-bottom:14px;}
+  label.l{display:block;font-size:13px;font-weight:700;color:var(--ink-soft);margin-bottom:5px;}
+  input[type=text],input[type=password]{width:100%;font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);}
+  .btn{font:inherit;font-weight:800;border:2px solid var(--btn);border-radius:999px;padding:11px 20px;background:var(--btn);color:var(--btn-ink);cursor:pointer;width:100%;}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn:disabled{opacity:.5;}
+  .compteur{display:flex;justify-content:space-between;align-items:center;gap:10px;}
+  .compteur b{font-family:var(--font-display);font-size:40px;line-height:1;}
+  .compteur span{color:var(--ink-soft);font-size:14px;}
+  .evt{font-weight:800;}
+  .cam{position:relative;border-radius:18px;overflow:hidden;background:#0A1620;aspect-ratio:1/1;}
+  .cam video{width:100%;height:100%;object-fit:cover;display:block;}
+  .cam .viseur{position:absolute;inset:16%;border:3px solid rgba(255,255,255,.85);border-radius:20px;box-shadow:0 0 0 999px rgba(10,22,32,.35);}
+  .cam .info{position:absolute;left:0;right:0;bottom:10px;text-align:center;color:#fff;font-size:14px;font-weight:700;text-shadow:0 1px 3px rgba(0,0,0,.6);}
+  /* Résultat plein écran */
+  .res{position:fixed;inset:0;z-index:50;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;color:#fff;padding:24px;cursor:pointer;}
+  .res.ok{background:var(--ok);} .res.deja{background:var(--warn);} .res.non{background:var(--err);}
+  .res .ic{font-size:96px;font-weight:800;line-height:1;}
+  .res h2{font-family:var(--font-display);font-size:40px;line-height:1.05;margin:10px 0 6px;}
+  .res .qui{font-family:var(--font-display);font-size:30px;font-weight:800;line-height:1.1;}
+  .res p{margin:6px 0 0;font-size:17px;opacity:.95;max-width:420px;}
+  .res small{position:absolute;bottom:calc(24px + env(safe-area-inset-bottom, 0px));font-size:14px;opacity:.85;}
+  .histo{list-style:none;margin:0;padding:0;font-size:14.5px;}
+  .histo li{display:flex;justify-content:space-between;gap:10px;padding:8px 0;border-bottom:1px solid var(--line);}
+  .histo li:last-child{border-bottom:none;}
+  .histo .h{font-family:var(--font-mono);font-size:12px;color:var(--muted);white-space:nowrap;}
+  .pt{display:inline-block;width:9px;height:9px;border-radius:50%;margin-right:7px;vertical-align:1px;}
+  .pt.ok{background:var(--ok);} .pt.deja{background:var(--warn);} .pt.non{background:var(--err);}
+  .err{color:var(--err);font-size:14px;margin:8px 0 0;}
+  details summary{cursor:pointer;font-weight:700;font-size:14.5px;}
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{text-align:center;margin:14px 0 10px;}
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="vue-login" data-equipe-login hidden>
+    <h1>Contrôle d'entrée</h1>
+    <p class="sous">Réservé à l'équipe.</p>
+    <input type="password" id="l-code" placeholder="Votre code personnel" autocomplete="current-password">
+    <button class="btn" id="l-btn" type="submit">Ouvrir</button>
+    <p class="err" id="l-msg" hidden></p>
+  </form>
+
+  <main id="vue-app" hidden>
+    <div class="top"><a href="equipe.html">⌂ Espace équipe</a><span id="qui" style="color:var(--ink-soft)"></span></div>
+    <h1>Contrôle d'entrée</h1>
+    <p class="sous">Scannez le QR code de la carte d'adhérent : vert, la personne entre.</p>
+
+    <section class="bloc" id="bloc-evt">
+      <label class="l" for="evt">Nom de l'événement</label>
+      <input type="text" id="evt" maxlength="80" placeholder="Ex. Soirée des adhérents" autocomplete="off">
+      <p class="err" id="evt-msg" hidden></p>
+    </section>
+
+    <section class="bloc">
+      <div class="compteur"><div><b id="nb">0</b> <span>entrée(s)</span></div><span class="evt" id="evt-aff"></span></div>
+    </section>
+
+    <div class="cam" id="cam" hidden>
+      <video id="video" playsinline muted></video>
+      <div class="viseur"></div>
+      <div class="info" id="cam-info">Visez le QR code</div>
+    </div>
+    <div style="margin:12px 0 14px;display:grid;gap:8px;">
+      <button class="btn" type="button" id="btn-cam">📷 Lancer le scan</button>
+      <p class="err" id="cam-err" hidden></p>
+    </div>
+
+    <section class="bloc">
+      <details>
+        <summary>Pas de caméra ? Saisir le lien</summary>
+        <form id="f-manuel" style="margin-top:10px;display:grid;gap:8px;">
+          <input type="text" id="manuel" placeholder="Collez le lien du QR code" autocomplete="off" spellcheck="false">
+          <button class="btn ghost" type="submit">Vérifier</button>
+        </form>
+      </details>
+    </section>
+
+    <section class="bloc">
+      <label class="l">Derniers passages sur ce téléphone</label>
+      <ul class="histo" id="histo"><li style="color:var(--ink-soft)">Aucun pour l'instant.</li></ul>
+    </section>
+  </main>
+</div>
+
+<div class="res" id="res" hidden>
+  <div class="ic" id="res-ic"></div>
+  <h2 id="res-titre"></h2>
+  <div class="qui" id="res-qui"></div>
+  <p id="res-txt"></p>
+  <small>Touchez l'écran pour scanner le suivant</small>
+</div>
+
+<script src="config.js"></script>
+<script src="equipe.js"></script>
+<script src="actus-rendu.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const $ = (id)=> document.getElementById(id);
+  const CLE_EVT = 'oc-controle-evt';
+  let code = null, flux = null, boucle = null, occupe = false, dernier = { j:'', t:0 }, detecteur = null, jsqrPret = null;
+  const lireDate = (s)=> { const [y, m, j] = s.split('-').map(Number); return new Date(y, m - 1, j); };
+  const frCourt = (s)=> lireDate(s).toLocaleDateString('fr-FR');
+  const heure = (d)=> new Date(d).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' });
+
+  // ---------- Connexion de l'équipe ----------
+  async function ouvrir(c){
+    const q = await A.rpc('oc_qui_suis_je', { p_code: c });
+    code = c; OCEquipe.memoriser(c);
+    $('vue-login').hidden = true; $('vue-app').hidden = false;
+    $('qui').textContent = q.nom ? 'Connecté : ' + q.nom : '';
+    let evt = ''; try{ evt = localStorage.getItem(CLE_EVT) || ''; }catch(e){}
+    $('evt').value = evt || ('Événement du ' + new Date().toLocaleDateString('fr-FR', { day:'numeric', month:'long' }));
+    majEvt(); compter();
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await ouvrir(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  (async ()=>{
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await ouvrir(c); return; }catch(e){} }
+    $('vue-login').hidden = false;
+  })();
+
+  // ---------- Événement ----------
+  const evt = ()=> $('evt').value.trim();
+  function majEvt(){ $('evt-aff').textContent = evt(); try{ localStorage.setItem(CLE_EVT, evt()); }catch(e){} }
+  let tempo = null;
+  $('evt').addEventListener('input', ()=>{ majEvt(); clearTimeout(tempo); tempo = setTimeout(compter, 600); });
+  async function compter(){
+    if(evt().length < 2) { $('nb').textContent = '0'; return; }
+    try{ $('nb').textContent = (await A.rpc('oc_entrees', { p_code: code, p_evenement: evt() })).entrees; }catch(e){}
+  }
+
+  // ---------- Vérification ----------
+  function jetonDe(texte){
+    const t = String(texte || '').trim();
+    const i = t.indexOf('#');
+    return decodeURIComponent(i >= 0 ? t.slice(i + 1) : t).trim();
+  }
+  let audio = null;
+  function bip(bon){
+    try{
+      audio = audio || new (window.AudioContext || window.webkitAudioContext)();
+      const o = audio.createOscillator(), g = audio.createGain();
+      o.frequency.value = bon ? 880 : 220; o.type = 'sine';
+      g.gain.setValueAtTime(.25, audio.currentTime); g.gain.exponentialRampToValueAtTime(.001, audio.currentTime + (bon ? .25 : .6));
+      o.connect(g).connect(audio.destination); o.start(); o.stop(audio.currentTime + (bon ? .25 : .6));
+    }catch(e){}
+    if(navigator.vibrate) navigator.vibrate(bon ? 100 : [120, 80, 120]);
+  }
+  async function verifier(texte){
+    const j = jetonDe(texte);
+    if(!j || occupe) return;
+    if(evt().length < 2){ $('evt-msg').textContent = 'Indiquez d\'abord le nom de l\'événement.'; $('evt-msg').hidden = false; $('evt').focus(); return; }
+    $('evt-msg').hidden = true;
+    occupe = true;
+    try{
+      const r = await A.rpc('oc_pointer_entree', { p_code: code, p_jeton: j, p_evenement: evt() });
+      $('nb').textContent = r.entrees;
+      montrer(r);
+    }catch(err){
+      montrer({ statut:'erreur', message: err.message });
+    }
+  }
+  function montrer(r){
+    let c, ic, titre, qui = '', txt = '';
+    if(r.prenom) qui = `${r.prenom} ${r.nom}`;
+    if(r.statut === 'valide' && !r.deja_entre){ c = 'ok'; ic = '✓'; titre = 'Entrée validée'; txt = `Adhérent ${r.numero} · valable jusqu'au ${frCourt(r.fin)}`; }
+    else if(r.statut === 'valide'){ c = 'deja'; ic = '!'; titre = 'Déjà entré'; txt = `Carte déjà scannée à ${heure(r.deja_entre)} pour cet événement.`; }
+    else if(r.statut === 'expire'){ c = 'non'; ic = '✕'; titre = 'Cotisation expirée'; txt = `Fin de validité : ${frCourt(r.fin)}.`; }
+    else if(r.statut === 'suspendu'){ c = 'non'; ic = '✕'; titre = 'Carte suspendue'; }
+    else if(r.statut === 'a_venir'){ c = 'non'; ic = '…'; titre = 'Pas encore valable'; txt = `Valable à partir du ${frCourt(r.debut)}.`; }
+    else if(r.statut === 'inconnu'){ c = 'non'; ic = '?'; titre = 'Carte inconnue'; txt = 'Ce QR code n\'est pas une carte d\'adhérent valide (ou il a été remplacé).'; }
+    else { c = 'non'; ic = '⚠'; titre = 'Vérification impossible'; txt = r.message || 'Vérifiez la connexion internet.'; }
+    $('res').className = 'res ' + c;
+    $('res-ic').textContent = ic; $('res-titre').textContent = titre; $('res-qui').textContent = qui; $('res-txt').textContent = txt;
+    $('res').hidden = false;
+    bip(c === 'ok');
+    ajouterHisto(c, qui || titre, titre);
+    clearTimeout(montrer.t);
+    montrer.t = setTimeout(fermer, c === 'ok' ? 2500 : 6000);
+  }
+  function fermer(){ $('res').hidden = true; occupe = false; }
+  $('res').addEventListener('click', fermer);
+
+  const histo = [];
+  function ajouterHisto(c, qui, titre){
+    histo.unshift({ c, qui, titre, h: new Date() }); histo.length = Math.min(histo.length, 15);
+    $('histo').innerHTML = histo.map(x=> `<li><span><span class="pt ${x.c}"></span>${OCActus.esc(x.qui)}${x.qui !== x.titre ? ' · ' + OCActus.esc(x.titre) : ''}</span><span class="h">${heure(x.h)}</span></li>`).join('');
+  }
+
+  $('f-manuel').addEventListener('submit', (e)=>{ e.preventDefault(); verifier($('manuel').value); $('manuel').value = ''; });
+
+  // ---------- Caméra ----------
+  function chargerJsQR(){
+    if(window.jsQR) return Promise.resolve();
+    if(jsqrPret) return jsqrPret;
+    jsqrPret = new Promise((ok, ko)=>{
+      const s = document.createElement('script');
+      s.src = 'https://cdn.jsdelivr.net/npm/jsqr@1.4.0/dist/jsQR.min.js';
+      s.onload = ok; s.onerror = ()=>{ jsqrPret = null; ko(new Error('Lecteur de QR indisponible (connexion ?).')); };
+      document.head.append(s);
+    });
+    return jsqrPret;
+  }
+  async function demarrer(){
+    $('cam-err').hidden = true;
+    try{
+      if('BarcodeDetector' in window){
+        try{ const f = await BarcodeDetector.getSupportedFormats(); if(f.includes('qr_code')) detecteur = new BarcodeDetector({ formats:['qr_code'] }); }catch(e){}
+      }
+      if(!detecteur) await chargerJsQR();
+      flux = await navigator.mediaDevices.getUserMedia({ video:{ facingMode:{ ideal:'environment' }, width:{ ideal:1280 }, height:{ ideal:1280 } }, audio:false });
+      const v = $('video'); v.srcObject = flux; await v.play();
+      $('cam').hidden = false; $('btn-cam').textContent = 'Arrêter le scan';
+      if(audio === null){ try{ audio = new (window.AudioContext || window.webkitAudioContext)(); }catch(e){} }  // débloque le son sur iPhone
+      scanner();
+    }catch(err){
+      arreter();
+      $('cam-err').textContent = /Permission|NotAllowed/i.test(err.name + err.message)
+        ? 'Accès à la caméra refusé. Autorisez-le dans les réglages du navigateur, puis réessayez.'
+        : (err.message || 'Caméra indisponible.');
+      $('cam-err').hidden = false;
+    }
+  }
+  function arreter(){
+    cancelAnimationFrame(boucle); boucle = null;
+    if(flux){ flux.getTracks().forEach(t=> t.stop()); flux = null; }
+    $('cam').hidden = true; $('btn-cam').textContent = '📷 Lancer le scan';
+  }
+  $('btn-cam').onclick = ()=> flux ? arreter() : demarrer();
+
+  const toile = document.createElement('canvas'), ctx = toile.getContext('2d', { willReadFrequently:true });
+  let dernierScan = 0;
+  function scanner(){
+    boucle = requestAnimationFrame(scanner);
+    const v = $('video');
+    if(occupe || v.readyState < 2 || performance.now() - dernierScan < 160) return;
+    dernierScan = performance.now();
+    const lu = (texte)=>{
+      if(!texte) return;
+      const j = jetonDe(texte);
+      if(j === dernier.j && Date.now() - dernier.t < 4000) return;   // évite de lire deux fois la même carte
+      dernier = { j, t: Date.now() };
+      verifier(texte);
+    };
+    if(detecteur){
+      detecteur.detect(v).then(c=> { if(c && c[0]) lu(c[0].rawValue); }).catch(()=>{});
+    }else if(window.jsQR){
+      const cote = Math.min(v.videoWidth, v.videoHeight), taille = 480;
+      toile.width = taille; toile.height = taille;
+      ctx.drawImage(v, (v.videoWidth - cote) / 2, (v.videoHeight - cote) / 2, cote, cote, 0, 0, taille, taille);
+      const img = ctx.getImageData(0, 0, taille, taille);
+      const c = window.jsQR(img.data, taille, taille, { inversionAttempts:'dontInvert' });
+      if(c) lu(c.data);
+    }
+  }
+  document.addEventListener('visibilitychange', ()=>{ if(document.hidden && flux) arreter(); });
+})();
+</script>
+</body>
+</html>
