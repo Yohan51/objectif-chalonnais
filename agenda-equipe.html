@@ -68,6 +68,8 @@
   .evt.passe{opacity:.55;}
   .pill{font-family:var(--font-mono);font-size:11px;padding:2px 8px;border-radius:999px;background:var(--tile);color:var(--ink-soft);margin-left:6px;}
   .pill.we{background:var(--accent-bg);color:var(--accent);}
+  .pill.attente{background:#E9F2FB;color:#2E6FA8;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .pill.attente{background:#1C3A52;color:#9FD8F5;} }
   .alerte-ligne{display:flex;gap:10px 16px;align-items:center;flex-wrap:wrap;}
   .alerte-ligne select{width:auto;}
   .vide{color:var(--ink-soft);font-size:14.5px;}
@@ -93,7 +95,7 @@
       <span><a href="agenda.html" target="_blank" rel="noopener">Voir l'agenda public ↗</a> · <button type="button" id="btn-quitter">Se déconnecter</button></span>
     </div>
     <h1>Agenda des sorties</h1>
-    <p class="sous">Les sorties publiées apparaissent sur la page Agenda et dans « Ce week-end à Châlons » sur l'accueil. Les événements validés dans les bons plans s'y ajoutent tout seuls.</p>
+    <p class="sous">Ajoutez les sorties au fil de l'eau, pour n'importe quelle date. Chacune n'apparaît sur le site qu'à partir du <strong>lundi de sa semaine</strong>, et part dans l'alerte « Ce week-end à Châlons » le vendredi. Les événements validés dans les bons plans s'y ajoutent tout seuls.</p>
 
     <section class="carte">
       <h2>🔔 L'alerte du vendredi</h2>
@@ -223,6 +225,13 @@
     const f = fin.toISOString().slice(0, 10);
     return e.jour <= f && (e.jour_fin || e.jour) >= vendredi;
   }
+  // Lundi de la semaine d'une date (AAAA-MM-JJ) : une sortie devient publique à partir de ce lundi
+  function lundiDe(jour){
+    const d = new Date(jour + 'T12:00'); d.setDate(d.getDate() - ((d.getDay() + 6) % 7));
+    return d;
+  }
+  // Une sortie publiée est-elle encore « en coulisses » (visible seulement à partir du lundi de sa semaine) ?
+  function enAttente(e){ return e.publie && lundiDe(e.jour) > new Date(new Date().toDateString()); }
 
   // ---------- Liste ----------
   function afficherListe(){
@@ -233,10 +242,12 @@
     for(const e of evts){
       const d = new Date(e.jour + 'T12:00');
       const passe = (e.jour_fin || e.jour) < auj;
+      const attente = !passe && enAttente(e);
+      const lundi = attente ? lundiDe(e.jour).toLocaleDateString('fr-FR', { day:'numeric', month:'short' }) : '';
       const div = document.createElement('div');
       div.className = 'evt' + (passe ? ' passe' : '');
       div.innerHTML = `<div class="d"><b>${d.getDate()}</b><span>${esc(d.toLocaleDateString('fr-FR', { month:'short' }).replace('.', ''))}</span></div>
-        <div class="t"><strong>${ICO[e.categorie] || '✨'} ${esc(e.titre)}${dansWE(e) && !passe ? '<span class="pill we">ce week-end</span>' : ''}${e.publie ? '' : '<span class="pill">masquée</span>'}${passe ? '<span class="pill">passée</span>' : ''}</strong>
+        <div class="t"><strong>${ICO[e.categorie] || '✨'} ${esc(e.titre)}${dansWE(e) && !passe ? '<span class="pill we">ce week-end</span>' : ''}${attente ? `<span class="pill attente">en ligne le ${esc(lundi)}</span>` : ''}${e.publie ? '' : '<span class="pill">masquée</span>'}${passe ? '<span class="pill">passée</span>' : ''}</strong>
         <small>${esc(d.toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' }))}${e.heure ? ' · ' + esc(e.heure.slice(0, 5).replace(':', 'h')) : ''}${e.lieu ? ' · ' + esc(e.lieu) : ''}</small></div>
         <button type="button" class="btn ghost petit">Modifier</button>`;
       div.querySelector('button').onclick = ()=> ouvrir(e);
