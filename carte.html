@@ -60,6 +60,10 @@
   .conseil{text-align:center;color:var(--ink-soft);font-size:14px;margin:16px 4px 0;}
   .alerte{background:var(--err-bg);color:var(--err);border-radius:14px;padding:12px 14px;font-size:14px;margin-top:14px;}
   .hors{background:var(--wait-bg);color:var(--wait);border-radius:14px;padding:10px 14px;font-size:13px;margin-top:14px;text-align:center;}
+  .pdf{display:block;width:100%;margin-top:16px;font:inherit;font-weight:800;font-size:15px;border:2px solid var(--navy);border-radius:999px;padding:12px 18px;background:var(--navy);color:#fff;cursor:pointer;}
+  .pdf:disabled{opacity:.6;}
+  .err-pdf{color:var(--err);font-size:14px;text-align:center;margin:8px 0 0;}
+  @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .pdf{background:#EAF4F9;color:#0F2230;border-color:#EAF4F9;} }
   .liens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:22px;}
   .liens a{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 6px;text-align:center;text-decoration:none;color:var(--ink);font-weight:700;font-size:14px;}
   .vide{text-align:center;margin-top:16vh;}
@@ -101,6 +105,8 @@
     <div class="alerte" id="c-alerte" hidden></div>
     <div class="hors" id="c-hors" hidden>Hors connexion : dernière version enregistrée de votre carte.</div>
     <p class="conseil">Présentez ce QR code à l'entrée des événements réservés aux adhérents. Pensez à monter la luminosité de l'écran.</p>
+    <button type="button" class="pdf" id="btn-pdf">📄 Télécharger ma carte en PDF</button>
+    <p class="err-pdf" id="pdf-err" hidden></p>
     <nav class="liens" id="c-liens"></nav>
   </div>
 </div>
@@ -130,6 +136,7 @@
   function garder(o){ try{ localStorage.setItem(CLE, JSON.stringify(o)); }catch(e){} }
 
   function montrer(c, horsLigne){
+    carteActuelle = c;
     $('v-charge').hidden = true; $('v-vide').hidden = true; $('v-carte').hidden = false;
     $('c-prenom').textContent = c.prenom;
     $('c-nom').textContent = c.nom;
@@ -149,6 +156,72 @@
     document.title = `Carte de ${c.prenom} — L'Objectif Châlonnais`;
   }
 
+  // ---------- PDF au format carte de visite (85 × 55 mm) ----------
+  let carteActuelle = null;
+  function chargerScript(src){
+    return new Promise((ok, ko)=>{
+      const s = document.createElement('script'); s.src = src; s.onload = ok;
+      s.onerror = ()=> ko(new Error('Impossible de préparer le PDF : vérifiez votre connexion.'));
+      document.head.append(s);
+    });
+  }
+  function chargerImage(src){
+    return new Promise((ok, ko)=>{ const i = new Image(); i.onload = ()=> ok(i); i.onerror = ko; i.src = src; });
+  }
+  async function telechargerPdf(){
+    const c = carteActuelle; if(!c) return;
+    const b = $('btn-pdf'); b.disabled = true; $('pdf-err').hidden = true;
+    const texteBtn = b.textContent; b.textContent = 'Préparation du PDF…';
+    try{
+      if(!(window.jspdf && window.jspdf.jsPDF)) await chargerScript('https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js');
+      // QR code en haute définition
+      const boite = document.createElement('div');
+      new QRCode(boite, { text: new URL('verif.html#' + c.jeton, location.href).href, width:600, height:600, colorDark:'#0A0A0A', colorLight:'#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
+      const qr = boite.querySelector('canvas').toDataURL('image/png');
+      // Logo converti en PNG via une toile (compatible avec tous les navigateurs)
+      const logo = await chargerImage('logo.png');
+      const t = document.createElement('canvas'); t.width = logo.naturalWidth; t.height = logo.naturalHeight;
+      t.getContext('2d').drawImage(logo, 0, 0); const logoPng = t.toDataURL('image/png');
+
+      const pdf = new window.jspdf.jsPDF({ orientation:'landscape', unit:'mm', format:[85, 55] });
+      const W = 85, H = 55;
+      pdf.setFillColor(24, 49, 64); pdf.rect(0, 0, W, H, 'F');
+      pdf.setFillColor(33, 73, 95); pdf.circle(W + 4, -6, 34, 'F');
+      pdf.setFillColor(43, 108, 138); pdf.circle(W + 6, H + 10, 22, 'F');
+      // Logo
+      const ratio = logo.naturalHeight / logo.naturalWidth;
+      let lw = 25, lh = lw * ratio;
+      if(lh > 7){ lh = 7; lw = lh / ratio; }
+      pdf.setFillColor(251, 250, 246); pdf.roundedRect(5, 5, lw + 4, lh + 3, 1.8, 1.8, 'F');
+      pdf.addImage(logoPng, 'PNG', 7, 6.5, lw, lh);
+      // Textes
+      const ajuster = (txt, taille, max)=>{ pdf.setFontSize(taille); while(pdf.getTextWidth(txt) > max && taille > 6){ taille -= .5; pdf.setFontSize(taille); } };
+      pdf.setFont('helvetica', 'bold'); pdf.setTextColor(159, 216, 245); pdf.setFontSize(5.6);
+      pdf.text('CARTE D\'ADHÉRENT', 5, 21, { charSpace: .35 });
+      pdf.setTextColor(255, 255, 255); ajuster(c.prenom, 16, 40); pdf.text(c.prenom, 5, 28);
+      pdf.setTextColor(214, 236, 247); ajuster(c.nom.toUpperCase(), 10, 40); pdf.text(c.nom.toUpperCase(), 5, 33);
+      pdf.setFont('courier', 'bold'); pdf.setFontSize(7.5); pdf.setTextColor(159, 216, 245);
+      pdf.text('N° ' + c.numero, 5, 38);
+      pdf.setFont('helvetica', 'bold'); pdf.setFontSize(5.2); pdf.setTextColor(159, 216, 245);
+      pdf.text('COTISATION VALABLE', 5, 44.5, { charSpace: .3 });
+      pdf.setFontSize(7.6); pdf.setTextColor(255, 255, 255);
+      pdf.text(`du ${frCourt(c.debut)} au ${frCourt(c.fin)}`, 5, 48.5);
+      // QR code
+      pdf.setFillColor(255, 255, 255); pdf.roundedRect(48, 7, 32, 32, 2.5, 2.5, 'F');
+      pdf.addImage(qr, 'PNG', 49.5, 8.5, 29, 29);
+      pdf.setFont('helvetica', 'normal'); pdf.setFontSize(5.2); pdf.setTextColor(214, 236, 247);
+      pdf.text('Scannez pour vérifier la validité', 64, 43, { align:'center' });
+      pdf.text('lobjectifchalonnais.fr', 64, 47, { align:'center' });
+      pdf.setProperties({ title: `Carte d'adhérent — ${c.prenom} ${c.nom}`, author: 'L\'Objectif Châlonnais' });
+
+      const nomFichier = `carte-adherent-${(c.prenom + '-' + c.nom).normalize('NFD').replace(/[̀-ͯ]/g, '').replace(/[^a-z0-9]+/gi, '-').toLowerCase()}.pdf`;
+      pdf.save(nomFichier);
+    }catch(err){
+      $('pdf-err').textContent = (err && err.message) || 'Le PDF n\'a pas pu être créé.'; $('pdf-err').hidden = false;
+    }finally{ b.disabled = false; b.textContent = texteBtn; }
+  }
+  $('btn-pdf').onclick = telechargerPdf;
+
   function vide(txt){
     $('v-charge').hidden = true; $('v-carte').hidden = true; $('v-vide').hidden = false;
     if(txt) $('v-vide-txt').textContent = txt;
@@ -165,6 +238,13 @@
     // Le lien reçu par SMS contient la clé après « # » ; on la garde sur le téléphone
     // et on l'efface de la barre d'adresse.
     const h = decodeURIComponent(location.hash.slice(1)).trim();
+    // Aperçu depuis la page de gestion : rien n'est enregistré sur l'appareil
+    const apercu = new URLSearchParams(location.search).has('apercu');
+    if(apercu){
+      if(!h){ vide(); return; }
+      try{ montrer(await A.rpc('oc_ma_carte', { p_cle: h }), false); }catch(err){ vide(err.message); }
+      return;
+    }
     const m = memoire();
     let cle = h || (m && m.cle);
     if(h){ history.replaceState(null, '', location.pathname); }

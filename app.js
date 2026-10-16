@@ -12,6 +12,19 @@
     navigator.serviceWorker.register('sw.js').catch(()=>{});
   }
 
+  // « Ma carte » dans la barre de navigation, seulement sur le téléphone
+  // d'un adhérent qui a déjà ouvert sa carte (voir carte.html).
+  (function maCarte(){
+    let a = null;
+    try{ a = JSON.parse(localStorage.getItem('oc-ma-carte') || 'null'); }catch(e){}
+    const nav = document.querySelector('.oc-nav-links');
+    if(!a || !a.cle || !nav || nav.querySelector('[data-ma-carte]')) return;
+    const lien = document.createElement('a');
+    lien.href = 'carte.html'; lien.setAttribute('data-ma-carte', '');
+    lien.textContent = '🪪 Ma carte';
+    nav.prepend(lien);
+  })();
+
   const banner = document.getElementById('install-banner');
   if(!banner) return;
 

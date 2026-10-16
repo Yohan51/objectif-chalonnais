@@ -481,7 +481,7 @@ Deux niveaux bien séparés :
 
 **Inscrire un adhérent** : *Espace équipe → Adhérents*. Prénom, nom, téléphone, dates de la cotisation (raccourcis « Année en cours » et « 12 mois »), puis *Ajouter*. La fenêtre de sa carte s'ouvre : *Envoyer par SMS* prépare le message avec son lien personnel.
 
-**L'adhérent** ouvre le lien sur son téléphone : sa carte s'affiche (logo, nom, numéro, validité, pastille verte ou rouge, QR code) et reste enregistrée, même hors connexion. Il retrouve sa carte à l'adresse `lobjectifchalonnais.fr/carte.html`.
+**L'adhérent** ouvre le lien sur son téléphone : sa carte s'affiche (logo, nom, numéro, validité, pastille verte ou rouge, QR code) et reste enregistrée, même hors connexion. Une fois sa carte ouverte, un bouton **🪪 Ma carte** apparaît dans la barre du site et de l'application sur son téléphone (et seulement le sien). Le bouton *Télécharger ma carte en PDF* lui donne sa carte au format carte de visite (85 × 55 mm), à garder ou à imprimer.
 
 **Quand on scanne le QR code** : la page affiche en grand « Adhérent à jour » (vert) ou « Cotisation expirée » (rouge), avec le prénom et l'initiale du nom. Le téléphone n'est jamais montré. Un membre de l'équipe connecté voit le nom complet.
 

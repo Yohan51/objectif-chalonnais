@@ -340,7 +340,7 @@
     const box = $('d-qr'); box.innerHTML = '';
     if(typeof QRCode !== 'undefined') new QRCode(box, { text: urlVerif(a), width:200, height:200, colorDark:'#0A0A0A', colorLight:'#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
     $('d-lien').textContent = urlCarte(a);
-    $('d-ouvrir').href = urlCarte(a);
+    $('d-ouvrir').href = new URL('carte.html?apercu#' + a.cle_carte, location.href).href;
     const tel = (a.telephone || '').replace(/[^\d+]/g, '');
     $('d-sms').href = `sms:${tel}?&body=${encodeURIComponent(messageCarte(a))}`;
     $('d-copier').textContent = 'Copier le message';
