@@ -67,31 +67,36 @@
     return lu[album];
   }
   // taille : 'm' (grilles), 'g' (grand écran), 'o' (original)
-  // p.v = 1 : petite et grande versions fabriquées par le robot
-  // p.v = 2 : photo déjà légère (≤ 2000 px), seule la petite version existe
   function url(album, p, taille){
-    if(p.v === 2 && taille === 'g') return publicUrl(album + '/' + p.n);
     if(p.v && taille !== 'o'){
       return publicUrl(`_vignettes/${album}/${p.n.replace(/\.[^.]+$/, '')}.${taille === 'g' ? 'g' : 'm'}.webp`);
     }
     return publicUrl(album + '/' + p.n);
   }
 
-  // Titre avec accents choisi à la création de l'album (fichier _album.json), sinon null
-  const titres = {};
-  function titre(album){
-    if(!titres[album]) titres[album] = (async ()=>{
+  // Fiche de l'album (titre avec accents + crédit photographe), choisie à la
+  // création de l'album (fichier _album.json), reprise par le robot dans le manifeste.
+  const fiches = {};
+  function fiche(album){
+    if(!fiches[album]) fiches[album] = (async ()=>{
       const m = await chargerManifeste();
-      if(m && m.titres && m.titres[album]) return m.titres[album];
-      if(m && m.albums && m.albums[album]) return null;        // album connu du robot, sans titre particulier
-      try{
+      const t = (m && m.titres && m.titres[album]) || null;
+      const c = (m && m.credits && m.credits[album]) || null;
+      if(m && m.albums && m.albums[album]) return { titre: t, credit: c };   // robot passé : fiche à jour
+      if(t || c) return { titre: t, credit: c };
+      try{                                                                    // album tout neuf : lire _album.json
         const r = await fetch(publicUrl(album + '/_album.json'), { cache: 'no-cache' });
-        if(r.ok){ const j = await r.json(); return (j && typeof j.titre === 'string' && j.titre.trim()) ? j.titre.trim().slice(0, 100) : null; }
+        if(r.ok){ const j = await r.json(); return {
+          titre: (j && typeof j.titre === 'string' && j.titre.trim()) ? j.titre.trim().slice(0, 100) : null,
+          credit: (j && typeof j.credit === 'string' && j.credit.trim()) ? j.credit.trim().slice(0, 120) : null
+        }; }
       }catch(e){}
-      return null;
+      return { titre: null, credit: null };
     })();
-    return titres[album];
+    return fiches[album];
   }
+  const titre = (album)=> fiche(album).then(f=> f.titre);
+  const credit = (album)=> fiche(album).then(f=> f.credit);
 
-  window.OCGalerie = { albums, photos, url, titre, configure: !!(URL_BASE && CLE) };
+  window.OCGalerie = { albums, photos, url, titre, credit, fiche, configure: !!(URL_BASE && CLE) };
 })();

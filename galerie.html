@@ -178,6 +178,7 @@
         <p class="eyebrow" id="album-date"></p>
         <h1 id="album-title"></h1>
         <p class="count" id="album-count"></p>
+        <p class="count" id="album-credit" style="margin-top:4px;"></p>
       </div>
       <div style="display:flex;gap:8px;flex-wrap:wrap;">
         <button class="back" type="button" id="copy-album">🔗 Copier le lien</button>
@@ -202,7 +203,7 @@
     <img id="viewer-img" alt="">
     <button class="vbtn vnext" type="button" id="viewer-next" aria-label="Photo suivante">›</button>
   </div>
-  <div class="viewer-credit">© L'Objectif Châlonnais · Toute réutilisation sur demande</div>
+  <div class="viewer-credit" id="viewer-credit">© L'Objectif Châlonnais · Toute réutilisation sur demande</div>
 </div>
 
 <footer class="oc-pied">
@@ -303,9 +304,15 @@
     $('album-state').hidden = true;
     const { date } = parseAlbum(name);
     let titre = parseAlbum(name).titre;
-    current = { name, photos: [], titre: null };
+    current = { name, photos: [], titre: null, credit: null };
     $('album-title').textContent = titre;
-    G.titre(name).then(t=>{ if(t && current.name === name){ titre = t; current.titre = t; $('album-title').textContent = t; document.title = `${t} — Galerie L'Objectif Châlonnais`; } });
+    $('album-credit').textContent = '';
+    G.fiche(name).then(f=>{
+      if(current.name !== name) return;
+      if(f.titre){ titre = f.titre; current.titre = f.titre; $('album-title').textContent = f.titre; document.title = `${f.titre} — Galerie L'Objectif Châlonnais`; }
+      current.credit = f.credit || null;
+      $('album-credit').textContent = f.credit ? ('📷 Photos : ' + f.credit) : '';
+    });
     $('album-date').textContent = date || 'Album';
     $('album-count').textContent = '';
     document.title = `${titre} — Galerie L'Objectif Châlonnais`;
@@ -368,6 +375,8 @@
   function openViewer(i){
     lastFocus = document.activeElement;
     $('viewer-title').textContent = current.titre || parseAlbum(current.name).titre;
+    const base = '© L\'Objectif Châlonnais · Réutilisation sur demande';
+    $('viewer-credit').textContent = current.credit ? ('📷 Photos : ' + current.credit + ' · ' + base) : base;
     $('viewer').hidden = false;
     document.body.style.overflow = 'hidden';
     showPhoto(i);

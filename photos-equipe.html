@@ -49,7 +49,6 @@
   .btn{font:inherit;font-weight:800;border:2px solid var(--btn);border-radius:999px;padding:11px 20px;background:var(--btn);color:var(--btn-ink);cursor:pointer;white-space:nowrap;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:8px;}
   .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
   .btn:disabled{opacity:.5;cursor:not-allowed;}
-  .btn.danger{margin-top:12px;color:var(--err);border-color:var(--err);padding:8px 16px;font-size:14px;}
   .btn.large{width:100%;font-size:17px;padding:15px 20px;}
   .choisir{display:flex;flex-direction:column;align-items:center;gap:6px;border:2px dashed var(--line);border-radius:14px;padding:26px 16px;text-align:center;cursor:pointer;color:var(--ink-soft);}
   .choisir:hover{border-color:var(--sky);}
@@ -111,9 +110,14 @@
       <div id="bloc-existant" hidden>
         <label class="l" for="a-liste">Album</label>
         <select id="a-liste"><option value="">Chargement…</option></select>
-        <button type="button" class="btn ghost danger" id="suppr-album" disabled>🗑️ Supprimer cet album</button>
-        <div class="msg" id="msg-suppr" hidden></div>
       </div>
+      <label class="l" for="a-credit">Crédit photographe <span style="font-weight:600;color:var(--muted)">(facultatif)</span></label>
+      <input type="text" id="a-credit" maxlength="120" placeholder="Ex. Jean Dupont">
+      <div style="display:flex;justify-content:space-between;gap:10px;align-items:center;flex-wrap:wrap;">
+        <p class="hint" style="margin:6px 0 0;">Affiché au bas des photos de l'album. Vide = crédit habituel de l'association.</p>
+        <button type="button" class="btn ghost" id="credit-seul" hidden style="padding:7px 14px;font-size:13px;">💾 Enregistrer le crédit</button>
+      </div>
+      <div class="msg" id="msg-credit" hidden></div>
     </section>
 
     <section class="carte">
@@ -130,7 +134,7 @@
 
     <section class="carte">
       <h2><span class="num">3</span> Envoyer</h2>
-      <label class="case"><input type="checkbox" id="alerte" checked> <span>🔔 Prévenir les abonnés (une alerte, envoyée dès que l'album est prêt dans la galerie, en général sous 15 à 30 minutes)</span></label>
+      <label class="case"><input type="checkbox" id="alerte" checked> <span>🔔 Prévenir les abonnés : « Nouvel album » (une alerte, à la fin de l'envoi)</span></label>
       <button class="btn large" type="button" id="envoyer" disabled>Envoyer les photos</button>
       <div id="progression" hidden>
         <div class="barre"><span id="barre"></span></div>
@@ -157,15 +161,7 @@
   const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
   const $ = (id)=> document.getElementById(id);
   const esc = (s)=> String(s == null ? '' : s).replace(/[&<>"']/g, c=> ({ '&':'&amp;', '<':'&lt;', '>':'&gt;', '"':'&quot;', "'":'&#39;' })[c]);
-  // Photos envoyées en 2000 px : c'est aussi la taille de la visionneuse, le robot
-  // n'a donc plus qu'une petite vignette à fabriquer (≈ 3 fois moins de place).
-  const MAX = 2000, QUALITE = 0.82, EN_PARALLELE = 2;
-  // WebP si le navigateur sait en fabriquer (sinon JPEG, ex. anciens iPhone)
-  const FORMAT = (()=>{
-    try{ const c = document.createElement('canvas'); c.width = c.height = 1;
-      return c.toDataURL('image/webp').startsWith('data:image/webp') ? { type: 'image/webp', ext: 'webp' } : { type: 'image/jpeg', ext: 'jpg' };
-    }catch(e){ return { type: 'image/jpeg', ext: 'jpg' }; }
-  })();
+  const MAX = 2560, QUALITE = 0.85, EN_PARALLELE = 2;
   let code = null, liste = [], envoiEnCours = false;
   const p2 = (n)=> String(n).padStart(2, '0');
 
@@ -198,8 +194,16 @@
     const nouveau = mode() === 'nouveau';
     $('bloc-nouveau').hidden = !nouveau; $('bloc-existant').hidden = nouveau;
     $('alerte').checked = nouveau;
+    $('credit-seul').hidden = nouveau;
+    $('msg-credit').hidden = true;
+    if(nouveau){ $('a-credit').value = ''; } else { majCredit(); }
   }));
   const mode = ()=> document.querySelector('input[name=mode]:checked').value;
+  // Reprend le crédit déjà enregistré de l'album sélectionné
+  async function majCredit(){
+    const d = $('a-liste').value;
+    $('a-credit').value = d ? ((await G.credit(d)) || '') : '';
+  }
   async function chargerAlbums(){
     const sel = $('a-liste');
     try{
@@ -209,9 +213,10 @@
         const o = document.createElement('option'); o.value = n; o.textContent = n; sel.append(o);
         G.titre(n).then(t=>{ if(t){ const d = n.match(/^\d{4}-\d{2}(-\d{2})?/); o.textContent = (d ? d[0] + ' · ' : '') + t; } });
       }
+      if(mode() === 'existant') majCredit();
     }catch(e){ sel.innerHTML = '<option value="">Galerie injoignable</option>'; }
-    majSuppr();
   }
+  $('a-liste').addEventListener('change', ()=>{ $('msg-credit').hidden = true; majCredit(); });
   // Nom du dossier : sans accents ni caractères refusés par le stockage
   function nomDossier(date, titre){
     const t = titre.normalize('NFD').replace(/[̀-ͯ]/g, '')
@@ -219,33 +224,6 @@
       .replace(/[^A-Za-z0-9 '()&,.+!-]+/g, ' ').replace(/\s+/g, ' ').trim().slice(0, 80).replace(/[ .]+$/, '');
     return `${date} ${t}`;
   }
-
-  // ---------- Suppression d'un album ----------
-  const selAlbum = $('a-liste');
-  function majSuppr(){ $('suppr-album').disabled = envoiEnCours || !$('a-liste').value; }
-  selAlbum.addEventListener('change', ()=>{ $('msg-suppr').hidden = true; majSuppr(); });
-  $('suppr-album').onclick = async ()=>{
-    const album = selAlbum.value; if(!album) return;
-    const nom = selAlbum.selectedOptions[0] ? selAlbum.selectedOptions[0].textContent : album;
-    let nb = null; try{ nb = (await G.photos(album)).length; }catch(e){}
-    const quoi = nb === null ? 'toutes ses photos' : `${nb} photo${nb > 1 ? 's' : ''}`;
-    if(!confirm(`Supprimer l'album « ${nom} » et ${quoi} ?\n\nC'est définitif : les photos ne pourront pas être récupérées.`)) return;
-    const m = $('msg-suppr'), b = $('suppr-album');
-    b.disabled = true; b.textContent = 'Suppression…';
-    try{
-      const r = await fonction({ action: 'supprimer_album', album });
-      [...selAlbum.options].forEach(o=>{ if(o.value === album) o.remove(); });
-      selAlbum.value = '';
-      m.textContent = `Album « ${nom} » supprimé (${r.photos || 0} photo${(r.photos || 0) > 1 ? 's' : ''}). Il a déjà disparu de la galerie.`;
-      m.className = 'msg ok';
-    }catch(e){
-      m.textContent = /fonction envoyer-notification doit être mise à jour/.test(e.message)
-        ? 'La fonction envoyer-notification doit être mise à jour dans Supabase pour pouvoir supprimer un album.'
-        : 'Suppression impossible : ' + e.message;
-      m.className = 'msg err';
-    }
-    m.hidden = false; b.textContent = '🗑️ Supprimer cet album'; majSuppr();
-  };
 
   // ---------- Choix des photos ----------
   $('fichiers').addEventListener('change', (e)=>{
@@ -259,7 +237,6 @@
     afficher();
   });
   function afficher(){
-    majSuppr();
     const g = $('grille');
     g.innerHTML = '';
     for(const it of liste){
@@ -305,7 +282,7 @@
     const ctx = c.getContext('2d'); ctx.imageSmoothingQuality = 'high';
     ctx.drawImage(img, 0, 0, w, h);
     if(img.close) img.close();
-    const blob = await new Promise(ok=> c.toBlob(ok, FORMAT.type, QUALITE));
+    const blob = await new Promise(ok=> c.toBlob(ok, 'image/jpeg', QUALITE));
     c.width = c.height = 0;                       // libère la mémoire (téléphones)
     if(!blob) throw new Error('allègement impossible');
     return blob;
@@ -313,7 +290,7 @@
   function nomPhoto(f, i){
     const d = new Date(f.lastModified || Date.now());
     const alea = Math.random().toString(36).slice(2, 6);
-    return `p-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}-${p2(i % 100)}${alea}.${FORMAT.ext}`;
+    return `p-${d.getFullYear()}${p2(d.getMonth() + 1)}${p2(d.getDate())}-${p2(d.getHours())}${p2(d.getMinutes())}${p2(d.getSeconds())}-${p2(i % 100)}${alea}.jpg`;
   }
 
   // ---------- Envoi ----------
@@ -333,33 +310,37 @@
     }
     return out;
   }
-  async function deposer(url, corps, type, remplacer){
-    const h = { apikey: CLE, 'Content-Type': type, 'x-upsert': remplacer ? 'true' : 'false' }; if(CLE.startsWith('eyJ')) h.Authorization = 'Bearer ' + CLE;
+  async function deposer(url, corps, type, ecraser){
+    const h = { apikey: CLE, 'Content-Type': type, 'x-upsert': ecraser ? 'true' : 'false' }; if(CLE.startsWith('eyJ')) h.Authorization = 'Bearer ' + CLE;
     const r = await fetch(url, { method: 'PUT', headers: h, body: corps });
     if(!r.ok) throw new Error('stockage ' + r.status);
   }
-  // Note la demande d'alerte dans <album>/_album.json (titre et date conservés)
-  async function programmerAlerte(dossier, titreAffiche, nouvelAlbum, faits, lienAlbum){
-    const chemin = `${dossier}/_album.json`;
-    let infos = {};
-    try{
-      const r = await fetch(`${BASE}/storage/v1/object/public/${cfg.galerieBucket || 'galerie'}/${chemin.split('/').map(encodeURIComponent).join('/')}`, { cache: 'no-cache' });
-      if(r.ok) infos = (await r.json()) || {};
-    }catch(e){}
-    if(nouvelAlbum) infos = { ...infos, titre: titreAffiche, date: $('a-date').value };
-    const deja = infos.alerte && !nouvelAlbum ? (infos.alerte.photos || 0) : 0;   // envoi précédent pas encore annoncé
-    const n = deja + faits;
-    infos.alerte = {
-      titre: nouvelAlbum || (infos.alerte && infos.alerte.titre === '📸 Nouvel album') ? '📸 Nouvel album' : '📸 Nouvelles photos',
-      message: `${titreAffiche} — ${n} photo${n > 1 ? 's' : ''} à découvrir dans la galerie.`,
-      lien: './' + lienAlbum,
-      photos: n,
-      demandee: new Date().toISOString()
-    };
-    const liens = await liensEnvoi([chemin]);
-    await deposer(liens[chemin], new Blob([JSON.stringify(infos)], { type: 'application/json' }), 'application/json', true);
+  // Fabrique le contenu du fichier _album.json (titre, date, crédit) sans les champs vides
+  function corpsFiche(titre, date, credit){
+    const o = {}; if(titre) o.titre = titre; if(date) o.date = date; if(credit) o.credit = credit;
+    return new Blob([JSON.stringify(o)], { type: 'application/json' });
+  }
+  const dateDossier = (d)=> (String(d).match(/^\d{4}-\d{2}(?:-\d{2})?/) || [''])[0];
+  // (Ré)écrit la fiche d'un album existant (sert au bouton « Enregistrer le crédit »)
+  async function ecrireFiche(dossier, titre, credit){
+    const liens = await liensEnvoi([`${dossier}/_album.json`]);
+    await deposer(liens[`${dossier}/_album.json`], corpsFiche(titre, dateDossier(dossier), credit), 'application/json', true);
   }
   function dire(html, k){ const m = $('msg'); m.innerHTML = html; m.className = 'msg ' + k; m.hidden = false; }
+  function direCredit(texte, k){ const m = $('msg-credit'); m.textContent = texte; m.className = 'msg ' + k; m.hidden = false; }
+
+  $('credit-seul').onclick = async ()=>{
+    const dossier = $('a-liste').value;
+    if(!dossier){ direCredit('Choisissez d\'abord l\'album.', 'err'); return; }
+    const btn = $('credit-seul'); btn.disabled = true;
+    try{
+      const f = await G.fiche(dossier);
+      const credit = $('a-credit').value.trim().slice(0, 120);
+      await ecrireFiche(dossier, f.titre, credit);
+      direCredit(credit ? `Crédit « ${credit} » enregistré. Il apparaîtra sous les photos dans le quart d'heure.` : 'Crédit retiré de cet album.', 'ok');
+    }catch(e){ direCredit('Enregistrement impossible : ' + e.message, 'err'); }
+    finally{ btn.disabled = false; }
+  };
 
   $('envoyer').onclick = async ()=>{
     $('msg').hidden = true; $('apres').hidden = true;
@@ -392,10 +373,19 @@
       aEnvoyer.forEach((it, i)=>{ if(!it.nom) it.nom = nomPhoto(it.f, i); it.etat = 'attente'; });
       const chemins = aEnvoyer.map(it=> `${dossier}/${it.nom}`);
       const nouvelAlbum = mode() === 'nouveau';
-      if(nouvelAlbum) chemins.push(`${dossier}/_album.json`);
-      const liens = await liensEnvoi(chemins);
+      const credit = $('a-credit').value.trim().slice(0, 120);
+      // Fiche _album.json : toujours pour un nouvel album ; pour un album existant, seulement si le crédit a changé
+      let ficheBlob = null;
       if(nouvelAlbum){
-        await deposer(liens[`${dossier}/_album.json`], new Blob([JSON.stringify({ titre: titreAffiche, date: $('a-date').value })], { type: 'application/json' }), 'application/json');
+        ficheBlob = corpsFiche(titreAffiche, $('a-date').value, credit);
+      }else if(credit !== ((await G.credit(dossier)) || '')){
+        const f = await G.fiche(dossier);
+        ficheBlob = corpsFiche(f.titre || titreAffiche, dateDossier(dossier), credit);
+      }
+      if(ficheBlob) chemins.push(`${dossier}/_album.json`);
+      const liens = await liensEnvoi(chemins);
+      if(ficheBlob){
+        await deposer(liens[`${dossier}/_album.json`], ficheBlob, 'application/json', !nouvelAlbum);
       }
       let k = 0;
       async function ouvrier(){
@@ -406,7 +396,7 @@
             const blob = await alleger(it.f);
             let essai = 0;
             for(;;){
-              try{ await deposer(liens[`${dossier}/${it.nom}`], blob, FORMAT.type); break; }
+              try{ await deposer(liens[`${dossier}/${it.nom}`], blob, 'image/jpeg'); break; }
               catch(e){ if(++essai >= 3) throw e; await new Promise(r=> setTimeout(r, 1500 * essai)); }
             }
             octets += blob.size; it.etat = 'fait'; faits++;
@@ -420,15 +410,13 @@
       let texte = `${faits} photo${faits > 1 ? 's' : ''} ajoutée${faits > 1 ? 's' : ''} à « ${esc(titreAffiche)} ».`;
       if(echecs) texte += ` <b>${echecs} n'ont pas pu être envoyées</b> (format non lisible ou connexion coupée) : touchez « Envoyer » pour réessayer.`;
       if(faits && $('alerte').checked){
-        // L'alerte n'est pas envoyée tout de suite : elle est notée dans le fichier
-        // _album.json, et le robot GitHub l'envoie quand les versions rapides de
-        // toutes les photos sont prêtes (scripts/vignettes.mjs).
         try{
-          await programmerAlerte(dossier, titreAffiche, nouvelAlbum, faits, lienAlbum);
-          texte += ' 🔔 L\'alerte partira automatiquement dès que l\'album sera prêt dans la galerie (en général sous 15 à 30 minutes).';
+          const r = await fonction({ titre: '📸 Nouvel album', message: `${titreAffiche} — ${faits} photo${faits > 1 ? 's' : ''} à découvrir dans la galerie.`, lien: './' + lienAlbum });
+          texte += ` 🔔 Alerte envoyée à ${r.envoyes || 0} abonné${(r.envoyes || 0) > 1 ? 's' : ''}.`;
           $('alerte').checked = false;
-        }catch(e){ texte += ` ⚠️ Alerte non programmée (${esc(e.message)}).`; }
-      }else if(faits) texte += ' Les versions rapides pour la galerie seront prêtes dans le quart d\'heure.';
+        }catch(e){ texte += ` ⚠️ Alerte non envoyée (${esc(e.message)}).`; }
+      }
+      if(faits) texte += ' Les versions rapides pour la galerie seront prêtes dans le quart d\'heure.';
       dire(texte, echecs && !faits ? 'err' : 'ok');
       $('apres').hidden = !faits;
       if(nouvelAlbum && faits){
@@ -437,7 +425,7 @@
         $('bloc-nouveau').hidden = true; $('bloc-existant').hidden = false;
         const sel = $('a-liste');
         if(![...sel.options].some(o=> o.value === dossier)){ const o = document.createElement('option'); o.value = dossier; o.textContent = $('a-date').value + ' · ' + titreAffiche; sel.prepend(o); }
-        sel.value = dossier; majSuppr();
+        sel.value = dossier;
       }
     }catch(e){
       dire(esc(e.message), 'err');

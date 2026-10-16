@@ -409,6 +409,8 @@ Ensuite, rien à faire : quand tu ajoutes un album dans Supabase (dossier `AAAA-
 
 **Espace équipe → Ajouter des photos** (tous les membres) : choisir *Nouvel album* (date + titre, accents permis) ou un *Album existant*, sélectionner les photos dans la pellicule, puis *Envoyer*. Les photos sont réduites à 2560 px dans le téléphone (≈ 1 Mo chacune au lieu de 4 à 10 Mo), la position GPS est retirée, puis elles vont directement dans le stockage de la galerie. Une alerte « Nouvel album » peut partir à la fin.
 
+**Crédit photographe (facultatif)** : un champ *Crédit photographe* permet de nommer l'auteur des photos de l'album (ex. « Jean Dupont »). Il s'affiche au bas de l'album et sous chaque photo dans la visionneuse (« 📷 Photos : Jean Dupont · © L'Objectif Châlonnais »). Laissé vide, c'est le crédit habituel de l'association qui s'affiche. Sur un *Album existant*, le crédit déjà enregistré est repris automatiquement et le bouton **💾 Enregistrer le crédit** permet de le corriger sans réenvoyer de photos. Le crédit est gardé dans le fichier `_album.json` de l'album, aux côtés du titre.
+
 ### Installation (une seule fois)
 
 **Supabase → Edge Functions → envoyer-notification → Code** : remplace tout par le contenu de `supabase/envoyer-notification.ts`, puis *Deploy*. (La même fonction envoie les alertes et délivre, après vérification du code de l'équipe, des liens d'envoi à usage unique vers le stockage.)
@@ -429,6 +431,7 @@ L'équipe (tous les membres) traite les envois dans **Espace équipe → Infos r
 
 ## 21. Agenda « Ce week-end à Châlons »
 
+- **Remplissage au fil de l'eau** : ajoute les sorties dès que tu as l'info, pour n'importe quelle date. Une sortie n'apparaît sur le site qu'à partir du **lundi de sa propre semaine** ; avant, elle reste en coulisses (visible seulement par l'équipe, avec une pastille « en ligne le … »). Le tri se fait donc tout seul par date, sans rien décocher.
 - **Public** : page `agenda.html` (lien « Agenda » dans le menu) avec deux onglets, *Ce week-end* et *Tout l'agenda*, des filtres par type, un bouton « Ajouter à mon agenda » (fichier calendrier pour téléphone) et le partage. Sur l'accueil, le bloc « Ce week-end à Châlons » montre 4 sorties au plus. Les événements validés dans les bons plans s'y ajoutent automatiquement.
 - **Équipe** : **Espace équipe → Agenda** : ajouter une sortie (titre, type, date, heure, date de fin pour une expo, lieu, prix, lien, photo), modifier, masquer. Supprimer est réservé à l'administrateur. Depuis **Infos reçues**, un événement proposé par un visiteur s'ajoute en un clic (« 📅 Ajouter à l'agenda »).
 - **Alerte du vendredi** : chaque vendredi à 11 h (heure modifiable, ou désactivable dans la page Agenda de l'équipe), une alerte « Ce week-end à Châlons 🎉 » part vers les abonnés avec les premières sorties, s'il y en a au moins une. Elle est envoyée par le robot GitHub (dans le quart d'heure), une seule fois par week-end ; s'il a pris du retard, il rattrape jusqu'au samedi midi.
