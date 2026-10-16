@@ -64,6 +64,8 @@
   .pdf:disabled{opacity:.6;}
   .err-pdf{color:var(--err);font-size:14px;text-align:center;margin:8px 0 0;}
   @media (prefers-color-scheme: dark){ :root:not([data-theme="light"]) .pdf{background:#EAF4F9;color:#0F2230;border-color:#EAF4F9;} }
+  .retirer{text-align:center;margin:22px 0 0;}
+  .retirer button{background:none;border:none;font:inherit;font-size:13.5px;color:var(--ink-soft);text-decoration:underline;cursor:pointer;padding:4px;}
   .liens{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:8px;margin-top:22px;}
   .liens a{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:12px 6px;text-align:center;text-decoration:none;color:var(--ink);font-weight:700;font-size:14px;}
   .vide{text-align:center;margin-top:16vh;}
@@ -108,6 +110,7 @@
     <button type="button" class="pdf" id="btn-pdf">📄 Télécharger ma carte en PDF</button>
     <p class="err-pdf" id="pdf-err" hidden></p>
     <nav class="liens" id="c-liens"></nav>
+    <p class="retirer" id="c-retirer-bloc" hidden><button type="button" id="c-retirer">Ce n'est pas votre carte ? La retirer de cet appareil</button></p>
   </div>
 </div>
 
@@ -149,6 +152,7 @@
     else if(s === 'suspendu'){ al.textContent = 'Cette carte est suspendue. Contactez l\'association.'; al.hidden = false; }
     else al.hidden = true;
     $('c-hors').hidden = !horsLigne;
+    $('c-retirer-bloc').hidden = !(memoire() && memoire().cle) || new URLSearchParams(location.search).has('apercu');
     const box = $('c-qr'); box.innerHTML = '';
     if(typeof QRCode !== 'undefined'){
       new QRCode(box, { text: new URL('verif.html#' + c.jeton, location.href).href, width:440, height:440, colorDark:'#0A0A0A', colorLight:'#FFFFFF', correctLevel: QRCode.CorrectLevel.M });
@@ -222,6 +226,18 @@
   }
   $('btn-pdf').onclick = telechargerPdf;
 
+  // Téléphone connecté à l'espace équipe ?
+  function appareilEquipe(){
+    try{ return !!(sessionStorage.getItem('oc-redaction-code') || localStorage.getItem('oc-equipe')); }catch(e){ return false; }
+  }
+  $('c-retirer').onclick = ()=>{
+    const m = memoire();
+    const qui = m && m.carte ? `${m.carte.prenom} ${m.carte.nom}` : 'cette carte';
+    if(!confirm(`Retirer la carte de ${qui} de cet appareil ?\nLa carte reste valable : son propriétaire la garde sur son propre téléphone.`)) return;
+    try{ localStorage.removeItem(CLE); }catch(e){}
+    vide('Carte retirée de cet appareil. Si vous êtes adhérent, ouvrez le lien personnel reçu par SMS pour afficher la vôtre.');
+  };
+
   function vide(txt){
     $('v-charge').hidden = true; $('v-carte').hidden = true; $('v-vide').hidden = false;
     if(txt) $('v-vide-txt').textContent = txt;
@@ -254,6 +270,15 @@
     if(!A.configure){ if(m && m.carte) montrer(m.carte, true); else vide('Carte indisponible pour le moment.'); return; }
     try{
       const c = await A.rpc('oc_ma_carte', { p_cle: cle });
+      // Nouvelle carte sur cet appareil : on demande confirmation si le téléphone
+      // appartient à l'équipe ou garde déjà la carte de quelqu'un d'autre.
+      const nouvelle = !m || m.cle !== cle;
+      if(nouvelle && (appareilEquipe() || (m && m.carte))){
+        const autre = m && m.carte ? `\n\nLa carte de ${m.carte.prenom} ${m.carte.nom} est déjà enregistrée ici et sera remplacée.` : '';
+        if(!confirm(`Enregistrer la carte de ${c.prenom} ${c.nom} comme « Ma carte » sur cet appareil ?${autre}\n\nChoisissez « Annuler » si vous ne faites que la consulter.`)){
+          montrer(c, false); $('c-retirer-bloc').hidden = true; return;
+        }
+      }
       garder({ cle, carte: c });
       montrer(c, false);
     }catch(err){
