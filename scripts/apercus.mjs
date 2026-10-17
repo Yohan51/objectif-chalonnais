@@ -326,7 +326,7 @@ gardes.add('index.html');
 const jour = (iso)=> (iso || '').slice(0, 10);
 const PAGES = [['', 'daily', '1.0'], ['actus.html', 'hourly', '0.9'], ['a/', 'daily', '0.8'], ['agenda.html', 'daily', '0.8'], ['direct.html', 'daily', '0.6'],
   ['jeux.html', 'daily', '0.7'], ['bons-plans.html', 'daily', '0.7'], ['galerie.html', 'weekly', '0.6'], ['quiz.html', 'monthly', '0.4'],
-  ['proposer.html', 'monthly', '0.4'], ['partenaires.html', 'monthly', '0.5'], ['mentions-legales.html', 'yearly', '0.1'], ['confidentialite.html', 'yearly', '0.1']];
+  ['proposer.html', 'monthly', '0.4'], ['partenaires.html', 'monthly', '0.5'], ['mentions-legales.html', 'yearly', '0.1'], ['confidentialite.html', 'yearly', '0.1'], ['installer.html', 'monthly', '0.5']];
 const derniere = jour(valides[0] && (valides[0].modifie_le || valides[0].publie_le)) || new Date().toISOString().slice(0, 10);
 const plan = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">
