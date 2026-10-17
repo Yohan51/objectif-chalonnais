@@ -1,0 +1,199 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Installer l'application — L'Objectif Châlonnais</title>
+<meta name="description" content="Installez L'Objectif Châlonnais sur votre téléphone en quelques secondes : iPhone, Android, sans compte.">
+<link rel="canonical" href="https://lobjectifchalonnais.fr/installer.html">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="L'Objectif Châlonnais">
+<meta property="og:title" content="Installer l'application — L'Objectif Châlonnais">
+<meta property="og:description" content="Ajoutez L'Objectif Châlonnais à votre écran d'accueil en quelques secondes.">
+<meta property="og:url" content="https://lobjectifchalonnais.fr/installer.html">
+<meta property="og:image" content="https://lobjectifchalonnais.fr/icons/partage.jpg">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --muted:#7A8F9C; --line:#D7E3EA; --tile:#E3EDF2;
+    --sky:#9FD8F5; --sky-deep:#2E97C7; --ok:#2E7D57; --ok-bg:#E5F4EC;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C;
+      --sky-deep:#6CC1EA; --ok:#6FCF97; --ok-bg:#163A2A; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --muted:#7F99A8; --line:#2B4A5E; --tile:#1D3A4C;
+    --sky-deep:#6CC1EA; --ok:#6FCF97; --ok-bg:#163A2A; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;}
+  .wrap{max-width:720px;margin:0 auto;padding:0 20px 72px;}
+  h1,h2{font-family:var(--font-display);line-height:1.1;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .page-head{padding-block:40px 10px;text-align:center;}
+  .page-head h1{font-size:clamp(30px,5vw,44px);font-weight:800;margin-top:8px;}
+  .page-head p{color:var(--ink-soft);margin:10px auto 0;max-width:46ch;}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:18px;padding:26px;margin-top:22px;}
+  .carte h2{font-size:23px;font-weight:800;display:flex;align-items:center;gap:10px;margin-bottom:4px;}
+  .carte .plat{font-family:var(--font-mono);font-size:12px;letter-spacing:.08em;text-transform:uppercase;color:var(--sky-deep);}
+  ol.etapes{list-style:none;counter-reset:e;margin:16px 0 0;padding:0;}
+  ol.etapes li{counter-increment:e;position:relative;padding:12px 0 12px 56px;border-top:1px solid var(--line);}
+  ol.etapes li:first-child{border-top:none;}
+  ol.etapes li::before{content:counter(e);position:absolute;left:0;top:12px;width:38px;height:38px;border-radius:50%;background:var(--ink);color:var(--bg);display:grid;place-items:center;font-family:var(--font-display);font-weight:800;font-size:17px;}
+  ol.etapes b{color:var(--ink);}
+  ol.etapes span{color:var(--ink-soft);display:block;font-size:14.5px;}
+  .ic{display:inline-flex;vertical-align:-5px;}
+  .btn{font:inherit;font-weight:800;border:2px solid var(--ink);border-radius:999px;padding:14px 22px;background:var(--ink);color:var(--surface);cursor:pointer;text-decoration:none;display:inline-flex;align-items:center;justify-content:center;gap:10px;width:100%;font-size:17px;}
+  .btn.sky{background:var(--sky-deep);border-color:var(--sky-deep);color:#fff;}
+  .btn.ghost{background:transparent;color:var(--ink);border-color:var(--line);}
+  .btn:disabled{opacity:.55;cursor:default;}
+  .note{font-size:13.5px;color:var(--muted);margin:12px 0 0;}
+  .ok{background:var(--ok-bg);color:var(--ok);border-radius:12px;padding:12px 14px;font-weight:700;margin-top:14px;}
+  .mini{display:flex;gap:10px;flex-wrap:wrap;margin-top:14px;}
+  .mini .btn{width:auto;font-size:14px;padding:9px 16px;}
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="actus.html">Actus</a>
+    <a href="agenda.html">Agenda</a>
+    <a href="direct.html">Direct</a>
+    <a href="jeux.html">Jeux</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Application</p>
+    <h1>Installez L'Objectif sur votre téléphone</h1>
+    <p>Une icône sur votre écran d'accueil, l'ouverture en plein écran, les alertes… et c'est gratuit, sans compte, en quelques secondes.</p>
+  </header>
+
+  <!-- Déjà installée -->
+  <section class="carte" id="c-installee" hidden>
+    <div class="ok">✓ L'application est déjà installée sur cet appareil — ouvrez-la depuis votre écran d'accueil !</div>
+  </section>
+
+  <!-- iPhone / iPad -->
+  <section class="carte" id="c-ios" hidden>
+    <p class="plat">iPhone &amp; iPad</p>
+    <h2> Ajouter à l'écran d'accueil</h2>
+    <ol class="etapes">
+      <li><b>Ouvrez cette page dans Safari</b><span>Le partage n'est possible que depuis le navigateur Safari.</span></li>
+      <li><b>Touchez « Partager »</b>
+        <span>Le bouton
+          <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3v13"/><path d="M8 7l4-4 4 4"/><rect x="5" y="10" width="14" height="11" rx="2"/></svg>
+          en bas de l'écran (un carré avec une flèche vers le haut).</span></li>
+      <li><b>« Sur l'écran d'accueil »</b><span>Faites défiler, touchez cette option, puis « Ajouter » en haut à droite.</span></li>
+    </ol>
+  </section>
+
+  <!-- Android -->
+  <section class="carte" id="c-android" hidden>
+    <p class="plat">Android</p>
+    <h2> Installer l'application</h2>
+    <a class="btn sky" id="btn-install" hidden>📲 Installer l'application</a>
+    <a class="btn" id="btn-play" hidden>▶ Ouvrir sur Google Play</a>
+    <ol class="etapes" id="android-manuel">
+      <li><b>Ouvrez le menu</b>
+        <span>Touchez les trois points
+          <svg class="ic" width="20" height="20" viewBox="0 0 24 24" fill="currentColor"><circle cx="12" cy="5" r="2"/><circle cx="12" cy="12" r="2"/><circle cx="12" cy="19" r="2"/></svg>
+          en haut à droite de Chrome.</span></li>
+      <li><b>« Installer l'application »</b><span>(ou « Ajouter à l'écran d'accueil »), puis confirmez.</span></li>
+    </ol>
+    <p class="note" id="play-bientot" hidden>L'application arrive bientôt sur le Google Play Store. En attendant, installez-la directement ci-dessus — c'est la même application.</p>
+  </section>
+
+  <!-- Ordinateur / autre -->
+  <section class="carte" id="c-autre" hidden>
+    <p class="plat">Ordinateur</p>
+    <h2> Sur votre téléphone, c'est encore mieux</h2>
+    <p style="color:var(--ink-soft);margin:6px 0 0;">Ouvrez cette page sur votre téléphone pour ajouter l'icône à votre écran d'accueil. Vous pouvez aussi installer le site sur ordinateur via l'icône d'installation dans la barre d'adresse de Chrome.</p>
+    <div class="mini">
+      <button class="btn ghost" id="btn-copier" type="button">🔗 Copier le lien de cette page</button>
+    </div>
+  </section>
+</main>
+
+<footer class="oc-pied">
+  <span>© L'Objectif Châlonnais · Association loi 1901</span>
+  <a href="partenaires.html">Nos partenaires</a>
+  <a href="confidentialite.html">Confidentialité</a>
+  <a href="mentions-legales.html">Mentions légales</a>
+</footer>
+
+<script src="config.js"></script>
+<script>
+(function(){
+  // --- Réglage : passer à true le jour de la publication sur le Play Store ---
+  var PLAY_DISPO = false;
+  var PLAY_URL = 'https://play.google.com/store/apps/details?id=fr.lobjectifchalonnais.twa';
+
+  var $ = function(id){ return document.getElementById(id); };
+  var ua = navigator.userAgent || '';
+  var estIOS = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  var estAndroid = /Android/.test(ua);
+  var installee = window.matchMedia('(display-mode: standalone)').matches || window.navigator.standalone === true;
+
+  if(installee){
+    $('c-installee').hidden = false;
+  }else if(estIOS){
+    $('c-ios').hidden = false;
+  }else if(estAndroid){
+    $('c-android').hidden = false;
+    if(PLAY_DISPO){
+      var p = $('btn-play'); p.href = PLAY_URL; p.hidden = false;
+    }else{
+      $('play-bientot').hidden = false;
+    }
+  }else{
+    $('c-autre').hidden = false;
+  }
+
+  // Installation en un geste sur Android/Chrome (si le navigateur le propose)
+  var differe = null;
+  window.addEventListener('beforeinstallprompt', function(e){
+    e.preventDefault(); differe = e;
+    var b = $('btn-install');
+    if(b){
+      b.hidden = false;
+      $('android-manuel').hidden = true;
+      b.onclick = function(){
+        differe.prompt();
+        differe.userChoice.then(function(){ differe = null; b.hidden = true; $('android-manuel').hidden = false; });
+      };
+    }
+  });
+
+  var c = $('btn-copier');
+  if(c) c.onclick = async function(){
+    try{ await navigator.clipboard.writeText(location.href); c.textContent = '✓ Lien copié'; }
+    catch(e){ c.textContent = 'Copiez l\'adresse de cette page'; }
+    setTimeout(function(){ c.textContent = '🔗 Copier le lien de cette page'; }, 2200);
+  };
+})();
+</script>
+<script src="app.js"></script>
+</body>
+</html>
