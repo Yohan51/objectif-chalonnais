@@ -1,0 +1,267 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Politique de confidentialité — L'Objectif Châlonnais</title>
+<meta name="description" content="Politique de confidentialité du site et de l'application L'Objectif Châlonnais : quelles données nous collectons, pourquoi, combien de temps, et vos droits.">
+<meta property="og:type" content="website">
+<meta property="og:site_name" content="L'Objectif Châlonnais">
+<meta property="og:locale" content="fr_FR">
+<meta property="og:title" content="Politique de confidentialité — L'Objectif Châlonnais">
+<meta property="og:url" content="https://lobjectifchalonnais.fr/confidentialite.html">
+<meta property="og:image" content="https://lobjectifchalonnais.fr/icons/partage.jpg">
+<link rel="canonical" href="https://lobjectifchalonnais.fr/confidentialite.html">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&family=IBM+Plex+Mono:wght@500&display=swap">
+<link rel="stylesheet" href="site.css">
+<link rel="manifest" href="manifest.webmanifest">
+<meta name="theme-color" content="#FBFAF6">
+<link rel="apple-touch-icon" href="icons/apple-touch-icon.png">
+<link rel="icon" type="image/png" href="icons/favicon-48.png">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:'IBM Plex Mono',ui-monospace,Menlo,monospace;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; color-scheme:dark;
+    }
+  }
+  :root[data-theme="dark"]{
+    --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0; --line:#2B4A5E; --sky-deep:#6CC1EA; color-scheme:dark;
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;}
+  html{scroll-padding-top:16px;}
+  body{background:var(--bg);color:var(--ink);font-family:var(--font-body);font-size:16px;line-height:1.6;}
+  a{color:var(--sky-deep);}
+  :focus-visible{outline:3px solid var(--sky);outline-offset:3px;}
+  .wrap{max-width:760px;margin:0 auto;padding:0 20px 64px;}
+  h1,h2,h3{font-family:var(--font-display);line-height:1.15;text-wrap:balance;margin:0;}
+  .eyebrow{font-family:var(--font-mono);font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky-deep);margin:0;}
+  .page-head{padding-block:44px 20px;}
+  .page-head h1{font-size:clamp(32px,5vw,46px);font-weight:800;margin-top:8px;}
+  .page-head p{color:var(--ink-soft);margin:10px 0 0;}
+  .sommaire{display:flex;flex-wrap:wrap;gap:8px;margin:18px 0 0;padding:0;list-style:none;}
+  .sommaire a{
+    display:inline-block;padding:7px 14px;border-radius:999px;border:1.5px solid var(--line);
+    background:var(--surface);color:var(--ink);font-weight:700;font-size:14px;text-decoration:none;
+  }
+  .sommaire a:hover{border-color:var(--sky-deep);}
+  .bloc{background:var(--surface);border:1px solid var(--line);border-radius:16px;padding:26px 26px 10px;margin-top:22px;}
+  .bloc > h2{font-size:28px;font-weight:800;margin-bottom:6px;}
+  .bloc h3{font-size:19px;font-weight:800;margin:22px 0 6px;}
+  .bloc p, .bloc li{color:var(--ink-soft);}
+  .bloc p{margin:0 0 14px;}
+  .bloc ul{margin:0 0 14px;padding-left:20px;}
+  .bloc li{margin-bottom:6px;}
+  .bloc strong{color:var(--ink);}
+  dl.fiche{display:grid;grid-template-columns:max-content 1fr;gap:6px 18px;margin:8px 0 18px;}
+  dl.fiche dt{font-family:var(--font-mono);font-size:12.5px;letter-spacing:.04em;text-transform:uppercase;color:var(--ink-soft);padding-top:3px;}
+  dl.fiche dd{margin:0;color:var(--ink);font-weight:600;}
+  .tableau{width:100%;border-collapse:collapse;margin:6px 0 18px;font-size:14.5px;}
+  .tableau th, .tableau td{text-align:left;vertical-align:top;padding:10px 10px 10px 0;border-bottom:1px solid var(--line);}
+  .tableau th{font-family:var(--font-mono);font-size:11.5px;letter-spacing:.06em;text-transform:uppercase;color:var(--ink-soft);font-weight:500;}
+  .tableau td{color:var(--ink-soft);}
+  .tableau td:first-child{color:var(--ink);font-weight:700;}
+  .maj{font-family:var(--font-mono);font-size:12.5px;color:var(--ink-soft);margin-top:26px;}
+  @media (max-width:600px){
+    .bloc{padding:20px 18px 6px;}
+    dl.fiche{grid-template-columns:1fr;gap:2px;}
+    dl.fiche dd{margin-bottom:10px;}
+    .tableau thead{display:none;}
+    .tableau, .tableau tbody, .tableau tr, .tableau td{display:block;width:100%;}
+    .tableau tr{border-bottom:1px solid var(--line);padding:10px 0;}
+    .tableau td{border:none;padding:2px 0;}
+    .tableau td[data-l]::before{content:attr(data-l) " : ";font-family:var(--font-mono);font-size:11px;text-transform:uppercase;letter-spacing:.05em;}
+  }
+</style>
+</head>
+<body>
+
+<nav class="oc-nav" aria-label="Navigation principale">
+  <a class="oc-nav-logo" href="index.html"><img src="logo.png" alt="L'Objectif Châlonnais — accueil"></a>
+  <div class="oc-nav-links">
+    <a href="index.html">Accueil</a>
+    <a href="actus.html">Actus</a>
+    <a href="agenda.html">Agenda</a>
+    <a href="direct.html">Direct</a>
+    <a href="jeux.html">Jeux</a>
+    <a href="bons-plans.html">Bons plans</a>
+    <a href="galerie.html">Galerie</a>
+    <a href="quiz.html">Quiz</a>
+  </div>
+</nav>
+
+<main class="wrap">
+  <header class="page-head">
+    <p class="eyebrow">Confidentialité</p>
+    <h1>Politique de confidentialité</h1>
+    <p>Cette politique s'applique au site <strong>lobjectifchalonnais.fr</strong> et à l'application mobile <strong>« L'Objectif Châlonnais »</strong> publiée sur le Google Play Store. En résumé : nous collectons le strict nécessaire, nous ne vendons rien, et nous n'utilisons aucun traceur publicitaire.</p>
+    <ul class="sommaire">
+      <li><a href="#responsable">Responsable</a></li>
+      <li><a href="#collecte">Ce que nous collectons</a></li>
+      <li><a href="#application">L'application mobile</a></li>
+      <li><a href="#appareil">Sur votre appareil</a></li>
+      <li><a href="#tiers">Services extérieurs</a></li>
+      <li><a href="#droits">Vos droits</a></li>
+    </ul>
+  </header>
+
+  <!-- ===================== RESPONSABLE ===================== -->
+  <section class="bloc" id="responsable">
+    <h2>Qui est responsable de vos données</h2>
+    <dl class="fiche">
+      <dt>Éditeur</dt><dd>L'Objectif Châlonnais, association loi 1901</dd>
+      <dt>Siège</dt><dd>7 rue Georges Danton, 51000 Châlons-en-Champagne</dd>
+      <dt>Représentant</dt><dd>M. Aïssa Filali, président</dd>
+      <dt>Contact</dt><dd><a class="js-contact" href="mailto:lobjectifchalonnais@gmail.com">lobjectifchalonnais@gmail.com</a></dd>
+    </dl>
+    <p>Le responsable des traitements est l'association L'Objectif Châlonnais, représentée par son président. Vos données servent uniquement aux usages décrits ci-dessous. Elles ne sont <strong>ni vendues, ni louées, ni transmises</strong> à des fins commerciales.</p>
+  </section>
+
+  <!-- ===================== COLLECTE ===================== -->
+  <section class="bloc" id="collecte">
+    <h2>Ce que nous collectons, et pourquoi</h2>
+    <p>Vous pouvez consulter l'essentiel du site et de l'application sans fournir aucune donnée personnelle. Les informations ci-dessous ne sont collectées que lorsque vous utilisez le service correspondant.</p>
+    <table class="tableau">
+      <thead><tr><th>Service</th><th>Données</th><th>Pourquoi</th><th>Durée</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>« Envoyez-nous votre info »</td>
+          <td data-l="Données">Votre message, vos photos, et si vous les indiquez votre prénom et un moyen de contact</td>
+          <td data-l="Pourquoi">Étudier votre proposition, vous recontacter, la publier avec votre accord</td>
+          <td data-l="Durée">6 mois, puis effacement automatique (sauf ce qui a été publié)</td>
+        </tr>
+        <tr>
+          <td>Lettre d'information</td>
+          <td data-l="Données">Votre adresse e-mail</td>
+          <td data-l="Pourquoi">Vous envoyer la lettre (votre consentement)</td>
+          <td data-l="Durée">Jusqu'à votre désinscription</td>
+        </tr>
+        <tr>
+          <td>Alertes sur téléphone</td>
+          <td data-l="Données">Un identifiant technique d'abonnement fourni par votre navigateur ou votre appareil (ni nom, ni numéro)</td>
+          <td data-l="Pourquoi">Vous envoyer les alertes (votre consentement)</td>
+          <td data-l="Durée">Jusqu'à la désactivation des alertes ou l'expiration de l'abonnement</td>
+        </tr>
+        <tr>
+          <td>Jeux concours</td>
+          <td data-l="Données">Prénom, nom, e-mail, téléphone</td>
+          <td data-l="Pourquoi">Organiser le tirage au sort et contacter les gagnants (règlement du jeu)</td>
+          <td data-l="Durée">Effacées au plus tard 3 mois après le tirage. Seuls le prénom et l'initiale du nom des gagnants restent affichés.</td>
+        </tr>
+        <tr>
+          <td>Bons plans, avis, commentaires, photos</td>
+          <td data-l="Données">Ce que vous publiez, et le prénom ou pseudo que vous indiquez (facultatif)</td>
+          <td data-l="Pourquoi">Afficher votre contribution dans le guide (votre choix de publier)</td>
+          <td data-l="Durée">Tant que la contribution est en ligne</td>
+        </tr>
+        <tr>
+          <td>Écrire à l'équipe</td>
+          <td data-l="Données">Votre message, et si vous les indiquez votre prénom et votre e-mail. Une clé aléatoire, gardée sur votre appareil, permet de retrouver la conversation.</td>
+          <td data-l="Pourquoi">Vous répondre (votre demande)</td>
+          <td data-l="Durée">Effacée 6 mois après le dernier message, ou avant sur simple demande</td>
+        </tr>
+        <tr>
+          <td>La discussion</td>
+          <td data-l="Données">Votre pseudo, vos messages (visibles par tous) et une empreinte chiffrée de votre abonnement aux alertes, pour lutter contre le spam</td>
+          <td data-l="Pourquoi">Faire vivre une discussion entre Châlonnais (votre choix d'écrire)</td>
+          <td data-l="Durée">90 jours</td>
+        </tr>
+        <tr>
+          <td>Protection contre les abus</td>
+          <td data-l="Données">Une empreinte chiffrée de votre adresse IP lors d'un envoi</td>
+          <td data-l="Pourquoi">Limiter le spam et les tentatives de piratage (intérêt légitime)</td>
+          <td data-l="Durée">Au plus 2 jours</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <!-- ===================== APPLICATION ===================== -->
+  <section class="bloc" id="application">
+    <h2>L'application mobile</h2>
+    <p>L'application « L'Objectif Châlonnais » disponible sur le Google Play Store est une <strong>enveloppe qui affiche ce même site</strong> (technologie Trusted Web Activity de Google). Elle ne collecte <strong>aucune donnée supplémentaire</strong> par rapport au site : tout ce qui est décrit sur cette page s'applique à l'identique.</p>
+    <h3>Autorisations demandées</h3>
+    <p>L'application ne demande, à l'ouverture, ni votre position, ni vos contacts, ni l'accès à votre caméra ou à vos photos.</p>
+    <ul>
+      <li><strong>Notifications</strong> : uniquement si vous choisissez d'activer les alertes. Vous pouvez les désactiver à tout moment dans les réglages Android de l'application, ou depuis l'accueil du site.</li>
+      <li><strong>Appareil photo ou galerie</strong> : sollicité seulement si vous décidez d'envoyer une photo via « Envoyez-nous votre info ». Les photos sont allégées sur votre appareil et leur position GPS est retirée avant l'envoi.</li>
+    </ul>
+    <h3>Ni publicité, ni pistage</h3>
+    <p>L'application <strong>n'intègre aucune publicité, aucun SDK de pistage et aucun outil de mesure d'audience publicitaire</strong>. Aucun identifiant publicitaire n'est lu.</p>
+    <h3>Distribution et mises à jour</h3>
+    <p>L'application est distribuée par Google Play (Google Ireland Limited). Lors du téléchargement et des mises à jour, Google peut recueillir des données techniques selon sa propre <a href="https://policies.google.com/privacy" rel="noopener">politique de confidentialité</a>, sur laquelle nous n'avons pas la main. Désinstaller l'application supprime les réglages conservés sur votre appareil.</p>
+  </section>
+
+  <!-- ===================== APPAREIL ===================== -->
+  <section class="bloc" id="appareil">
+    <h2>Ce qui reste sur votre appareil</h2>
+    <p>Le site et l'application gardent sur votre téléphone ou votre ordinateur quelques réglages pratiques : vos réponses au quiz, vos participations aux jeux, votre choix pour les alertes, et une copie des pages pour l'utilisation hors ligne. Ces informations ne nous sont pas envoyées et vous pouvez les effacer en vidant les données du site dans votre navigateur, ou en désinstallant l'application.</p>
+    <p><strong>Aucun cookie, aucune publicité, aucun pixel de réseau social.</strong> C'est pourquoi aucun bandeau de cookies ne vous est demandé.</p>
+    <h3>Compteur de visites</h3>
+    <p>Pour savoir combien de personnes consultent le site, nous comptons simplement les pages vues et les visites, jour par jour. Ce compteur est anonyme : il n'utilise aucun cookie, n'enregistre ni votre adresse IP ni aucun identifiant, et ne permet pas de suivre votre navigation. Seule une empreinte chiffrée de l'adresse IP sert, pendant au plus un jour, à empêcher qu'un même appareil gonfle artificiellement les chiffres. Les statistiques obtenues ne sont pas transmises à des tiers.</p>
+  </section>
+
+  <!-- ===================== SERVICES EXTÉRIEURS ===================== -->
+  <section class="bloc" id="tiers">
+    <h2>Services extérieurs et hébergement</h2>
+    <p><strong>Hébergement :</strong> le site est hébergé par GitHub Pages (GitHub, Inc., États-Unis) et sa base de données par Supabase, Inc. Le nom de domaine est géré par IONOS SE (Allemagne).</p>
+    <p>Pour fonctionner, certaines pages font appel à des services extérieurs, qui reçoivent alors votre adresse IP comme pour toute visite web :</p>
+    <ul>
+      <li><strong>Google Fonts</strong>, pour les polices d'écriture ;</li>
+      <li><strong>Google Maps</strong>, uniquement si vous touchez « Y aller » sur un bon plan ;</li>
+      <li><strong>YouTube</strong>, quand un article contient une vidéo, et sur la page Direct : les miniatures sont affichées depuis YouTube, et le lecteur (ainsi que le tchat d'un direct) n'est chargé que lorsque vous lancez une vidéo. Les replays utilisent le mode « confidentialité renforcée » de YouTube ;</li>
+      <li><strong>Facebook</strong>, uniquement quand vous lancez un direct diffusé depuis notre page Facebook sur la page Direct ;</li>
+      <li>le service d'alertes de votre navigateur ou de votre appareil (Google, Apple ou Mozilla), si vous activez les alertes.</li>
+    </ul>
+    <p>Certains de ces prestataires, ainsi que nos hébergeurs GitHub et Supabase, sont établis aux États-Unis. Les transferts de données correspondants sont encadrés par les garanties prévues par le RGPD (clauses contractuelles types de la Commission européenne ou cadre de protection des données UE–États-Unis).</p>
+    <h3>Sécurité</h3>
+    <p>Les échanges avec le site et l'application sont chiffrés (HTTPS). Les coordonnées des participants aux jeux ne sont accessibles qu'à l'équipe de l'association, avec un code réservé, et ne sont jamais affichées publiquement.</p>
+  </section>
+
+  <!-- ===================== DROITS ===================== -->
+  <section class="bloc" id="droits">
+    <h2>Vos droits</h2>
+    <p>Conformément au Règlement général sur la protection des données (RGPD) et à la loi Informatique et Libertés, vous pouvez à tout moment :</p>
+    <ul>
+      <li>savoir quelles données nous avons sur vous et en obtenir une copie ;</li>
+      <li>les faire corriger ou effacer ;</li>
+      <li>vous opposer à leur utilisation ou en demander la limitation ;</li>
+      <li>retirer votre consentement (désinscription de la lettre, désactivation des alertes depuis l'accueil du site).</li>
+    </ul>
+    <p>Pour cela, écrivez-nous à <a class="js-contact" href="mailto:lobjectifchalonnais@gmail.com">lobjectifchalonnais@gmail.com</a>. Nous répondons dans un délai d'un mois au plus.</p>
+    <p>Si vous estimez que vos droits ne sont pas respectés, vous pouvez adresser une réclamation à la CNIL : <a href="https://www.cnil.fr/fr/plaintes" rel="noopener">cnil.fr/fr/plaintes</a>.</p>
+    <p>Les <a href="mentions-legales.html">mentions légales</a> complètent cette politique.</p>
+    <p class="maj">Dernière mise à jour : 16 octobre 2026</p>
+  </section>
+</main>
+
+<footer class="oc-pied">
+  <span>© L'Objectif Châlonnais · Association loi 1901</span>
+  <a href="partenaires.html">Nos partenaires</a>
+  <a href="proposer.html">Envoyez-nous votre info</a>
+  <a href="mentions-legales.html">Mentions légales</a>
+</footer>
+
+<script src="config.js"></script>
+<script src="direct.js" defer></script>
+<script src="compteur.js" defer></script>
+<script>
+(function(){
+  const cfg = window.OC_CONFIG || {};
+  if(cfg.contact){
+    document.querySelectorAll('.js-contact').forEach(a=>{ a.textContent = cfg.contact; a.href = 'mailto:' + cfg.contact; });
+  }
+})();
+</script>
+<script src="app.js"></script>
+</body>
+</html>
