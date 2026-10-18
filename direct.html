@@ -250,6 +250,10 @@
   let lecture = null;       // { type:'live'|'video', id }
   let videos = [];
 
+  // Mobile : Facebook refuse la lecture intégrée (on ouvre Facebook). iPhone : pas de plein écran par code.
+  const MOBILE = /iphone|ipad|ipod|android/i.test(navigator.userAgent || '') || (navigator.maxTouchPoints > 1 && /Mac/.test(navigator.platform || ''));
+  const PLEIN_OK = !!(document.fullscreenEnabled || document.webkitFullscreenEnabled);
+
   const majuscule = (t)=> t.charAt(0).toUpperCase() + t.slice(1);
   function heure(iso){ return new Date(iso).toLocaleTimeString('fr-FR', { hour:'2-digit', minute:'2-digit' }).replace(':', 'h'); }
   function jour(iso){
@@ -270,7 +274,7 @@
   function boutonYT(href, txt){ return `<a class="btn" href="${esc(href)}" target="_blank" rel="noopener">${esc(txt)} ↗</a>`; }
 
   // ---------- Plein écran ----------
-  function montrerPlein(oui){ const b = $('btn-plein'); if(b) b.hidden = !oui; }
+  function montrerPlein(oui){ const b = $('btn-plein'); if(b) b.hidden = !(oui && PLEIN_OK); }  // caché sur iPhone (pas de plein écran par code)
   function ouvrirExterne(){
     // iPhone : Apple interdit le plein écran par code → on ouvre la vidéo là où il fonctionne
     let url = (lecture && lecture.type === 'video') ? `https://www.youtube.com/watch?v=${encodeURIComponent(lecture.id)}` : lienLive();
@@ -320,11 +324,13 @@
     if(etat.video){ f.classList.add('avec-image'); f.style.backgroundImage = `url("https://i.ytimg.com/vi/${encodeURIComponent(etat.video)}/hqdefault_live.jpg")`; }
     f.innerHTML = `<span class="lire" aria-hidden="true"></span><strong>${esc(etat.titre || 'Regarder le direct')}</strong><small>Touchez pour lancer le direct. La vidéo est diffusée par ${etat.fb ? 'Facebook' : 'YouTube'}.</small>`;
     f.setAttribute('aria-label', 'Regarder le direct');
-    // lien Facebook « de partage » (fb.watch, /share/…) : Facebook refuse de l'afficher ailleurs → on ouvre Facebook
+    // Facebook : lien « de partage » impossible à intégrer, ET sur mobile Facebook refuse la lecture
+    // intégrée de toute façon → on ouvre Facebook. YouTube (et FB sur ordinateur) : lecture dans l'appli.
     const fbCourt = etat.fb && !/\/videos\/\d|watch\/\?v=\d/.test(etat.fb);
-    if(fbCourt){
-      f.querySelector('small').textContent = 'Touchez pour regarder le direct sur Facebook (nouvel onglet).';
-      f.onclick = ()=> window.open(etat.fb, '_blank', 'noopener');
+    const versFacebook = etat.fb && (fbCourt || MOBILE);
+    if(versFacebook){
+      f.querySelector('small').textContent = 'Touchez pour regarder le direct sur Facebook.';
+      f.onclick = ouvrirExterne;
     }else f.onclick = lancerLive;
     $('ecran').append(f);
     if(avecTchat) $('tchat-attente').hidden = false, $('tchat').querySelectorAll('iframe').forEach(n=> n.remove());
