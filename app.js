@@ -5,25 +5,11 @@
      qui contient un élément #install-banner.
    ============================================================ */
 (function(){
-  // Activation immédiate du service worker (sans attendre la fin du
-  // chargement de la page), pour qu'il soit détecté par les outils
-  // d'analyse comme PWABuilder.
   if('serviceWorker' in navigator){
-    navigator.serviceWorker.register('sw.js').catch(()=>{});
+    window.addEventListener('load', ()=>{
+      navigator.serviceWorker.register('sw.js').catch(()=>{});
+    });
   }
-
-  // « Ma carte » dans la barre de navigation, seulement sur le téléphone
-  // d'un adhérent qui a déjà ouvert sa carte (voir carte.html).
-  (function maCarte(){
-    let a = null;
-    try{ a = JSON.parse(localStorage.getItem('oc-ma-carte') || 'null'); }catch(e){}
-    const nav = document.querySelector('.oc-nav-links');
-    if(!a || !a.cle || !nav || nav.querySelector('[data-ma-carte]')) return;
-    const lien = document.createElement('a');
-    lien.href = 'carte.html'; lien.setAttribute('data-ma-carte', '');
-    lien.textContent = '🪪 Ma carte';
-    nav.prepend(lien);
-  })();
 
   const banner = document.getElementById('install-banner');
   if(!banner) return;
@@ -33,6 +19,9 @@
   const ua = navigator.userAgent || '';
   const isIOS = /iphone|ipad|ipod/i.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
   const isStandalone = window.matchMedia('(display-mode: standalone)').matches || navigator.standalone === true;
+  // Dans l'application native (coque iOS/Android), le site est chargé avec ?source=app :
+  // inutile d'inviter à « installer », on est déjà dans l'appli.
+  const dansAppli = /[?&]source=app(\b|=|&|$)/.test(location.search);
 
   const text = banner.querySelector('[data-install-text]');
   const actionBtn = banner.querySelector('[data-install-action]');
@@ -64,8 +53,9 @@
     if(remember){ try{ localStorage.setItem(DISMISS_KEY, String(Date.now())); }catch(e){} }
   }
 
-  if(isStandalone){
+  if(isStandalone || dansAppli){
     if(footerLink) footerLink.hidden = true;
+    hide(false);
     return;
   }
 
