@@ -72,6 +72,8 @@
   .scene.avec-tchat{grid-template-columns:minmax(0,1fr) 360px;}
   .ecran{position:relative;aspect-ratio:16/9;background:var(--ecran);border-radius:18px;overflow:hidden;}
   .ecran iframe{position:absolute;inset:0;width:100%;height:100%;border:0;}
+  /* Vidéo verticale (Facebook portrait : Reel, story, live au téléphone) */
+  .ecran.portrait{aspect-ratio:9/16;max-width:min(100%,360px);margin-left:auto;margin-right:auto;}
   .facade{
     position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:14px;
     border:0;width:100%;cursor:pointer;color:#fff;font:inherit;text-align:center;padding:24px;
@@ -252,7 +254,7 @@
 
   // ---------- Direct en cours ----------
   function urlLive(){
-    if(etat.fb) return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(etat.fb)}&show_text=false&autoplay=true&allowfullscreen=true&width=1280`;
+    if(etat.fb) return `https://www.facebook.com/plugins/video.php?href=${encodeURIComponent(etat.fb)}&show_text=false&autoplay=true&allowfullscreen=true&width=${etat.vertical ? 405 : 1280}`;
     return etat.video
       ? `https://www.youtube.com/embed/${encodeURIComponent(etat.video)}?autoplay=1&playsinline=1&rel=0`
       : `https://www.youtube.com/embed/live_stream?channel=${encodeURIComponent(CHAINE)}&autoplay=1&playsinline=1&rel=0`;

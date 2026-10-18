@@ -108,6 +108,7 @@
         <p class="hint"><b>YouTube</b> : pendant le direct, <b>Partager → Copier le lien</b> (le site affiche aussi le tchat). Sans lien, le site montre le direct en cours de la chaîne YouTube.<br>
         <b>Facebook</b> (le plus sûr, depuis un ordinateur) : ouvrez le direct sur la page, <b>⋯ → Intégrer</b>, copiez le code et collez-le tel quel ici. Sinon, un lien en <i>facebook.com/…/videos/123…</i>. Le direct doit être <b>public</b> et l'intégration autorisée (réglage « Autoriser l'intégration » dans Live Producer, activé par défaut).</p>
         <p class="hint" id="f-lien-type" hidden></p>
+        <label class="case"><input type="checkbox" id="f-vertical"> 📱 Vidéo verticale (portrait) — Reel, story, ou live filmé au téléphone</label>
         <label class="case"><input type="checkbox" id="f-alerte" checked> 🔔 Prévenir les abonnés par une alerte</label>
         <div class="actions">
           <button class="btn go" type="submit" id="btn-lancer">On est en direct</button>
@@ -233,7 +234,11 @@
     }
     if(live || !$('f-titre').value){
       $('f-titre').value = live ? (e.titre || '') : ($('f-titre').value || e.prochain_titre || '');
-      if(live) $('f-lien').value = e.lien_fb || (e.video_id ? 'https://youtube.com/live/' + e.video_id : '');
+      if(live){
+        const raw = e.lien_fb || (e.video_id ? 'https://youtube.com/live/' + e.video_id : '');
+        $('f-vertical').checked = /#oc=portrait/i.test(raw);          // on recoche la case si la vidéo est marquée portrait
+        $('f-lien').value = raw.replace(/#oc=portrait/i, '');          // on affiche le lien propre
+      }
     }
     const annonce = e.prochain_le && new Date(e.prochain_le) > Date.now() - 2 * 3600e3;
     $('btn-retirer').hidden = !annonce;

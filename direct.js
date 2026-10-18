@@ -27,7 +27,8 @@
       live: !!v.en_direct && !!v.debut && maint - new Date(v.debut) < DUREE_MAX,
       titre: v.titre || '',
       video: v.video_id || '',
-      fb: v.lien_fb || '',
+      fb: (v.lien_fb || '').replace(/#oc=portrait/i, ''),   // lien propre pour le lecteur
+      vertical: /#oc=portrait/i.test(v.lien_fb || ''),       // vidéo verticale : cadre portrait
       debut: v.debut || null,
       prochain: v.prochain_le && new Date(v.prochain_le) > maint - 2 * 3600e3
         ? { le: v.prochain_le, titre: v.prochain_titre || '' } : null
