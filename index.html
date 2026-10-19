@@ -133,6 +133,16 @@
     font-variant-numeric:tabular-nums;
   }
   .finder .caption{font-family:var(--font-body);font-size:15px;color:var(--ink-soft);margin:0 0 20px;}
+  /* Logo Facebook à côté du nombre d'abonnés */
+  .fb-badge{display:inline-grid;place-items:center;background:#1877F2;color:#fff;flex:0 0 auto;}
+  .fb-badge svg{display:block;fill:currentColor;}
+  .finder .big-ligne{display:flex;align-items:center;gap:14px;margin:6px 0 4px;}
+  .finder .big-ligne .big{margin:0;}
+  .finder .fb-badge{width:48px;height:48px;border-radius:13px;}
+  .finder .fb-badge svg{width:27px;height:27px;}
+  .fb-ab{display:inline-flex;align-items:center;gap:9px;}
+  .stat-ligne .fb-badge{width:28px;height:28px;border-radius:8px;}
+  .stat-ligne .fb-badge svg{width:16px;height:16px;}
   .finder dl{
     display:grid;grid-template-columns:auto 1fr;gap:6px 16px;margin:0;
     border-top:1px dashed var(--line);padding-top:16px;
@@ -471,12 +481,15 @@
           <a class="btn btn-main" href="bons-plans.html">Explorer les bons plans</a>
           <a class="btn btn-ghost" href="galerie.html">Voir la galerie</a>
         </div>
-        <p class="stat-ligne" id="stat-ligne" hidden><strong>168 000</strong> personnes nous suivent sur Facebook. Merci d'être là, ici aussi.</p>
+        <p class="stat-ligne" id="stat-ligne" hidden><span class="fb-ab"><span class="fb-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94Z"/></svg></span><strong data-fb>164 000</strong></span> personnes nous suivent sur Facebook. Merci d'être là, ici aussi.</p>
         <p class="stat-ligne compteur" id="compteur" hidden><strong data-nb>0</strong><span>visites sur le site depuis le <span data-depuis></span></span></p>
       </div>
       <div class="finder vf" id="finder" aria-label="Notre communauté">
         <div>Notre communauté</div>
-        <div class="big">168 000</div>
+        <div class="big-ligne">
+          <span class="fb-badge" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M22 12.06C22 6.5 17.52 2 12 2S2 6.5 2 12.06c0 5 3.66 9.15 8.44 9.94v-7.03H7.9v-2.9h2.54V9.85c0-2.52 1.5-3.91 3.78-3.91 1.1 0 2.24.2 2.24.2v2.46h-1.26c-1.24 0-1.63.78-1.63 1.57v1.89h2.78l-.44 2.9h-2.34V22c4.78-.79 8.44-4.94 8.44-9.94Z"/></svg></span>
+          <div class="big" data-fb>164 000</div>
+        </div>
         <p class="caption">personnes nous suivent sur Facebook. Merci d'être là, ici aussi.</p>
         <dl>
           <dt>Lieu</dt><dd>Châlons-en-Champagne, Marne</dd>
@@ -1045,5 +1058,30 @@ document.querySelectorAll('[data-illu]').forEach(box=>{
 <script src="push.js"></script>
 <script src="chat.js"></script>
 <script>document.querySelectorAll('[data-chat]').forEach(a=> a.addEventListener('click', e=>{ if(window.OCChat){ e.preventDefault(); window.OCChat.ouvrir(a.dataset.chat); } }));</script>
+<script>
+/* Compteur animé du nombre d'abonnés Facebook : défile de 0 au total quand il entre à l'écran.
+   Le total est simplement le chiffre écrit dans le HTML (data-fb) — rien d'autre à changer. */
+(function(){
+  var reduit = matchMedia('(prefers-reduced-motion: reduce)').matches;
+  var fmt = function(n){ return n.toLocaleString('fr-FR'); };
+  document.querySelectorAll('[data-fb]').forEach(function(el){
+    var cible = parseInt((el.textContent||'').replace(/[^\d]/g,''), 10);
+    if(!cible) return;
+    if(reduit || !('IntersectionObserver' in window)){ el.textContent = fmt(cible); return; }
+    el.textContent = fmt(0);
+    var io = new IntersectionObserver(function(es){
+      if(!es.some(function(e){ return e.isIntersecting; })) return;
+      io.disconnect();
+      var t0 = performance.now(), duree = 1400;
+      (function pas(t){
+        var k = Math.min(1, (t - t0) / duree);
+        el.textContent = fmt(Math.round(cible * (1 - Math.pow(1 - k, 3))));
+        if(k < 1) requestAnimationFrame(pas);
+      })(t0);
+    });
+    io.observe(el);
+  });
+})();
+</script>
 </body>
 </html>
