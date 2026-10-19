@@ -106,6 +106,9 @@
           <div><label class="l" for="a-date">Date</label><input type="date" id="a-date"></div>
           <div><label class="l" for="a-titre">Titre de l'album</label><input type="text" id="a-titre" maxlength="80" placeholder="Ex. Foire de Châlons"></div>
         </div>
+        <label class="l" for="a-publier" style="margin-top:10px;">🗓️ Publier plus tard <span style="font-weight:600;color:var(--muted)">(facultatif)</span></label>
+        <input type="datetime-local" id="a-publier">
+        <p class="hint" style="margin:6px 0 0;">Vide = en ligne tout de suite. Sinon l'album reste caché, puis apparaît — et l'alerte part — automatiquement à cette date et heure.</p>
       </div>
       <div id="bloc-existant" hidden>
         <label class="l" for="a-liste">Album</label>
@@ -302,6 +305,15 @@
     if(!r.ok) throw new Error('Erreur ' + r.status);
     return j;
   }
+  // Appel d'une fonction SQL (RPC) — sert à programmer un album
+  async function rpc(nom, params){
+    const h = { apikey: CLE, 'Content-Type': 'application/json' }; if(CLE.startsWith('eyJ')) h.Authorization = 'Bearer ' + CLE;
+    const r = await fetch(`${BASE}/rest/v1/rpc/${nom}`, { method: 'POST', headers: h, body: JSON.stringify(params) });
+    const j = await r.json().catch(()=> null);
+    if(j && j.erreur) throw new Error(j.erreur);
+    if(!r.ok) throw new Error('Erreur ' + r.status);
+    return j;
+  }
   async function liensEnvoi(chemins){
     const out = {};
     for(let i = 0; i < chemins.length; i += 30){
@@ -406,10 +418,26 @@
       }
       await Promise.all(Array.from({ length: EN_PARALLELE }, ouvrier));
       const lienAlbum = 'galerie.html#' + encodeURIComponent(dossier);
-      $('voir-album').href = lienAlbum;
+      $('voir-album').href = lienAlbum; $('voir-album').hidden = false;
       let texte = `${faits} photo${faits > 1 ? 's' : ''} ajoutée${faits > 1 ? 's' : ''} à « ${esc(titreAffiche)} ».`;
       if(echecs) texte += ` <b>${echecs} n'ont pas pu être envoyées</b> (format non lisible ou connexion coupée) : touchez « Envoyer » pour réessayer.`;
-      if(faits && $('alerte').checked){
+      // Publication programmée (album neuf uniquement) ?
+      const progVal = $('a-publier') ? $('a-publier').value : '';
+      const progDate = progVal ? new Date(progVal) : null;
+      const programme = nouvelAlbum && faits && progDate && !isNaN(progDate) && progDate.getTime() > Date.now() + 60000;
+      if(programme){
+        try{
+          await rpc('oc_album_programmer', {
+            p_code: code, p_dossier: dossier, p_titre: titreAffiche,
+            p_publier_le: progDate.toISOString(), p_nb: faits,
+            p_credit: ($('a-credit').value.trim().slice(0, 120) || null), p_alerte: $('alerte').checked
+          });
+          const quand = progDate.toLocaleString('fr-FR', { weekday: 'long', day: 'numeric', month: 'long', hour: '2-digit', minute: '2-digit' });
+          texte += ` 🗓️ <b>Album programmé pour le ${quand}.</b> Il est caché jusque-là, puis apparaîtra dans la galerie` + ($('alerte').checked ? ' et l\'alerte partira' : '') + ' automatiquement.';
+          $('voir-album').hidden = true;        // caché jusqu'à l'heure : pas de lien « Voir » trompeur
+          $('a-publier').value = '';
+        }catch(e){ texte += ` ⚠️ Programmation non enregistrée (${esc(e.message)}) — l'album est en ligne tout de suite. As-tu exécuté albums.sql dans Supabase ?`; }
+      }else if(faits && $('alerte').checked){
         try{
           const r = await fonction({ titre: '📸 Nouvel album', message: `${titreAffiche} — ${faits} photo${faits > 1 ? 's' : ''} à découvrir dans la galerie.`, lien: './' + lienAlbum });
           texte += ` 🔔 Alerte envoyée à ${r.envoyes || 0} abonné${(r.envoyes || 0) > 1 ? 's' : ''}.`;

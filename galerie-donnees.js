@@ -21,12 +21,22 @@
   const estDossier = (o)=> o.id === null || (!o.metadata && !IMG.test(o.name));
   const visible = (nom)=> !nom.startsWith('_') && !nom.startsWith('.');
 
-  let manifeste = null, racine = null;
+  let manifeste = null, racine = null, cachesP = null;
   const lu = {};
   function chargerManifeste(){
     if(!manifeste) manifeste = fetch('data/galerie.json', { cache: 'no-cache' })
       .then(r=> r.ok ? r.json() : null).catch(()=> null);
     return manifeste;
+  }
+  // Dossiers d'albums programmés pas encore publiés (à masquer). Liste vide si la
+  // fonctionnalité n'est pas installée ou si la base est injoignable.
+  function listerCaches(){
+    if(!cachesP){
+      if(!URL_BASE || !CLE){ cachesP = Promise.resolve([]); }
+      else cachesP = fetch(`${URL_BASE}/rest/v1/rpc/oc_albums_caches`, { method: 'POST', headers, body: '{}' })
+        .then(r=> r.ok ? r.json() : []).then(a=> Array.isArray(a) ? a : []).catch(()=> []);
+    }
+    return cachesP;
   }
   async function lister(prefix){
     const out = [];
@@ -46,13 +56,15 @@
   async function albums(){
     if(!URL_BASE || !CLE) return [];
     if(!racine) racine = (async ()=>{
-      const [m, direct] = await Promise.all([
+      const [m, direct, caches] = await Promise.all([
         chargerManifeste(),
-        lister('').then(l=> l.filter(estDossier).map(o=> o.name)).catch(()=> null)
+        lister('').then(l=> l.filter(estDossier).map(o=> o.name)).catch(()=> null),
+        listerCaches()
       ]);
       const noms = direct || (m ? Object.keys(m.albums || {}) : null);
       if(!noms) throw new Error('galerie injoignable');
-      return noms.filter(visible).sort().reverse();
+      const masques = new Set(caches);                       // albums programmés : cachés jusqu'à leur heure
+      return noms.filter(visible).filter(n=> !masques.has(n)).sort().reverse();
     })();
     return racine;
   }
