@@ -30,8 +30,8 @@
   }
 
   /* ---------- La carte : tout l'écran ---------- */
-  #carte{position:absolute; inset:0; background:#cfe3ef; z-index:1;}
-  .leaflet-container{font-family:var(--f-corps); background:#cfe3ef;}
+  #carte{position:absolute; inset:0; background:#20323b; z-index:1;}
+  .leaflet-container{font-family:var(--f-corps); background:#20323b;}
   .leaflet-control-zoom{border:none !important; box-shadow:var(--ombre) !important; margin-top:calc(var(--haut) + 12px) !important;}
   .leaflet-control-zoom a{background:var(--surface) !important; color:var(--encre) !important; border-color:var(--line) !important;}
   .leaflet-control-attribution{font-size:10px; background:rgba(255,255,255,.7) !important;}
@@ -173,9 +173,10 @@
     zoomControl: true, attributionControl: true, tap: true
   });
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    subdomains: 'abc', maxZoom: 19, bounds: BORNES,
-    attribution: '© OpenStreetMap'
+  // Vue satellite (imagerie aérienne Esri) — gratuite, sans clé, sans noms de rue
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
+    maxZoom: 19, bounds: BORNES,
+    attribution: 'Imagerie © Esri, Maxar, Earthstar Geographics'
   }).addTo(carte);
 
   function recadrer(){ carte.invalidateSize(false); }
@@ -190,7 +191,7 @@
       + '<circle cx="16" cy="16" r="6.4" fill="#fff"/></svg>';
     return L.icon({ iconUrl: 'data:image/svg+xml;base64,' + btoa(svg), iconSize:[32,44], iconAnchor:[16,44], className:'epingle' });
   }
-  const iconeJoueur = icone('#142A38'), iconeVrai = icone('#2FA06A');
+  const iconeJoueur = icone('#E23744'), iconeVrai = icone('#2FA06A');   // rouge = votre épingle, vert = le vrai lieu
 
   const $ = (id)=> document.getElementById(id);
   let epingle = null, valide = false;
