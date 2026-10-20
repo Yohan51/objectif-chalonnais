@@ -144,6 +144,14 @@
     attribution: '© OpenStreetMap'
   }).addTo(carte);
 
+  // Recalcule la taille pour que TOUTES les tuiles se chargent (après polices, rotation d'écran…)
+  window.__oc_map = carte;
+  function recadrer(){ carte.invalidateSize(false); }
+  carte.whenReady(()=> setTimeout(recadrer, 200));
+  window.addEventListener('load', ()=> setTimeout(recadrer, 300));
+  window.addEventListener('resize', recadrer);
+  window.addEventListener('orientationchange', ()=> setTimeout(recadrer, 350));
+
   // Icône d'épingle (SVG en ligne, aux couleurs de L'Objectif)
   function icone(couleur){
     const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 30 42">'
