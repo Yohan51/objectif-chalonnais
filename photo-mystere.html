@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Photo mystère — L'Objectif Châlonnais</title>
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"
+      integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
+      crossorigin="anonymous" referrerpolicy="no-referrer">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372;
+    --line:#D7E3EA; --sky:#9FD8F5; --sky-deep:#2E97C7; --or:#E8B04B;
+    --vert:#3E9A6A; --rouge:#D7574B;
+    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
+    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
+    --font-mono:ui-monospace,'SF Mono',Menlo,monospace;
+    --radius:14px;
+  }
+  @media (prefers-color-scheme: dark){
+    :root:not([data-theme="light"]){
+      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0;
+      --line:#2B4A5E; --sky-deep:#6CC1EA; color-scheme:dark;
+    }
+  }
+  *{box-sizing:border-box;}
+  [hidden]{display:none !important;}
+  html,body{margin:0;height:100%;}
+  body{
+    background:var(--bg);color:var(--ink);
+    font-family:var(--font-body);line-height:1.5;
+    display:flex;flex-direction:column;min-height:100%;
+  }
+  header{
+    padding:16px 18px calc(16px + env(safe-area-inset-top,0px));
+    padding-top:calc(16px + env(safe-area-inset-top,0px));
+    text-align:center;
+  }
+  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sky-deep);margin:0 0 4px;}
+  h1{font-family:var(--font-display);font-size:26px;font-weight:800;margin:0;}
+  .consigne{color:var(--ink-soft);font-size:14.5px;margin:8px auto 0;max-width:46ch;}
+
+  /* Coins de viseur (signature) */
+  .vf{position:relative;}
+  .vf::before,.vf::after{content:"";position:absolute;width:18px;height:18px;border-color:var(--sky-deep);border-style:solid;pointer-events:none;z-index:500;}
+  .vf::before{top:-6px;left:-6px;border-width:3px 0 0 3px;border-radius:5px 0 0 0;}
+  .vf::after{bottom:-6px;right:-6px;border-width:0 3px 3px 0;border-radius:0 0 5px 0;}
+
+  /* Indice photo (petit, la carte est la vedette pour ce premier temps) */
+  .indice{
+    width:min(92%,420px);margin:0 auto 14px;aspect-ratio:16/10;border-radius:var(--radius);
+    overflow:hidden;background:
+      repeating-linear-gradient(45deg,var(--line) 0 12px,transparent 12px 24px),var(--surface);
+    border:1px solid var(--line);display:grid;place-items:center;text-align:center;color:var(--ink-soft);
+    font-family:var(--font-mono);font-size:12.5px;padding:14px;
+  }
+
+  .zone-carte{width:min(96%,720px);margin:0 auto;}
+  #carte{
+    height:min(56vh,460px);border-radius:var(--radius);overflow:hidden;
+    border:1px solid var(--line);background:var(--line);
+  }
+  .leaflet-container{font-family:var(--font-body);background:#aadaff;}
+
+  .barre{
+    width:min(96%,720px);margin:14px auto calc(18px + env(safe-area-inset-bottom,0px));
+    display:flex;flex-direction:column;gap:12px;
+  }
+  .btn{
+    font-family:var(--font-body);font-weight:800;font-size:16px;border:none;border-radius:999px;
+    padding:15px 22px;cursor:pointer;color:#fff;background:var(--ink);
+    transition:transform .12s ease,opacity .15s ease;
+  }
+  .btn:disabled{opacity:.45;cursor:not-allowed;}
+  .btn:not(:disabled):active{transform:scale(.98);}
+  .btn.secondaire{background:transparent;color:var(--ink);border:2px solid var(--line);}
+
+  .resultat{
+    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
+    padding:18px 20px;text-align:center;
+  }
+  .resultat .dist{font-family:var(--font-display);font-size:34px;font-weight:800;line-height:1;margin:2px 0 4px;}
+  .resultat .lieu{color:var(--ink-soft);font-size:14px;}
+  .resultat .score{margin-top:12px;display:inline-flex;align-items:center;gap:8px;font-weight:800;
+    background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:8px 16px;}
+  .pastille{width:12px;height:12px;border-radius:50%;background:var(--or);}
+  .tres-proche .pastille{background:var(--vert);}
+  .loin .pastille{background:var(--rouge);}
+
+  /* Épingle du joueur */
+  .epingle-joueur{filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));}
+</style>
+</head>
+<body>
+
+<header>
+  <p class="eyebrow">Jeu · L'Objectif Châlonnais</p>
+  <h1>Photo mystère</h1>
+  <p class="consigne" id="consigne">Où cette photo a-t-elle été prise à Châlons ? <strong>Touchez la carte</strong> pour poser votre épingle, puis validez.</p>
+</header>
+
+<!-- Emplacement de la photo mystère (remplacé par la vraie photo plus tard) -->
+<div class="indice vf" id="indice">
+  📷 Ici s'affichera le <strong>détail zoomé</strong> du lieu mystère.<br>(pour ce test, on travaille la carte)
+</div>
+
+<div class="zone-carte">
+  <div id="carte" class="vf"></div>
+</div>
+
+<div class="barre">
+  <div class="resultat" id="resultat" hidden>
+    <div class="lieu">Le vrai lieu : <strong id="r-lieu"></strong></div>
+    <div class="dist" id="r-dist"></div>
+    <div class="lieu">entre votre épingle et le lieu exact</div>
+    <div class="score" id="r-score"><span class="pastille"></span><span id="r-score-txt"></span></div>
+  </div>
+  <button class="btn" id="valider" disabled>Valider ma réponse</button>
+  <button class="btn secondaire" id="rejouer" hidden>Rejouer</button>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"
+        integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg=="
+        crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+<script>
+(function(){
+  // ---- Réglages du jour (ce qu'on changera à chaque photo mystère) ----
+  // Exemple : la Cathédrale Saint-Étienne de Châlons-en-Champagne.
+  const REPONSE = { lat: 48.95694, lon: 4.36472, lieu: 'Cathédrale Saint-Étienne' };
+
+  // Zone de Châlons : on empêche de se balader ailleurs (anti-triche + on reste sur le sujet)
+  const CENTRE = [48.9566, 4.3637];
+  const BORNES = L.latLngBounds([48.930, 4.320], [48.985, 4.408]);
+
+  const carte = L.map('carte', {
+    center: CENTRE, zoom: 14, minZoom: 13, maxZoom: 17,
+    maxBounds: BORNES, maxBoundsViscosity: 1.0,
+    zoomControl: true, attributionControl: true
+  });
+  carte.setMaxBounds(BORNES);
+
+  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+    maxZoom: 19, bounds: BORNES,
+    attribution: '© OpenStreetMap'
+  }).addTo(carte);
+
+  // Icône d'épingle (SVG en ligne, aux couleurs de L'Objectif)
+  function icone(couleur){
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 30 42">'
+      + '<path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 27 15 27s15-16.5 15-27C30 6.7 23.3 0 15 0z" fill="'+couleur+'"/>'
+      + '<circle cx="15" cy="15" r="6" fill="#fff"/></svg>';
+    return L.icon({
+      iconUrl: 'data:image/svg+xml;base64,' + btoa(svg),
+      iconSize: [30,42], iconAnchor: [15,42], className: 'epingle-joueur'
+    });
+  }
+  const iconeJoueur = icone('#183140');
+  const iconeVrai   = icone('#3E9A6A');
+
+  let epingle = null, valide = false;
+
+  carte.on('click', function(e){
+    if(valide) return;
+    if(!epingle){
+      epingle = L.marker(e.latlng, { icon: iconeJoueur, draggable: true }).addTo(carte);
+      epingle.on('drag dragend', ()=>{ /* repositionnable */ });
+    }else{
+      epingle.setLatLng(e.latlng);
+    }
+    document.getElementById('valider').disabled = false;
+  });
+
+  function metres(n){ return n < 1000 ? Math.round(n) + ' m' : (n/1000).toFixed(n < 10000 ? 2 : 1) + ' km'; }
+  // Score simple : 1000 pts si pile dessus, 0 au-delà de ~3 km
+  function score(d){ return Math.max(0, Math.round(1000 * Math.exp(-d / 800))); }
+
+  document.getElementById('valider').onclick = function(){
+    if(!epingle || valide) return;
+    valide = true;
+    this.hidden = true;
+    const vrai = L.latLng(REPONSE.lat, REPONSE.lon);
+    const d = carte.distance(epingle.getLatLng(), vrai);
+
+    L.marker(vrai, { icon: iconeVrai }).addTo(carte).bindPopup('📍 ' + REPONSE.lieu);
+    L.polyline([epingle.getLatLng(), vrai], { color: '#2E97C7', weight: 3, dashArray: '6 8' }).addTo(carte);
+    carte.fitBounds(L.latLngBounds([epingle.getLatLng(), vrai]).pad(0.4), { maxZoom: 17 });
+    epingle.dragging.disable();
+
+    const pts = score(d);
+    document.getElementById('r-lieu').textContent = REPONSE.lieu;
+    document.getElementById('r-dist').textContent = metres(d);
+    document.getElementById('r-score-txt').textContent = pts + ' / 1000 points';
+    const box = document.getElementById('resultat');
+    box.classList.toggle('tres-proche', d < 120);
+    box.classList.toggle('loin', d > 1200);
+    box.hidden = false;
+    document.getElementById('rejouer').hidden = false;
+    document.getElementById('consigne').textContent = d < 120
+      ? 'Bravo, c’était tout près ! 🎯'
+      : (d < 600 ? 'Pas mal du tout !' : 'Loupé — mais on apprend Châlons comme ça 🙂');
+  };
+
+  document.getElementById('rejouer').onclick = function(){ location.reload(); };
+})();
+</script>
+</body>
+</html>
