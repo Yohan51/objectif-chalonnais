@@ -2,213 +2,243 @@
 <html lang="fr">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, viewport-fit=cover">
 <title>Photo mystère — L'Objectif Châlonnais</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@600;700;800&family=Nunito:wght@400;600;700;800&display=swap">
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css"
       integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
       crossorigin="anonymous" referrerpolicy="no-referrer">
 <style>
   :root{
-    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --ink-soft:#4B6372;
-    --line:#D7E3EA; --sky:#9FD8F5; --sky-deep:#2E97C7; --or:#E8B04B;
-    --vert:#3E9A6A; --rouge:#D7574B;
-    --font-display:'Baloo 2','Nunito',system-ui,sans-serif;
-    --font-body:'Nunito',system-ui,-apple-system,'Segoe UI',sans-serif;
-    --font-mono:ui-monospace,'SF Mono',Menlo,monospace;
-    --radius:14px;
+    --encre:#142A38; --ciel:#9FD8F5; --ciel-fort:#2E97C7;
+    --papier:#F4F8FA; --surface:#FFFFFF; --soft:#5A7383; --line:#D7E3EA;
+    --or:#E8B04B; --vert:#2FA06A; --rouge:#DB5B4D;
+    --f-titre:'Baloo 2', system-ui, sans-serif;
+    --f-corps:'Nunito', system-ui, -apple-system, 'Segoe UI', sans-serif;
+    --ombre:0 10px 30px rgba(20,42,56,.18);
+    --haut:env(safe-area-inset-top,0px);
+    --bas:env(safe-area-inset-bottom,0px);
   }
   @media (prefers-color-scheme: dark){
-    :root:not([data-theme="light"]){
-      --bg:#0F2230; --surface:#183140; --ink:#EAF4F9; --ink-soft:#A9C2D0;
-      --line:#2B4A5E; --sky-deep:#6CC1EA; color-scheme:dark;
-    }
+    :root{ --papier:#0F2230; --surface:#17313F; --encre:#EAF4F9; --soft:#9DB6C4; --line:#2B4A5E; --ombre:0 10px 30px rgba(0,0,0,.4); }
   }
-  *{box-sizing:border-box;}
+  *{box-sizing:border-box; -webkit-tap-highlight-color:transparent;}
   [hidden]{display:none !important;}
-  html,body{margin:0;height:100%;}
+  html,body{margin:0;height:100%;overflow:hidden;overscroll-behavior:none;}
   body{
-    background:var(--bg);color:var(--ink);
-    font-family:var(--font-body);line-height:1.5;
-    display:flex;flex-direction:column;min-height:100%;
+    font-family:var(--f-corps); color:var(--encre); background:var(--papier);
+    position:fixed; inset:0;                 /* surface de jeu fixe : rien ne défile */
   }
-  header{
-    padding:16px 18px calc(16px + env(safe-area-inset-top,0px));
-    padding-top:calc(16px + env(safe-area-inset-top,0px));
-    text-align:center;
-  }
-  .eyebrow{font-family:var(--font-mono);font-size:11px;letter-spacing:.14em;text-transform:uppercase;color:var(--sky-deep);margin:0 0 4px;}
-  h1{font-family:var(--font-display);font-size:26px;font-weight:800;margin:0;}
-  .consigne{color:var(--ink-soft);font-size:14.5px;margin:8px auto 0;max-width:46ch;}
 
-  /* Coins de viseur (signature) */
-  .vf{position:relative;}
-  .vf::before,.vf::after{content:"";position:absolute;width:18px;height:18px;border-color:var(--sky-deep);border-style:solid;pointer-events:none;z-index:500;}
-  .vf::before{top:-6px;left:-6px;border-width:3px 0 0 3px;border-radius:5px 0 0 0;}
-  .vf::after{bottom:-6px;right:-6px;border-width:0 3px 3px 0;border-radius:0 0 5px 0;}
+  /* ---------- La carte : tout l'écran ---------- */
+  #carte{position:absolute; inset:0; background:#cfe3ef; z-index:1;}
+  .leaflet-container{font-family:var(--f-corps); background:#cfe3ef;}
+  .leaflet-control-zoom{border:none !important; box-shadow:var(--ombre) !important; margin-top:calc(var(--haut) + 12px) !important;}
+  .leaflet-control-zoom a{background:var(--surface) !important; color:var(--encre) !important; border-color:var(--line) !important;}
+  .leaflet-control-attribution{font-size:10px; background:rgba(255,255,255,.7) !important;}
 
-  /* Indice photo (petit, la carte est la vedette pour ce premier temps) */
+  /* ---------- Vignette photo-indice (viseur) ---------- */
   .indice{
-    width:min(92%,420px);margin:0 auto 14px;aspect-ratio:16/10;border-radius:var(--radius);
-    overflow:hidden;background:
-      repeating-linear-gradient(45deg,var(--line) 0 12px,transparent 12px 24px),var(--surface);
-    border:1px solid var(--line);display:grid;place-items:center;text-align:center;color:var(--ink-soft);
-    font-family:var(--font-mono);font-size:12.5px;padding:14px;
+    position:absolute; left:14px; top:calc(var(--haut) + 14px); z-index:20;
+    width:132px; cursor:pointer; border:none; padding:0; background:none; text-align:left;
+    transition:transform .15s ease;
+  }
+  .indice:active{transform:scale(.97);}
+  .indice .cadre{
+    position:relative; aspect-ratio:4/5; border-radius:14px; overflow:hidden;
+    background:linear-gradient(135deg,#2E97C7,#17313F); box-shadow:var(--ombre);
+    border:3px solid var(--surface);
+    display:grid; place-items:center;
+  }
+  .indice .cadre img{width:100%; height:100%; object-fit:cover; display:block;}
+  .indice .ph{color:#EAF4F9; text-align:center; padding:8px; font-weight:800; font-size:12px; line-height:1.25;}
+  .indice .ph b{display:block; font-size:22px; margin-bottom:2px;}
+  /* coins de viseur */
+  .vis span{position:absolute; width:16px; height:16px; border:2.5px solid #fff; z-index:2; pointer-events:none;}
+  .vis .hg{top:8px; left:8px; border-width:2.5px 0 0 2.5px; border-radius:4px 0 0 0;}
+  .vis .hd{top:8px; right:8px; border-width:2.5px 2.5px 0 0; border-radius:0 4px 0 0;}
+  .vis .bg{bottom:8px; left:8px; border-width:0 0 2.5px 2.5px; border-radius:0 0 0 4px;}
+  .vis .bd{bottom:8px; right:8px; border-width:0 2.5px 2.5px 0; border-radius:0 0 4px 0;}
+  .indice .loupe{
+    position:absolute; right:-7px; bottom:-7px; width:30px; height:30px; border-radius:50%;
+    background:var(--or); color:#3a2a00; display:grid; place-items:center; font-size:15px; box-shadow:var(--ombre); z-index:3;
   }
 
-  .zone-carte{width:min(96%,720px);margin:0 auto;}
-  #carte{
-    height:min(56vh,460px);border-radius:var(--radius);overflow:hidden;
-    border:1px solid var(--line);background:var(--line);
+  /* ---------- Bandeau consigne ---------- */
+  .consigne{
+    position:absolute; left:50%; transform:translateX(-50%); bottom:calc(var(--bas) + 88px); z-index:15;
+    max-width:min(84vw,380px); background:rgba(255,255,255,.92); -webkit-backdrop-filter:blur(8px); backdrop-filter:blur(8px);
+    color:var(--encre); border:1px solid var(--line); border-radius:999px; padding:9px 18px; box-shadow:var(--ombre);
+    font-weight:700; font-size:13.5px; line-height:1.3; text-align:center;
   }
-  .leaflet-container{font-family:var(--font-body);background:#aadaff;}
+  @media (prefers-color-scheme: dark){ .consigne{background:rgba(23,49,63,.92);} }
 
-  .barre{
-    width:min(96%,720px);margin:14px auto calc(18px + env(safe-area-inset-bottom,0px));
-    display:flex;flex-direction:column;gap:12px;
+  /* ---------- Bouton Valider ---------- */
+  .valider{
+    position:absolute; left:50%; transform:translateX(-50%); bottom:calc(var(--bas) + 22px); z-index:25;
+    font-family:var(--f-titre); font-weight:800; font-size:18px; letter-spacing:.2px;
+    border:none; border-radius:999px; padding:15px 40px; cursor:pointer;
+    background:var(--ciel-fort); color:#fff; box-shadow:0 8px 22px rgba(46,151,199,.45);
+    transition:transform .14s ease, opacity .2s ease, background .2s ease;
   }
-  .btn{
-    font-family:var(--font-body);font-weight:800;font-size:16px;border:none;border-radius:999px;
-    padding:15px 22px;cursor:pointer;color:#fff;background:var(--ink);
-    transition:transform .12s ease,opacity .15s ease;
-  }
-  .btn:disabled{opacity:.45;cursor:not-allowed;}
-  .btn:not(:disabled):active{transform:scale(.98);}
-  .btn.secondaire{background:transparent;color:var(--ink);border:2px solid var(--line);}
+  .valider[disabled]{background:#9fb4c0; box-shadow:none; opacity:.9; cursor:default;}
+  .valider:not([disabled]):active{transform:translateX(-50%) scale(.96);}
 
+  /* ---------- Panneau résultat (glisse du bas) ---------- */
   .resultat{
-    background:var(--surface);border:1px solid var(--line);border-radius:var(--radius);
-    padding:18px 20px;text-align:center;
+    position:absolute; left:0; right:0; bottom:0; z-index:40;
+    background:var(--surface); border-radius:22px 22px 0 0; box-shadow:0 -12px 34px rgba(20,42,56,.22);
+    padding:22px 22px calc(22px + var(--bas)); text-align:center;
+    transform:translateY(110%); transition:transform .42s cubic-bezier(.22,1,.36,1);
   }
-  .resultat .dist{font-family:var(--font-display);font-size:34px;font-weight:800;line-height:1;margin:2px 0 4px;}
-  .resultat .lieu{color:var(--ink-soft);font-size:14px;}
-  .resultat .score{margin-top:12px;display:inline-flex;align-items:center;gap:8px;font-weight:800;
-    background:var(--bg);border:1px solid var(--line);border-radius:999px;padding:8px 16px;}
-  .pastille{width:12px;height:12px;border-radius:50%;background:var(--or);}
-  .tres-proche .pastille{background:var(--vert);}
-  .loin .pastille{background:var(--rouge);}
+  .resultat.ouvert{transform:translateY(0);}
+  .resultat .poignee{width:42px; height:5px; border-radius:3px; background:var(--line); margin:0 auto 16px;}
+  .resultat .lieu{color:var(--soft); font-size:14px;}
+  .resultat .lieu b{color:var(--encre);}
+  .resultat .dist{font-family:var(--f-titre); font-weight:800; font-size:clamp(44px,13vw,64px); line-height:1; margin:4px 0 2px;}
+  .resultat .mot{color:var(--soft); font-size:13.5px; margin-bottom:16px;}
+  .resultat .score{
+    display:inline-flex; align-items:center; gap:10px; font-family:var(--f-titre); font-weight:800; font-size:20px;
+    background:var(--or); color:#3a2a00; border-radius:999px; padding:10px 22px; box-shadow:0 6px 16px rgba(232,176,75,.4);
+  }
+  .resultat .etoile{font-size:18px;}
+  .rejouer{
+    display:block; width:100%; margin-top:18px; font-family:var(--f-titre); font-weight:800; font-size:16px;
+    border:2px solid var(--line); background:transparent; color:var(--encre); border-radius:999px; padding:13px; cursor:pointer;
+  }
+  .tres-proche .dist{color:var(--vert);} .loin .dist{color:var(--rouge);}
 
-  /* Épingle du joueur */
-  .epingle-joueur{filter:drop-shadow(0 3px 5px rgba(0,0,0,.35));}
+  /* ---------- Agrandir la photo-indice ---------- */
+  .loupe-fond{
+    position:absolute; inset:0; z-index:60; background:rgba(10,24,34,.82); -webkit-backdrop-filter:blur(3px); backdrop-filter:blur(3px);
+    display:grid; place-items:center; padding:24px; opacity:0; pointer-events:none; transition:opacity .2s ease;
+  }
+  .loupe-fond.ouvert{opacity:1; pointer-events:auto;}
+  .loupe-fond .grand{
+    width:min(90vw,460px); aspect-ratio:4/5; border-radius:18px; overflow:hidden; border:4px solid #fff; box-shadow:var(--ombre);
+    background:linear-gradient(135deg,#2E97C7,#17313F); display:grid; place-items:center; color:#EAF4F9; text-align:center; padding:20px; font-weight:800;
+  }
+  .loupe-fond .grand img{width:100%; height:100%; object-fit:cover;}
+  .loupe-fond .fermer{position:absolute; top:calc(var(--haut) + 14px); right:16px; width:42px; height:42px; border-radius:50%; border:none; background:#fff; color:var(--encre); font-size:20px; cursor:pointer; box-shadow:var(--ombre);}
+
+  @media (prefers-reduced-motion: reduce){ *{transition:none !important;} }
+  .epingle{filter:drop-shadow(0 3px 4px rgba(0,0,0,.4));}
 </style>
 </head>
 <body>
 
-<header>
-  <p class="eyebrow">Jeu · L'Objectif Châlonnais</p>
-  <h1>Photo mystère</h1>
-  <p class="consigne" id="consigne">Où cette photo a-t-elle été prise à Châlons ? <strong>Touchez la carte</strong> pour poser votre épingle, puis validez.</p>
-</header>
+<div id="carte"></div>
 
-<!-- Emplacement de la photo mystère (remplacé par la vraie photo plus tard) -->
-<div class="indice vf" id="indice">
-  📷 Ici s'affichera le <strong>détail zoomé</strong> du lieu mystère.<br>(pour ce test, on travaille la carte)
+<p class="consigne" id="consigne">👆 Touchez la carte à l'endroit de la photo</p>
+
+<!-- Photo-indice (remplacée par la vraie photo mystère) -->
+<button class="indice" id="indice" aria-label="Agrandir la photo mystère">
+  <span class="cadre">
+    <span class="vis"><span class="hg"></span><span class="hd"></span><span class="bg"></span><span class="bd"></span></span>
+    <span class="ph" id="indice-ph"><b>📷</b>Photo mystère<br>(exemple)</span>
+    <!-- <img id="indice-img" src="…"> à activer quand la vraie photo sera prête -->
+  </span>
+  <span class="loupe">⌕</span>
+</button>
+
+<button class="valider" id="valider" disabled>Placez votre épingle</button>
+
+<!-- Agrandissement de la photo -->
+<div class="loupe-fond" id="loupe-fond">
+  <button class="fermer" id="fermer-loupe" aria-label="Fermer">✕</button>
+  <div class="grand" id="grand"><span>Ici s'affichera le détail zoomé du lieu mystère, en grand.</span></div>
 </div>
 
-<div class="zone-carte">
-  <div id="carte" class="vf"></div>
-</div>
-
-<div class="barre">
-  <div class="resultat" id="resultat" hidden>
-    <div class="lieu">Le vrai lieu : <strong id="r-lieu"></strong></div>
-    <div class="dist" id="r-dist"></div>
-    <div class="lieu">entre votre épingle et le lieu exact</div>
-    <div class="score" id="r-score"><span class="pastille"></span><span id="r-score-txt"></span></div>
-  </div>
-  <button class="btn" id="valider" disabled>Valider ma réponse</button>
-  <button class="btn secondaire" id="rejouer" hidden>Rejouer</button>
-</div>
+<!-- Résultat -->
+<section class="resultat" id="resultat" aria-live="polite">
+  <div class="poignee"></div>
+  <div class="lieu">Le lieu : <b id="r-lieu"></b></div>
+  <div class="dist" id="r-dist"></div>
+  <div class="mot" id="r-mot">de votre épingle</div>
+  <div class="score"><span class="etoile">★</span><span id="r-score"></span></div>
+  <button class="rejouer" id="rejouer">Rejouer</button>
+</section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"
         integrity="sha512-BwHfrr4c9kmRkLw6iXFdzcdWV/PGkVgiIyIWLLlTSXzWQzxuSg4DiQUCpauz/EWjgk5TYQqX/kvn9pG1NpYfqg=="
         crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 (function(){
-  // ---- Réglages du jour (ce qu'on changera à chaque photo mystère) ----
-  // Exemple : la Cathédrale Saint-Étienne de Châlons-en-Champagne.
+  // ---- Réglages du jour (à changer à chaque photo mystère) ----
   const REPONSE = { lat: 48.95694, lon: 4.36472, lieu: 'Cathédrale Saint-Étienne' };
 
-  // Zone de Châlons : on empêche de se balader ailleurs (anti-triche + on reste sur le sujet)
   const CENTRE = [48.9566, 4.3637];
   const BORNES = L.latLngBounds([48.930, 4.320], [48.985, 4.408]);
 
   const carte = L.map('carte', {
-    center: CENTRE, zoom: 14, minZoom: 13, maxZoom: 17,
+    center: CENTRE, zoom: 14, minZoom: 13, maxZoom: 18,
     maxBounds: BORNES, maxBoundsViscosity: 1.0,
-    zoomControl: true, attributionControl: true
+    zoomControl: true, attributionControl: true, tap: true
   });
-  carte.setMaxBounds(BORNES);
 
-  L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
-    maxZoom: 19, bounds: BORNES,
-    attribution: '© OpenStreetMap'
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/rastertiles/voyager/{z}/{x}/{y}{r}.png', {
+    subdomains: 'abcd', maxZoom: 20, detectRetina: true, bounds: BORNES,
+    attribution: '© OpenStreetMap · © CARTO'
   }).addTo(carte);
 
-  // Recalcule la taille pour que TOUTES les tuiles se chargent (après polices, rotation d'écran…)
-  window.__oc_map = carte;
   function recadrer(){ carte.invalidateSize(false); }
-  carte.whenReady(()=> setTimeout(recadrer, 200));
+  carte.whenReady(()=> setTimeout(recadrer, 150));
   window.addEventListener('load', ()=> setTimeout(recadrer, 300));
   window.addEventListener('resize', recadrer);
   window.addEventListener('orientationchange', ()=> setTimeout(recadrer, 350));
 
-  // Icône d'épingle (SVG en ligne, aux couleurs de L'Objectif)
   function icone(couleur){
-    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="30" height="42" viewBox="0 0 30 42">'
-      + '<path d="M15 0C6.7 0 0 6.7 0 15c0 10.5 15 27 15 27s15-16.5 15-27C30 6.7 23.3 0 15 0z" fill="'+couleur+'"/>'
-      + '<circle cx="15" cy="15" r="6" fill="#fff"/></svg>';
-    return L.icon({
-      iconUrl: 'data:image/svg+xml;base64,' + btoa(svg),
-      iconSize: [30,42], iconAnchor: [15,42], className: 'epingle-joueur'
-    });
+    const svg = '<svg xmlns="http://www.w3.org/2000/svg" width="32" height="44" viewBox="0 0 32 44">'
+      + '<path d="M16 0C7.2 0 0 7.2 0 16c0 11.2 16 28 16 28s16-16.8 16-28C32 7.2 24.8 0 16 0z" fill="'+couleur+'"/>'
+      + '<circle cx="16" cy="16" r="6.4" fill="#fff"/></svg>';
+    return L.icon({ iconUrl: 'data:image/svg+xml;base64,' + btoa(svg), iconSize:[32,44], iconAnchor:[16,44], className:'epingle' });
   }
-  const iconeJoueur = icone('#183140');
-  const iconeVrai   = icone('#3E9A6A');
+  const iconeJoueur = icone('#142A38'), iconeVrai = icone('#2FA06A');
 
+  const $ = (id)=> document.getElementById(id);
   let epingle = null, valide = false;
 
   carte.on('click', function(e){
     if(valide) return;
-    if(!epingle){
-      epingle = L.marker(e.latlng, { icon: iconeJoueur, draggable: true }).addTo(carte);
-      epingle.on('drag dragend', ()=>{ /* repositionnable */ });
-    }else{
-      epingle.setLatLng(e.latlng);
-    }
-    document.getElementById('valider').disabled = false;
+    if(!epingle){ epingle = L.marker(e.latlng, { icon: iconeJoueur, draggable: true }).addTo(carte); $('consigne').hidden = true; }
+    else epingle.setLatLng(e.latlng);
+    const b = $('valider'); b.disabled = false; b.textContent = 'Valider';
   });
 
-  function metres(n){ return n < 1000 ? Math.round(n) + ' m' : (n/1000).toFixed(n < 10000 ? 2 : 1) + ' km'; }
-  // Score simple : 1000 pts si pile dessus, 0 au-delà de ~3 km
-  function score(d){ return Math.max(0, Math.round(1000 * Math.exp(-d / 800))); }
+  const metres = (n)=> n < 1000 ? Math.round(n) + ' m' : (n/1000).toFixed(n < 10000 ? 2 : 1) + ' km';
+  const score  = (d)=> Math.max(0, Math.round(1000 * Math.exp(-d / 800)));
 
-  document.getElementById('valider').onclick = function(){
+  $('valider').onclick = function(){
     if(!epingle || valide) return;
-    valide = true;
-    this.hidden = true;
+    valide = true; this.hidden = true;
     const vrai = L.latLng(REPONSE.lat, REPONSE.lon);
     const d = carte.distance(epingle.getLatLng(), vrai);
 
     L.marker(vrai, { icon: iconeVrai }).addTo(carte).bindPopup('📍 ' + REPONSE.lieu);
-    L.polyline([epingle.getLatLng(), vrai], { color: '#2E97C7', weight: 3, dashArray: '6 8' }).addTo(carte);
-    carte.fitBounds(L.latLngBounds([epingle.getLatLng(), vrai]).pad(0.4), { maxZoom: 17 });
-    epingle.dragging.disable();
+    L.polyline([epingle.getLatLng(), vrai], { color:'#2E97C7', weight:4, dashArray:'2 10', lineCap:'round' }).addTo(carte);
+    carte.fitBounds(L.latLngBounds([epingle.getLatLng(), vrai]).pad(0.6), { maxZoom: 17, paddingBottomRight:[0,220] });
+    if(epingle.dragging) epingle.dragging.disable();
 
-    const pts = score(d);
-    document.getElementById('r-lieu').textContent = REPONSE.lieu;
-    document.getElementById('r-dist').textContent = metres(d);
-    document.getElementById('r-score-txt').textContent = pts + ' / 1000 points';
-    const box = document.getElementById('resultat');
+    // compteur de distance animé
+    const cible = Math.round(d), t0 = performance.now(), dur = 900;
+    (function pas(t){ const k = Math.min(1,(t-t0)/dur); $('r-dist').textContent = metres(Math.round(cible*(1-Math.pow(1-k,3)))); if(k<1) requestAnimationFrame(pas); })(t0);
+
+    $('r-lieu').textContent = REPONSE.lieu;
+    $('r-score').textContent = score(d) + ' / 1000';
+    const box = $('resultat');
     box.classList.toggle('tres-proche', d < 120);
     box.classList.toggle('loin', d > 1200);
-    box.hidden = false;
-    document.getElementById('rejouer').hidden = false;
-    document.getElementById('consigne').textContent = d < 120
-      ? 'Bravo, c’était tout près ! 🎯'
-      : (d < 600 ? 'Pas mal du tout !' : 'Loupé — mais on apprend Châlons comme ça 🙂');
+    $('r-mot').textContent = d < 120 ? 'bravo, c’était tout près ! 🎯' : (d < 600 ? 'bien joué !' : 'de votre épingle au lieu exact');
+    requestAnimationFrame(()=> box.classList.add('ouvert'));
   };
 
-  document.getElementById('rejouer').onclick = function(){ location.reload(); };
+  $('rejouer').onclick = ()=> location.reload();
+
+  // Agrandir / fermer la photo-indice
+  $('indice').onclick = ()=> $('loupe-fond').classList.add('ouvert');
+  $('fermer-loupe').onclick = ()=> $('loupe-fond').classList.remove('ouvert');
+  $('loupe-fond').onclick = (e)=>{ if(e.target === $('loupe-fond')) $('loupe-fond').classList.remove('ouvert'); };
 })();
 </script>
 </body>
