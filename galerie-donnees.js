@@ -19,7 +19,8 @@
   const enc = (p)=> p.split('/').map(encodeURIComponent).join('/');
   const publicUrl = (p)=> `${URL_BASE}/storage/v1/object/public/${BUCKET}/${enc(p)}`;
   const estDossier = (o)=> o.id === null || (!o.metadata && !IMG.test(o.name));
-  const visible = (nom)=> !nom.startsWith('_') && !nom.startsWith('.');
+  const RESERVES = { 'photo-mystere': 1 };   // dossiers réservés, jamais affichés comme albums
+  const visible = (nom)=> !nom.startsWith('_') && !nom.startsWith('.') && !RESERVES[nom];
 
   let manifeste = null, racine = null, cachesP = null;
   const lu = {};

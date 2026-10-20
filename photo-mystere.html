@@ -159,10 +159,24 @@
 </section>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script src="config.js"></script>
 <script>
 (function(){
-  // ---- Réglages du jour (à changer à chaque photo mystère) ----
-  const REPONSE = { lat: 48.95694, lon: 4.36472, lieu: 'Cathédrale Saint-Étienne' };
+  // ---- Supabase : lecture de la photo du jour, réponse côté serveur ----
+  const cfg = window.OC_CONFIG || {};
+  const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
+  const entetes = { apikey: CLE, 'Content-Type': 'application/json' };
+  if(CLE.startsWith('eyJ')) entetes.Authorization = 'Bearer ' + CLE;
+  async function rpc(nom, params){
+    const r = await fetch(`${BASE}/rest/v1/rpc/${nom}`, { method:'POST', headers: entetes, body: JSON.stringify(params || {}) });
+    const j = await r.json().catch(()=> null);
+    if(j && j.erreur) throw new Error(j.erreur);
+    if(!r.ok) throw new Error('Erreur ' + r.status);
+    return j;
+  }
+  // identifiant anonyme du joueur (pour un futur tirage au sort)
+  let JOUEUR = '';
+  try{ JOUEUR = localStorage.getItem('oc_pm_joueur') || (Math.random().toString(36).slice(2) + Date.now().toString(36)); localStorage.setItem('oc_pm_joueur', JOUEUR); }catch(e){}
 
   const CENTRE = [48.9566, 4.3637];
   const BORNES = L.latLngBounds([48.930, 4.320], [48.985, 4.408]);
@@ -197,39 +211,43 @@
   const iconeJoueur = icone('#E23744'), iconeVrai = icone('#2FA06A');   // rouge = votre épingle, vert = le vrai lieu
 
   const $ = (id)=> document.getElementById(id);
-  let epingle = null, valide = false;
+  let epingle = null, valide = false, pasDeJeu = false;
 
   carte.on('click', function(e){
-    if(valide) return;
+    if(valide || pasDeJeu) return;
     if(!epingle){ epingle = L.marker(e.latlng, { icon: iconeJoueur, draggable: true }).addTo(carte); $('consigne').hidden = true; }
     else epingle.setLatLng(e.latlng);
     const b = $('valider'); b.disabled = false; b.textContent = 'Valider';
   });
 
   const metres = (n)=> n < 1000 ? Math.round(n) + ' m' : (n/1000).toFixed(n < 10000 ? 2 : 1) + ' km';
-  const score  = (d)=> Math.max(0, Math.round(1000 * Math.exp(-d / 800)));
 
-  $('valider').onclick = function(){
-    if(!epingle || valide) return;
+  $('valider').onclick = async function(){
+    if(!epingle || valide || pasDeJeu) return;
+    const g = epingle.getLatLng();
+    this.disabled = true; this.textContent = 'Un instant…';
+    let rep;
+    try{ rep = await rpc('oc_photo_mystere_repondre', { p_lat: g.lat, p_lon: g.lng, p_joueur: JOUEUR, p_pseudo: '' }); }
+    catch(e){ this.disabled = false; this.textContent = 'Valider'; $('consigne').hidden = false; $('consigne').textContent = 'Oups : ' + e.message; return; }
     valide = true; this.hidden = true;
-    const vrai = L.latLng(REPONSE.lat, REPONSE.lon);
-    const d = carte.distance(epingle.getLatLng(), vrai);
+    const vrai = L.latLng(rep.lat, rep.lon), d = rep.distance_m;
 
-    L.marker(vrai, { icon: iconeVrai }).addTo(carte).bindPopup('📍 ' + REPONSE.lieu);
-    L.polyline([epingle.getLatLng(), vrai], { color:'#2E97C7', weight:4, dashArray:'2 10', lineCap:'round' }).addTo(carte);
-    carte.fitBounds(L.latLngBounds([epingle.getLatLng(), vrai]).pad(0.6), { maxZoom: 17, paddingBottomRight:[0,220] });
+    L.marker(vrai, { icon: iconeVrai }).addTo(carte).bindPopup('📍 ' + (rep.lieu || 'Lieu'));
+    L.polyline([g, vrai], { color:'#FFFFFF', weight:4, dashArray:'2 10', lineCap:'round' }).addTo(carte);
+    carte.fitBounds(L.latLngBounds([g, vrai]).pad(0.6), { maxZoom: 18, paddingBottomRight:[0,220] });
     if(epingle.dragging) epingle.dragging.disable();
 
     // compteur de distance animé
-    const cible = Math.round(d), t0 = performance.now(), dur = 900;
-    (function pas(t){ const k = Math.min(1,(t-t0)/dur); $('r-dist').textContent = metres(Math.round(cible*(1-Math.pow(1-k,3)))); if(k<1) requestAnimationFrame(pas); })(t0);
+    const t0 = performance.now(), dur = 900;
+    (function pas(t){ const k = Math.min(1,(t-t0)/dur); $('r-dist').textContent = metres(Math.round(d*(1-Math.pow(1-k,3)))); if(k<1) requestAnimationFrame(pas); })(t0);
 
-    $('r-lieu').textContent = REPONSE.lieu;
-    $('r-score').textContent = score(d) + ' / 1000';
+    $('r-lieu').textContent = rep.lieu || '—';
+    $('r-score').textContent = (rep.score || 0) + ' / 1000';
     const box = $('resultat');
     box.classList.toggle('tres-proche', d < 120);
     box.classList.toggle('loin', d > 1200);
     $('r-mot').textContent = d < 120 ? 'bravo, c’était tout près ! 🎯' : (d < 600 ? 'bien joué !' : 'de votre épingle au lieu exact');
+    if(rep.photo_pleine){ const grand = $('grand'); grand.innerHTML = ''; const gi = document.createElement('img'); gi.src = rep.photo_pleine; grand.appendChild(gi); }
     requestAnimationFrame(()=> box.classList.add('ouvert'));
   };
 
@@ -239,6 +257,29 @@
   $('indice').onclick = ()=> $('loupe-fond').classList.add('ouvert');
   $('fermer-loupe').onclick = ()=> $('loupe-fond').classList.remove('ouvert');
   $('loupe-fond').onclick = (e)=>{ if(e.target === $('loupe-fond')) $('loupe-fond').classList.remove('ouvert'); };
+
+  // ---- Charger la photo mystère du jour ----
+  async function chargerDuJour(){
+    if(!BASE || !CLE){ pasDeJeu = true; return; }
+    try{
+      const j = await rpc('oc_photo_mystere_du_jour', {});
+      if(!j || !j.existe){
+        pasDeJeu = true;
+        $('valider').hidden = true;
+        $('consigne').textContent = 'Pas de photo mystère aujourd’hui — revenez demain ! 🙂';
+        $('indice-ph').innerHTML = '<b>🗓️</b>Pas de photo<br>aujourd’hui';
+        return;
+      }
+      $('indice-ph').hidden = true;
+      const cadre = document.querySelector('.indice .cadre');
+      const img = document.createElement('img'); img.alt = 'Photo mystère'; img.src = j.photo; cadre.appendChild(img);
+      const grand = $('grand'); grand.innerHTML = ''; const gi = document.createElement('img'); gi.src = j.photo; grand.appendChild(gi);
+    }catch(e){
+      pasDeJeu = true; $('valider').hidden = true;
+      $('consigne').textContent = 'Jeu indisponible pour le moment.';
+    }
+  }
+  chargerDuJour();
 })();
 </script>
 </body>

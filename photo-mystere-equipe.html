@@ -1,0 +1,225 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+<title>Photo mystère — Équipe · L'Objectif Châlonnais</title>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Baloo+2:wght@700;800&family=Nunito:wght@400;600;700;800&display=swap">
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.css">
+<style>
+  :root{
+    --bg:#F4F8FA; --surface:#FFFFFF; --ink:#183140; --muted:#5A7383; --line:#D7E3EA;
+    --sky:#9FD8F5; --sky-deep:#2E97C7; --ok:#1C7A4E; --ok-bg:#E2F4EA; --err:#B23A2C; --err-bg:#FBE7E3;
+    --font-display:'Baloo 2',system-ui,sans-serif; --font-body:'Nunito',system-ui,-apple-system,sans-serif;
+  }
+  @media (prefers-color-scheme: dark){ :root{ --bg:#0F2230; --surface:#17313F; --ink:#EAF4F9; --muted:#9DB6C4; --line:#2B4A5E; --ok-bg:#12352a; --err-bg:#3a201c; } }
+  *{box-sizing:border-box;} [hidden]{display:none !important;}
+  body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--font-body);line-height:1.5;}
+  .wrap{max-width:680px;margin:0 auto;padding:20px 18px 60px;}
+  h1{font-family:var(--font-display);font-weight:800;font-size:28px;margin:0 0 4px;}
+  h2{font-family:var(--font-display);font-weight:800;font-size:19px;margin:0 0 12px;display:flex;align-items:center;gap:10px;}
+  .num{display:grid;place-items:center;width:26px;height:26px;border-radius:50%;background:var(--sky-deep);color:#fff;font-size:14px;}
+  .top{display:flex;justify-content:space-between;align-items:center;font-size:14px;margin-bottom:14px;}
+  a{color:var(--sky-deep);} button{font-family:inherit;}
+  .sous{color:var(--muted);margin:0 0 20px;}
+  .carte{background:var(--surface);border:1px solid var(--line);border-radius:14px;padding:22px;margin-bottom:18px;}
+  label.l{display:block;font-weight:800;font-size:14px;margin:12px 0 6px;}
+  input[type=text],input[type=date]{width:100%;font:inherit;padding:11px 12px;border:1.5px solid var(--line);border-radius:10px;background:var(--bg);color:var(--ink);}
+  .ligne2{display:grid;grid-template-columns:1fr 1fr;gap:12px;}
+  .choisir{display:flex;flex-direction:column;align-items:center;gap:4px;border:2px dashed var(--line);border-radius:12px;padding:16px;cursor:pointer;text-align:center;color:var(--muted);}
+  .choisir strong{color:var(--ink);}
+  .apercu{margin-top:10px;display:flex;gap:10px;flex-wrap:wrap;}
+  .apercu img{width:90px;height:112px;object-fit:cover;border-radius:10px;border:1px solid var(--line);}
+  #picker{height:320px;border-radius:12px;overflow:hidden;border:1px solid var(--line);margin-top:6px;background:#20323b;}
+  .coords{font-family:ui-monospace,monospace;font-size:12.5px;color:var(--muted);margin-top:8px;}
+  .btn{font-family:var(--font-display);font-weight:800;font-size:16px;border:none;border-radius:999px;padding:14px 22px;cursor:pointer;background:var(--ink);color:var(--bg);}
+  .btn.large{width:100%;margin-top:6px;}
+  .btn[disabled]{opacity:.5;cursor:default;}
+  .msg{margin-top:14px;font-size:14.5px;padding:12px 14px;border-radius:10px;}
+  .msg.ok{background:var(--ok-bg);color:var(--ok);} .msg.err{background:var(--err-bg);color:var(--err);}
+  .login{max-width:360px;margin:12vh auto 0;text-align:center;}
+  .login input{width:100%;font:inherit;padding:12px;border:1.5px solid var(--line);border-radius:10px;background:var(--surface);color:var(--ink);text-align:center;margin:14px 0 10px;}
+  .err{color:var(--err);font-size:14px;}
+  .hint{color:var(--muted);font-size:13px;margin:6px 0 0;}
+  @media (max-width:520px){ .ligne2{grid-template-columns:1fr;} }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <form class="login" id="vue-login">
+    <h1>Photo mystère</h1>
+    <p>Espace réservé à l'équipe.</p>
+    <input type="password" id="l-code" placeholder="Code de l'équipe" autocomplete="current-password">
+    <button class="btn" id="l-btn" type="submit" style="width:100%">Ouvrir</button>
+    <p class="err" id="l-msg" hidden></p>
+  </form>
+
+  <main id="vue-app" hidden>
+    <div class="top">
+      <a href="equipe.html">⌂ Espace équipe</a>
+      <span><a href="photo-mystere.html" target="_blank" rel="noopener">Voir le jeu ↗</a> · <button type="button" id="btn-quitter" style="background:none;border:none;color:var(--sky-deep);cursor:pointer;font-weight:700;">Se déconnecter</button></span>
+    </div>
+    <h1>Créer une photo mystère</h1>
+    <p class="sous">Choisissez le jour, la photo-détail à deviner, le vrai lieu sur la carte, et c'est prêt.</p>
+
+    <section class="carte">
+      <h2><span class="num">1</span> Le jour &amp; le lieu</h2>
+      <div class="ligne2">
+        <div><label class="l" for="pm-date">Date du jeu</label><input type="date" id="pm-date"></div>
+        <div><label class="l" for="pm-lieu">Nom du lieu (réponse)</label><input type="text" id="pm-lieu" maxlength="100" placeholder="Ex. Cathédrale Saint-Étienne"></div>
+      </div>
+    </section>
+
+    <section class="carte">
+      <h2><span class="num">2</span> Les photos</h2>
+      <label class="l">Photo-indice (le détail zoomé à deviner)</label>
+      <label class="choisir" id="ch-indice">
+        <span style="font-size:24px">📷</span><strong>Choisir la photo-indice</strong>
+        <span>le détail que les joueurs devront situer</span>
+        <input type="file" id="f-indice" accept="image/*" hidden>
+      </label>
+      <label class="l">Photo complète (dévoilée après la réponse) <span style="font-weight:600;color:var(--muted)">(facultatif)</span></label>
+      <label class="choisir" id="ch-pleine">
+        <span style="font-size:24px">🖼️</span><strong>Choisir la photo complète</strong>
+        <span>la vue entière du lieu</span>
+        <input type="file" id="f-pleine" accept="image/*" hidden>
+      </label>
+      <div class="apercu" id="apercu"></div>
+    </section>
+
+    <section class="carte">
+      <h2><span class="num">3</span> Le vrai lieu sur la carte</h2>
+      <p class="hint">Touchez la carte à l'endroit exact où la photo a été prise.</p>
+      <div id="picker"></div>
+      <div class="coords" id="coords">Aucun point placé.</div>
+    </section>
+
+    <button class="btn large" type="button" id="enregistrer">Enregistrer la photo mystère</button>
+    <div class="msg" id="msg" hidden></div>
+  </main>
+</div>
+
+<script src="config.js"></script>
+<script src="equipe.js"></script>
+<script src="actus-rendu.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.9.4/leaflet.js"></script>
+<script>
+(function(){
+  const A = window.OCActus;
+  const cfg = window.OC_CONFIG || {};
+  const BASE = (cfg.supabaseUrl || '').replace(/\/+$/, ''), CLE = cfg.supabaseCle || '';
+  const BUCKET = cfg.galerieBucket || 'galerie';
+  const $ = (id)=> document.getElementById(id);
+  const p2 = (n)=> String(n).padStart(2,'0');
+  let code = null, fIndice = null, fPleine = null, marqueur = null, picker = null;
+
+  // ---------- Connexion ----------
+  async function connecter(c){
+    await A.rpc('oc_actus_redaction', { p_code: c });     // vérifie le code
+    code = c; OCEquipe.memoriser(c);
+    $('vue-login').hidden = true; $('vue-app').hidden = false;
+    setTimeout(initCarte, 60);
+  }
+  $('vue-login').addEventListener('submit', async (e)=>{
+    e.preventDefault();
+    const c = $('l-code').value; if(!c) return;
+    $('l-msg').hidden = true; $('l-btn').disabled = true;
+    try{ await connecter(c); $('l-code').value = ''; }
+    catch(err){ $('l-msg').textContent = err.message; $('l-msg').hidden = false; }
+    finally{ $('l-btn').disabled = false; }
+  });
+  $('btn-quitter').onclick = ()=>{ OCEquipe.oublier(); location.reload(); };
+  (async ()=>{
+    const auj = new Date(); $('pm-date').value = `${auj.getFullYear()}-${p2(auj.getMonth()+1)}-${p2(auj.getDate())}`;
+    const c = OCEquipe.code();
+    if(c && A.configure){ try{ await connecter(c); }catch(e){ if(/incorrect/i.test(e.message)) OCEquipe.oublier(); } }
+    if(!code) $('l-code').focus();
+  })();
+
+  // ---------- Carte de sélection (satellite) ----------
+  function initCarte(){
+    if(picker) { picker.invalidateSize(); return; }
+    const BORNES = L.latLngBounds([48.930, 4.320], [48.985, 4.408]);
+    picker = L.map('picker', { center:[48.9566,4.3637], zoom:14, minZoom:13, maxZoom:19, maxBounds:BORNES, maxBoundsViscosity:1 });
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', { maxZoom:19, attribution:'© Esri' }).addTo(picker);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', { maxZoom:19 }).addTo(picker);
+    L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom:19 }).addTo(picker);
+    setTimeout(()=> picker.invalidateSize(), 250);
+    picker.on('click', (e)=>{
+      if(!marqueur){ marqueur = L.marker(e.latlng, { draggable:true }).addTo(picker); marqueur.on('dragend', majCoords); }
+      else marqueur.setLatLng(e.latlng);
+      majCoords();
+    });
+  }
+  function majCoords(){ const ll = marqueur.getLatLng(); $('coords').textContent = '📍 ' + ll.lat.toFixed(5) + ', ' + ll.lng.toFixed(5); }
+
+  // ---------- Photos ----------
+  function apercu(){
+    const z = $('apercu'); z.innerHTML = '';
+    [['Indice',fIndice],['Complète',fPleine]].forEach(([nom,f])=>{ if(f){ const i=document.createElement('img'); i.src=URL.createObjectURL(f); i.title=nom; z.appendChild(i); } });
+  }
+  $('ch-indice').addEventListener('click', ()=> $('f-indice').click());
+  $('ch-pleine').addEventListener('click', ()=> $('f-pleine').click());
+  $('f-indice').addEventListener('change', e=>{ fIndice = e.target.files[0] || null; apercu(); });
+  $('f-pleine').addEventListener('change', e=>{ fPleine = e.target.files[0] || null; apercu(); });
+
+  async function alleger(file){
+    const img = await (createImageBitmap ? createImageBitmap(file).catch(()=>null) : null)
+      || await new Promise((ok,ko)=>{ const i=new Image(); i.onload=()=>ok(i); i.onerror=ko; i.src=URL.createObjectURL(file); });
+    const w0 = img.width, h0 = img.height, r = Math.min(1, 2560/Math.max(w0,h0));
+    const w = Math.round(w0*r), h = Math.round(h0*r);
+    const c = document.createElement('canvas'); c.width=w; c.height=h;
+    c.getContext('2d').drawImage(img,0,0,w,h); if(img.close) img.close();
+    return await new Promise(ok=> c.toBlob(ok,'image/jpeg',0.85));
+  }
+
+  // ---------- Téléversement (fonction Supabase, comme « Ajouter des photos ») ----------
+  async function fonction(corps){
+    const h = { apikey: CLE, 'Content-Type':'application/json' }; if(CLE.startsWith('eyJ')) h.Authorization='Bearer '+CLE;
+    const r = await fetch(`${BASE}/functions/v1/envoyer-notification`, { method:'POST', headers:h, body: JSON.stringify({ code, ...corps }) });
+    const j = await r.json().catch(()=>({}));
+    if(j.erreur) throw new Error(j.erreur); if(!r.ok) throw new Error('Erreur '+r.status);
+    return j;
+  }
+  async function liensEnvoi(chemins){
+    const out = {}; const j = await fonction({ action:'televerser', chemins });
+    for(const u of j.urls||[]) out[u.chemin]=u.url; return out;
+  }
+  async function deposer(url, blob){
+    const h = { apikey: CLE, 'Content-Type':'image/jpeg' }; if(CLE.startsWith('eyJ')) h.Authorization='Bearer '+CLE;
+    const r = await fetch(url, { method:'PUT', headers:h, body:blob }); if(!r.ok) throw new Error('stockage '+r.status);
+  }
+  const pub = (chemin)=> `${BASE}/storage/v1/object/public/${BUCKET}/${chemin.split('/').map(encodeURIComponent).join('/')}`;
+  function dire(html, k){ const m=$('msg'); m.innerHTML=html; m.className='msg '+k; m.hidden=false; }
+
+  // ---------- Enregistrer ----------
+  $('enregistrer').onclick = async function(){
+    $('msg').hidden = true;
+    const jour = $('pm-date').value, lieu = $('pm-lieu').value.trim();
+    if(!jour){ dire('Choisissez la date du jeu.','err'); return; }
+    if(lieu.length < 2){ dire('Indiquez le nom du lieu (la réponse).','err'); return; }
+    if(!marqueur){ dire('Placez le vrai lieu sur la carte (point 3).','err'); return; }
+    if(!fIndice){ dire('Choisissez la photo-indice (point 2).','err'); return; }
+    const ll = marqueur.getLatLng();
+    this.disabled = true; this.textContent = 'Envoi…';
+    try{
+      const suf = Math.random().toString(36).slice(2,8);
+      const cIndice = `photo-mystere/${jour}-indice-${suf}.jpg`;
+      const cPleine = fPleine ? `photo-mystere/${jour}-pleine-${suf}.jpg` : null;
+      const chemins = [cIndice]; if(cPleine) chemins.push(cPleine);
+      const liens = await liensEnvoi(chemins);
+      await deposer(liens[cIndice], await alleger(fIndice));
+      if(cPleine) await deposer(liens[cPleine], await alleger(fPleine));
+      await A.rpc('oc_photo_mystere_definir', {
+        p_code: code, p_jour: jour, p_lieu: lieu, p_lat: ll.lat, p_lon: ll.lng,
+        p_photo: pub(cIndice), p_photo_pleine: cPleine ? pub(cPleine) : null
+      });
+      const d = new Date(jour + 'T12:00:00').toLocaleDateString('fr-FR', { weekday:'long', day:'numeric', month:'long' });
+      dire(`✅ Photo mystère enregistrée pour le <b>${d}</b>. Elle apparaîtra dans le jeu ce jour-là.`, 'ok');
+    }catch(e){ dire('Échec : ' + e.message + ' — as-tu exécuté photo-mystere.sql dans Supabase ?', 'err'); }
+    finally{ this.disabled = false; this.textContent = 'Enregistrer la photo mystère'; }
+  };
+})();
+</script>
+</body>
+</html>
