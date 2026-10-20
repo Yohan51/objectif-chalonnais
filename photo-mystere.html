@@ -173,11 +173,14 @@
     zoomControl: true, attributionControl: true, tap: true
   });
 
-  // Vue satellite (imagerie aérienne Esri) — gratuite, sans clé, sans noms de rue
+  // Vue satellite (imagerie aérienne Esri) — gratuite, sans clé
   L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/World_Imagery/MapServer/tile/{z}/{y}/{x}', {
     maxZoom: 19, bounds: BORNES,
     attribution: 'Imagerie © Esri, Maxar, Earthstar Geographics'
   }).addTo(carte);
+  // Noms de rues + lieux par-dessus (couches transparentes Esri) — mode « hybride »
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Transportation/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, bounds: BORNES }).addTo(carte);
+  L.tileLayer('https://server.arcgisonline.com/ArcGIS/rest/services/Reference/World_Boundaries_and_Places/MapServer/tile/{z}/{y}/{x}', { maxZoom: 19, bounds: BORNES }).addTo(carte);
 
   function recadrer(){ carte.invalidateSize(false); }
   carte.whenReady(()=> setTimeout(recadrer, 150));
