@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "fr.lobjectifchalonnais.twa",
+      "sha256_cert_fingerprints": ["7A:81:E9:41:17:24:26:D4:20:CF:4D:12:2C:78:67:D3:15:E9:6B:1E:00:50:D9:C5:FE:17:01:4F:10:33:12:C9"]
+    }
+  }
+]
