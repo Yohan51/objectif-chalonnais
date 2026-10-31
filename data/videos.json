@@ -1,7 +1,12 @@
 {
  "chaine": "UC3ehDb-pE4B8E-xOiPD76XQ",
- "maj": "2026-10-21T18:03:53.609Z",
+ "maj": "2026-10-31T14:56:06.226Z",
  "videos": [
+  {
+   "id": "JNOGeHqAm3k",
+   "titre": "🇫🇷 Châlons-en-Champagne : En direct rassemblement des Gilets jaunes place Tissier.",
+   "date": "2026-10-31T14:27:11+00:00"
+  },
   {
    "id": "aasJEmskRus",
    "titre": "🇫🇷 Châlons-en-Champagne 🎥 Quelques images de la ville et de son patrimoine.",
@@ -75,11 +80,6 @@
    "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE👗 Saco Mode – 1re partie",
    "date": "2026-09-28T21:32:25+00:00",
    "court": true
-  },
-  {
-   "id": "bYFSTkTREE8",
-   "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE 👉 Retour en images sur Saco Mode,",
-   "date": "2026-09-28T20:39:11+00:00"
   }
  ]
 }
