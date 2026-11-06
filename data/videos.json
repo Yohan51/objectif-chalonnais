@@ -1,7 +1,22 @@
 {
  "chaine": "UC3ehDb-pE4B8E-xOiPD76XQ",
- "maj": "2026-10-31T14:56:06.226Z",
+ "maj": "2026-11-06T11:29:22.455Z",
  "videos": [
+  {
+   "id": "I8PB8nRl5lA",
+   "titre": "🇫🇷 Châlons – 100 ans du Monument aux morts Passage de la Flamme sacrée et cérémonie commémorative.",
+   "date": "2026-11-06T09:47:24+00:00"
+  },
+  {
+   "id": "dMw0Plg_VV8",
+   "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE – Environ 600 manifestants mobilisés pour les salaires et le pouvoir d’achat",
+   "date": "2026-11-06T08:44:05+00:00"
+  },
+  {
+   "id": "fkzXV60xziA",
+   "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE – La ville et tout son charme",
+   "date": "2026-11-06T08:26:20+00:00"
+  },
   {
    "id": "JNOGeHqAm3k",
    "titre": "🇫🇷 Châlons-en-Champagne : En direct rassemblement des Gilets jaunes place Tissier.",
@@ -63,22 +78,6 @@
    "id": "8yxZ-DHh9Fs",
    "titre": "🇫🇷 PARIS – Les sapeurs-pompiers mobilisés pour la sécurité civile",
    "date": "2026-09-29T19:23:12+00:00",
-   "court": true
-  },
-  {
-   "id": "f3CzzmIQKQU",
-   "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE Retour en images sur Saco Mode,",
-   "date": "2026-09-29T18:00:32+00:00"
-  },
-  {
-   "id": "O4WiOlODJEs",
-   "titre": "🇫🇷 REIMS – Manifestation du 29 septembre",
-   "date": "2026-09-29T17:43:11+00:00"
-  },
-  {
-   "id": "bCxIu5TFqio",
-   "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE👗 Saco Mode – 1re partie",
-   "date": "2026-09-28T21:32:25+00:00",
    "court": true
   }
  ]
