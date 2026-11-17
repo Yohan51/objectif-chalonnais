@@ -1,7 +1,12 @@
 {
  "chaine": "UC3ehDb-pE4B8E-xOiPD76XQ",
- "maj": "2026-11-06T11:29:22.455Z",
+ "maj": "2026-11-17T10:08:07.851Z",
  "videos": [
+  {
+   "id": "2WCyrJCjSmA",
+   "titre": "🥊 REIMS – RETOUR EN IMAGES SUR LE DUALIS CHAMPIONSHIP 2. Le complexe René-Tys de Reims.",
+   "date": "2026-11-17T08:27:39+00:00"
+  },
   {
    "id": "I8PB8nRl5lA",
    "titre": "🇫🇷 Châlons – 100 ans du Monument aux morts Passage de la Flamme sacrée et cérémonie commémorative.",
@@ -72,12 +77,6 @@
    "id": "eFOIRu13TyY",
    "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE – MOBILISATION AU LYCÉE JEAN TALON",
    "date": "2026-09-30T10:55:53+00:00",
-   "court": true
-  },
-  {
-   "id": "8yxZ-DHh9Fs",
-   "titre": "🇫🇷 PARIS – Les sapeurs-pompiers mobilisés pour la sécurité civile",
-   "date": "2026-09-29T19:23:12+00:00",
    "court": true
   }
  ]
