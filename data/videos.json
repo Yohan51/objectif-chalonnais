@@ -1,7 +1,12 @@
 {
  "chaine": "UC3ehDb-pE4B8E-xOiPD76XQ",
- "maj": "2026-11-17T10:08:07.851Z",
+ "maj": "2026-11-17T19:10:04.682Z",
  "videos": [
+  {
+   "id": "LY3dZV7GRZc",
+   "titre": "🇫🇷Reims 🥊 DE NETFLIX AU PREMIER COMBAT PROFESSIONNEL : LE PARCOURS DE THOMAS DACHER",
+   "date": "2026-11-17T12:12:12+00:00"
+  },
   {
    "id": "2WCyrJCjSmA",
    "titre": "🥊 REIMS – RETOUR EN IMAGES SUR LE DUALIS CHAMPIONSHIP 2. Le complexe René-Tys de Reims.",
@@ -72,12 +77,6 @@
    "id": "FmMW78zveOU",
    "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE – MOBILISATION AU LYCÉE JEAN TALON",
    "date": "2026-09-30T12:23:19+00:00"
-  },
-  {
-   "id": "eFOIRu13TyY",
-   "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE – MOBILISATION AU LYCÉE JEAN TALON",
-   "date": "2026-09-30T10:55:53+00:00",
-   "court": true
   }
  ]
 }
