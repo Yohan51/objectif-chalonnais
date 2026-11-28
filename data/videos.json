@@ -1,7 +1,12 @@
 {
  "chaine": "UC3ehDb-pE4B8E-xOiPD76XQ",
- "maj": "2026-11-28T12:56:20.739Z",
+ "maj": "2026-11-28T20:42:34.918Z",
  "videos": [
+  {
+   "id": "gaE3JuxBV4g",
+   "titre": "Saint-Memmie était à l'honneur avec l'inauguration de son nouveau stade de cyclo-cross.",
+   "date": "2026-11-28T18:03:04+00:00"
+  },
   {
    "id": "emM_4KZokYY",
    "titre": "🇫🇷 CHÂLONS-EN-CHAMPAGNE🎄 PLACE FOCH : CHÂLONS LANCE LES FESTIVITÉS DE NOËL.",
@@ -72,11 +77,6 @@
    "id": "LHzhsK9NW_M",
    "titre": "🇫🇷 MARNE | AGRICULTURE🌾 Agriculture : Jonathan Bouton témoigne sur les difficultés du secteur",
    "date": "2026-10-07T14:15:40+00:00"
-  },
-  {
-   "id": "gnoBULT2_uU",
-   "titre": "🇫🇷 Châlons-en-Champagne 🎬 Des jeunes de plusieurs quartiers réalisent un clip.",
-   "date": "2026-10-03T16:24:26+00:00"
   }
  ]
 }
